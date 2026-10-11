@@ -2,10 +2,15 @@
 //  Theme.swift
 //  DiskDude
 //
-//  Reconstructed from reflection metadata: Theme struct with 11 colors
-//  (background, panel, card, border, divider, chip, track, text,
-//  textSecondary, textTertiary, ink), two presets (light/dark),
-//  injected into the environment as an EnvironmentObject/Environment value.
+//  Reconstructed from reflection metadata + the decoded Color(red:green:blue:)
+//  call sites in the palette-constructor functions: Theme struct with 14
+//  colors (background, panel, card, border, divider, chip, track, text,
+//  textSecondary, textTertiary, ink, onInk, used, free) + colorScheme,
+//  two presets (light/dark) injected into the environment. The RGB values
+//  below are byte-exact (Apple system-palette hexes: #FFFFFF, #F5F5F7,
+//  #D8D8DD, #E5E5EA, #F2F2F7, #1D1D1F, #6E6E73, #8E8E93, #FF6B4A,
+//  #FF3B30, #34C759 / #1E1E20, #28282B, #2C2C2E, #3F3F43, #38383A,
+//  #3A3A3C, #FF7A5C, #FF453A, #30D958).
 //
 
 import SwiftUI
@@ -55,39 +60,41 @@ struct Theme: Equatable {
         return Color(hue: hue, saturation: 0.45, brightness: 0.85)
     }
 
+    /// Light preset — every value decoded from the shipped binary.
     static let light = Theme(
-        background: Color(NSColor.controlBackgroundColor),
-        panel: Color(NSColor.windowBackgroundColor),
-        card: Color.white.opacity(0.92),
-        border: Color.black.opacity(0.12),
-        divider: Color.black.opacity(0.10),
-        chip: Color.black.opacity(0.06),
-        track: Color.black.opacity(0.10),
-        text: Color.primary,
-        textSecondary: Color.primary.opacity(0.65),
-        textTertiary: Color.primary.opacity(0.4),
-        ink: Color(red: 0.16, green: 0.28, blue: 0.92),
+        background: Color(red: 1, green: 1, blue: 1),
+        panel: Color(red: 245/255, green: 245/255, blue: 247/255),
+        card: Color(red: 1, green: 1, blue: 1),
+        border: Color(red: 216/255, green: 216/255, blue: 221/255),
+        divider: Color(red: 229/255, green: 229/255, blue: 234/255),
+        chip: Color(red: 242/255, green: 242/255, blue: 247/255),
+        track: Color(red: 229/255, green: 229/255, blue: 234/255),
+        text: Color(red: 29/255, green: 29/255, blue: 31/255),
+        textSecondary: Color(red: 110/255, green: 110/255, blue: 115/255),
+        textTertiary: Color(red: 142/255, green: 142/255, blue: 147/255),
+        ink: Color(red: 1, green: 107/255, blue: 74/255),
         onInk: .white,
-        used: Color(red: 0.16, green: 0.28, blue: 0.92),
-        free: Color.green.opacity(0.75),
+        used: Color(red: 1, green: 59/255, blue: 48/255),
+        free: Color(red: 52/255, green: 199/255, blue: 89/255),
         colorScheme: .light
     )
 
+    /// Dark preset — every value decoded from the shipped binary.
     static let dark = Theme(
-        background: Color(red: 0.10, green: 0.10, blue: 0.12),
-        panel: Color(red: 0.13, green: 0.13, blue: 0.16),
-        card: Color.white.opacity(0.06),
-        border: Color.white.opacity(0.14),
-        divider: Color.white.opacity(0.10),
-        chip: Color.white.opacity(0.09),
-        track: Color.white.opacity(0.14),
-        text: Color.white,
-        textSecondary: Color.white.opacity(0.70),
-        textTertiary: Color.white.opacity(0.45),
-        ink: Color(red: 0.55, green: 0.65, blue: 1.0),
+        background: Color(red: 30/255, green: 30/255, blue: 32/255),
+        panel: Color(red: 40/255, green: 40/255, blue: 43/255),
+        card: Color(red: 44/255, green: 44/255, blue: 46/255),
+        border: Color(red: 63/255, green: 63/255, blue: 67/255),
+        divider: Color(red: 56/255, green: 56/255, blue: 58/255),
+        chip: Color(red: 58/255, green: 58/255, blue: 60/255),
+        track: Color(red: 58/255, green: 58/255, blue: 60/255),
+        text: Color(red: 245/255, green: 245/255, blue: 247/255),
+        textSecondary: Color(red: 174/255, green: 174/255, blue: 178/255),
+        textTertiary: Color(red: 142/255, green: 142/255, blue: 147/255),
+        ink: Color(red: 1, green: 122/255, blue: 92/255),
         onInk: .white,
-        used: Color(red: 0.55, green: 0.65, blue: 1.0),
-        free: Color.green.opacity(0.8),
+        used: Color(red: 1, green: 69/255, blue: 58/255),
+        free: Color(red: 48/255, green: 209/255, blue: 88/255),
         colorScheme: .dark
     )
 
