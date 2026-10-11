@@ -72,6 +72,7 @@ struct ContentView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
         panel.message = "DiskDude measures the size of files in the folder you pick. Nothing is moved or deleted unless you confirm it."
+        panel.prompt = "Scan"
         if panel.runModal() == .OK, let url = panel.url {
             viewModel.scan(root: url)
         }

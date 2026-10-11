@@ -45,7 +45,7 @@ struct MonitorView: View {
                                 snapshot.cpu.user, snapshot.cpu.system, snapshot.cpu.idle,
                             ], total: 100)
                             Text("Load \(snapshot.cpu.loadAverage, specifier: "%.2f")")
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .foregroundStyle(theme.textSecondary)
                         }
                         .padding(14)
@@ -58,7 +58,7 @@ struct MonitorView: View {
                             UsageRing(fraction: snapshot.memory.pressure, lineWidth: 6)
                                 .frame(width: 54, height: 54)
                             Text("\(formatBytes(snapshot.memory.used)) of \(formatBytes(snapshot.memory.total))")
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .foregroundStyle(theme.textSecondary)
                         }
                         .padding(14)
@@ -73,13 +73,13 @@ struct MonitorView: View {
                             Sparkline(values: freeSpaceHistory, color: theme.ink, maxValue: nil)
                                 .frame(height: 44)
                             Text("\(formatBytes(viewModel.disk.free)) free of \(formatBytes(viewModel.disk.total))")
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .foregroundStyle(theme.textSecondary)
                             if !storageExpanded {
                                 Button("Show more volumes") {
                                     withAnimation { storageExpanded = true }
                                 }
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .buttonStyle(.link)
                             }
                         }
@@ -95,7 +95,7 @@ struct MonitorView: View {
                                 stat("↑", snapshot.network.upBytesPerSec, theme.categoryColor(.audio))
                             }
                             Text("Session: ↓ \(formatBytes(snapshot.network.sessionDown)) · ↑ \(formatBytes(snapshot.network.sessionUp))")
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .foregroundStyle(theme.textTertiary)
                         }
                         .padding(14)
@@ -112,13 +112,13 @@ struct MonitorView: View {
                                 Button("Show fewer volumes") {
                                     withAnimation { storageExpanded = false }
                                 }
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                                 .buttonStyle(.link)
                             }
                             ForEach(volumes) { v in
                                 HStack {
                                     Image(systemName: "internaldrive.fill")
-                                        .font(.system(size: 10))
+                                        .font(.system(size: 10.5))
                                     Text(v.name).font(.system(size: 11, weight: .medium))
                                     Spacer()
                                     UsageRing(fraction: v.total > 0 ? Double(v.total - v.free) / Double(v.total) : 0, lineWidth: 3)

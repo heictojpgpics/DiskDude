@@ -47,7 +47,7 @@ struct TopBar: View {
             // Filter field
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass")
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                     .foregroundStyle(theme.textTertiary)
                 TextField("Filter by name...", text: $viewModel.filter)
                     .textFieldStyle(.plain)
@@ -111,7 +111,7 @@ struct TopBar: View {
         } label: {
             HStack(spacing: 6) {
                 Image(systemName: tab.systemImage)
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 10.5, weight: .medium))
                 Text(tab.title)
                     .font(.system(size: 12, weight: .semibold))
             }

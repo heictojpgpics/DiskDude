@@ -55,7 +55,7 @@ struct ExploreView: View {
         } label: {
             HStack(spacing: 5) {
                 Image(systemName: mode.systemImage)
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                 Text(mode.title)
                     .font(.system(size: 11, weight: .semibold))
             }
@@ -80,7 +80,7 @@ struct ExploreView: View {
                     viewModel.navigateUp()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 10.5, weight: .bold))
                 }
                 .buttonStyle(.plain)
                 Text(folder.path)
@@ -111,12 +111,12 @@ struct ExploreView: View {
     private var depthSlider: some View {
         HStack(spacing: 6) {
             Image(systemName: "square.3.layers.3d")
-                .font(.system(size: 10))
+                .font(.system(size: 10.5))
                 .foregroundStyle(theme.textTertiary)
             Slider(value: $viewModel.depth, in: 1...8, step: 1)
                 .frame(width: 110)
             Text("\(Int(viewModel.depth))")
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: 10.5, weight: .semibold))
                 .foregroundStyle(theme.textSecondary)
         }
         .help("How deep to draw")
@@ -125,7 +125,7 @@ struct ExploreView: View {
     private var abbreviateToggle: some View {
         Toggle(isOn: $viewModel.abbreviateLabels) {
             Text("Abbrev")
-                .font(.system(size: 10))
+                .font(.system(size: 10.5))
         }
         .toggleStyle(.checkbox)
         .help("Abbreviate labels to initials")

@@ -37,7 +37,7 @@ struct SnapshotsContent: View {
             if store.summaries.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 40))
+                        .font(.system(size: 35))
                         .foregroundStyle(theme.textTertiary)
                     Text("No snapshots yet. Take one after a scan, then compare it to a later scan.")
                         .font(.system(size: 12))
@@ -249,7 +249,7 @@ struct CleanupQueueView: View {
                         .foregroundStyle(theme.textSecondary)
                     Spacer()
                     OutlineButton(title: "Move to Trash…",
-                                  systemImage: "trash",
+                                  systemImage: "trash.fill",
                                   height: 32, fontSize: 12) {
                         showConfirm = true
                     }
@@ -267,11 +267,11 @@ struct CleanupQueueView: View {
 
             if !failures.isEmpty {
                 Text("\(failures.count) item(s) couldn't be moved to the Trash:\n\(failures.map(\.lastPathComponent).joined(separator: "\n"))")
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                     .foregroundStyle(.red)
                     .padding(14)
                 Text("\(failures.count) item(s) — check permissions.")
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                     .foregroundStyle(.red)
                     .padding(.horizontal, 14)
             }
@@ -302,7 +302,7 @@ struct CleanupBadgeButton: View {
                     .font(.system(size: 11, weight: .medium))
                 if queue.count > 0 {
                     Text("\(queue.count)")
-                        .font(.system(size: 10, weight: .bold).monospacedDigit())
+                        .font(.system(size: 10.5, weight: .bold).monospacedDigit())
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Capsule().fill(theme.ink))
@@ -336,7 +336,7 @@ struct QuickWinRow: View {
                     .font(.system(size: 13, weight: .medium))
                 Spacer()
                 Text(win.matches.count == 1 ? "1 item" : "\(win.matches.count) items")
-                    .font(.system(size: 10, weight: .medium))
+                    .font(.system(size: 10.5, weight: .medium))
                     .foregroundStyle(theme.textTertiary)
                 Text(formatBytes(win.totalSize))
                     .font(.system(size: 13, weight: .medium).monospacedDigit())
@@ -344,7 +344,7 @@ struct QuickWinRow: View {
             ForEach(win.matches.prefix(6), id: \.id) { node in
                 HStack {
                     Text(node.path)
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textSecondary)
                         .lineLimit(1)
                     Spacer()
@@ -392,7 +392,7 @@ struct UnreadableFoldersNotice: View {
                         .font(.system(size: 11, weight: .semibold))
                     if !viewModel.unreadableFolderSamples.isEmpty {
                         Text("macOS denied access. Granting Full Disk Access includes privacy-protected locations; folders owned by the system or other users stay unreadable.")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                     }
                 }
@@ -401,7 +401,7 @@ struct UnreadableFoldersNotice: View {
                     Button("Reveal in Finder") {
                         NSWorkspace.shared.activateFileViewerSelectingURLs([URL(fileURLWithPath: first)])
                     }
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                     .buttonStyle(.link)
                 }
                 Button("Open Privacy Settings") {
@@ -409,7 +409,7 @@ struct UnreadableFoldersNotice: View {
                         NSWorkspace.shared.open(url)
                     }
                 }
-                .font(.system(size: 10))
+                .font(.system(size: 10.5))
                 .buttonStyle(.link)
                 SquareIconButton(systemImage: "xmark", label: "Dismiss", size: 11) {
                     viewModel.showAccessNotice = false
@@ -461,7 +461,7 @@ struct InspectorContent: View {
                             .font(.system(size: 14, weight: .bold))
                             .lineLimit(2)
                         Text(node.isDirectory ? "Folder" : node.category.label)
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                     }
                 }
@@ -490,7 +490,7 @@ struct InspectorContent: View {
                         if v > 0 {
                             HStack {
                                 Circle().fill(theme.categoryColor(cat)).frame(width: 7, height: 7)
-                                Text(cat.label).font(.system(size: 10))
+                                Text(cat.label).font(.system(size: 10.5))
                                 Spacer()
                                 Text(formatBytes(v))
                                     .font(.system(size: 10).monospacedDigit())
@@ -518,7 +518,7 @@ struct InspectorContent: View {
                     let url = URL(fileURLWithPath: node.path)
                     if queue.contains(url: url) {
                         OutlineButton(title: "Remove from cleanup",
-                                      systemImage: "trash.slash",
+                                      systemImage: "trash.fill",
                                       height: 30, fontSize: 11,
 ) {
                             queue.remove(url: url)
@@ -539,7 +539,7 @@ struct InspectorContent: View {
     private func row(_ title: String, _ value: String) -> some View {
         HStack {
             Text(title)
-                .font(.system(size: 10))
+                .font(.system(size: 10.5))
                 .foregroundStyle(theme.textTertiary)
             Spacer()
             Text(value)

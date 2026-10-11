@@ -17,7 +17,7 @@ struct EmptyScanView: View {
     var body: some View {
         VStack(spacing: 18) {
             Image(systemName: "internaldrive.fill")
-                .font(.system(size: 56))
+                .font(.system(size: 33))
                 .foregroundStyle(theme.ink)
             Text("Map every byte on your Mac")
                 .font(.system(size: 26, weight: .bold))
@@ -34,7 +34,7 @@ struct EmptyScanView: View {
                     } label: {
                         HStack(spacing: 5) {
                             Image(systemName: "clock.arrow.circlepath")
-                                .font(.system(size: 10))
+                                .font(.system(size: 10.5))
                             Text(url.lastPathComponent)
                                 .lineLimit(1)
                         }
@@ -73,7 +73,7 @@ struct ScanningView: View {
             Text("\(filesScanned.formatted()) files · \(formatBytes(bytesScanned))")
                 .font(.system(size: 15, weight: .semibold))
             Text(currentPath)
-                .font(.system(size: 10, design: .monospaced))
+                .font(.system(size: 10.5, design: .monospaced))
                 .foregroundStyle(theme.textTertiary)
                 .lineLimit(1)
                 .truncationMode(.head)

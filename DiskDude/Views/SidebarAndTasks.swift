@@ -22,7 +22,7 @@ struct SidebarView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                         Text(url.lastPathComponent)
                             .font(.system(size: 11))
@@ -39,7 +39,7 @@ struct SidebarView: View {
             Spacer()
             VStack(alignment: .leading, spacing: 6) {
                 Text("Macintosh HD")
-                    .font(.system(size: 10, weight: .semibold))
+                    .font(.system(size: 10.5, weight: .semibold))
                 SegmentedBar(segments: [Double(viewModel.disk.used), Double(viewModel.disk.free)],
                              total: Double(max(1, viewModel.disk.total)))
             }

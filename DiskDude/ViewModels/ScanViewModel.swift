@@ -79,25 +79,22 @@ final class ScanViewModel: ObservableObject {
 
     private func restoreSettings() {
         let defaults = UserDefaults.standard
-        // DISKDUDE_MODE stores the visualization mode across launches.
-        if let modeRaw = defaults.string(forKey: "DISKDUDE_MODE"),
-           let saved = VisualizationMode(rawValue: modeRaw) {
-            mode = saved
+        // Persisted keys recovered from the binary's bridged NSString
+        // literals: "theme" (ThemeName raw value) and "recentScans"
+        // (array of scanned-folder paths).
+        if let savedTheme = defaults.string(forKey: "theme"),
+           let name = ThemeName(rawValue: savedTheme) {
+            themeName = name
         }
-        // DISKDUDE_SCAN / recentScans store recent scan folders.
-        if let data = defaults.data(forKey: "DISKDUDE_SCAN") {
-            recents = (try? JSONDecoder().decode([URL].self, from: data)) ?? []
-        } else if let paths = defaults.stringArray(forKey: "recentScans") {
+        if let paths = defaults.stringArray(forKey: "recentScans") {
             recents = paths.map { URL(fileURLWithPath: $0) }
         }
     }
 
     private func persistSettings() {
         let defaults = UserDefaults.standard
-        defaults.set(mode.rawValue, forKey: "DISKDUDE_MODE")
-        if let data = try? JSONEncoder().encode(recents) {
-            defaults.set(data, forKey: "DISKDUDE_SCAN")
-        }
+        defaults.set(themeName.rawValue, forKey: "theme")
+        defaults.set(recents.map(\.path), forKey: "recentScans")
     }
 
     /// Track app activation to re-check volume info

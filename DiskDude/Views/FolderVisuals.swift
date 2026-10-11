@@ -88,7 +88,7 @@ struct FolderCard: View {
                     Text(formatBytes(node.sizeOnDisk))
                         .font(.system(size: 15, weight: .bold))
                     Text("· \(node.fileCount) files \(node.folderCount > 0 ? "· \(node.folderCount - 1) folders" : "")")
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textTertiary)
                     Spacer()
                 }
@@ -132,7 +132,7 @@ struct FileTile: View {
                         .lineLimit(1)
                         .foregroundStyle(theme.text)
                     Text(formatBytes(node.sizeOnDisk))
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textTertiary)
                 }
                 Spacer()

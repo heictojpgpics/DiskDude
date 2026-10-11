@@ -280,7 +280,7 @@ struct UntouchedCard: View {
                     HStack(spacing: 8) {
                         Image(systemName: queue.contains(url: URL(fileURLWithPath: node.path))
                               ? "checkmark.circle.fill" : "clock.arrow.circlepath")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                         Text(node.path)
                             .font(.system(size: 11))
@@ -293,7 +293,7 @@ struct UntouchedCard: View {
                                          size: node.sizeOnDisk,
                                          reason: "Staged for Cleanup")
                         }
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.system(size: 10.5, weight: .semibold))
                         .buttonStyle(.borderless)
                     }
                 }
@@ -333,7 +333,7 @@ struct OutlineListView: View {
         } label: {
             HStack(spacing: 8) {
                 Image(systemName: node.isDirectory ? "folder.fill" : "doc")
-                    .font(.system(size: 10))
+                    .font(.system(size: 10.5))
                     .foregroundStyle(theme.categoryColor(node.category))
                 Text(node.name)
                     .font(.system(size: 11, weight: node.isDirectory ? .semibold : .regular))

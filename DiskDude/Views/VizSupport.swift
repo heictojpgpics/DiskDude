@@ -200,7 +200,7 @@ struct HoverChip: View {
                 .font(.system(size: 11, weight: .semibold))
                 .lineLimit(1)
             Text(formatBytes(scanSize > 0 ? scanSize : node.sizeOnDisk))
-                .font(.system(size: 10))
+                .font(.system(size: 10.5))
                 .foregroundStyle(theme.textSecondary)
             if scanSize > 0 {
                 Text(formatPercentage(node.sizeOnDisk, of: scanSize))

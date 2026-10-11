@@ -30,7 +30,7 @@ struct DuplicatesView: View {
             } else if viewModel.duplicateGroups.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "doc.on.doc")
-                        .font(.system(size: 40))
+                        .font(.system(size: 35))
                         .foregroundStyle(theme.textTertiary)
                     if viewModel.root == nil {
                         Text("Run a scan first.")
@@ -88,7 +88,7 @@ struct DuplicateGroupRow: View {
                                   reason: "Staged for Cleanup")
                     }
                 }
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: 10.5, weight: .semibold))
                 .buttonStyle(.borderless)
             }
             ForEach(group.files, id: \.id) { file in
@@ -97,7 +97,7 @@ struct DuplicateGroupRow: View {
                         .font(.system(size: 9))
                         .foregroundStyle(theme.categoryColor(file.category))
                     Text(file.path)
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textSecondary)
                         .lineLimit(1)
                     Spacer()
@@ -240,13 +240,13 @@ struct AppRow: View {
                         }
                     }
                     Text("\(app.bundleIdentifier) · \(formatBytes(app.bundleSize))")
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textTertiary)
                 }
                 Spacer()
                 if let lastUsed = app.lastUsedDate {
                     Text(lastUsed.formatted(.relative(presentation: .named)))
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(theme.textTertiary)
                 }
                 Button(action: uninstall) {
@@ -257,7 +257,7 @@ struct AppRow: View {
                             Image(systemName: "trash")
                             Text("Uninstall")
                         }
-                        .font(.system(size: 10, weight: .semibold))
+                        .font(.system(size: 10.5, weight: .semibold))
                     }
                 }
                 .buttonStyle(.borderless)
@@ -272,12 +272,12 @@ struct AppRow: View {
                 ForEach(app.leftovers) { group in
                     HStack(spacing: 8) {
                         Image(systemName: "folder.badge.gearshape")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                         Text(group.category)
                             .font(.system(size: 11, weight: .medium))
                         Text("\(group.urls.count) items · \(formatBytes(group.totalSize))")
-                            .font(.system(size: 10))
+                            .font(.system(size: 10.5))
                             .foregroundStyle(theme.textTertiary)
                         Spacer()
                     }
