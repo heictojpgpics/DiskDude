@@ -14,7 +14,7 @@ struct TreemapView: View {
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
     @State private var hovered: FileNode?
-    @State private var cache = LayoutCache<CanvasKey, [Cell]>()
+    @State private var cache = LayoutCache<VizKey, [Cell]>()
 
     struct Cell: Identifiable, Hashable {
         let node: FileNode
@@ -27,31 +27,37 @@ struct TreemapView: View {
 
     var body: some View {
         GeometryReader { geo in
-            let key = CanvasKey(
-                layout: VizKey(generation: viewModel.generation,
-                               node: folder.id,
-                               width: Int(geo.size.width),
-                               height: Int(geo.size.height),
-                               depth: Int(viewModel.depth),
-                               mode: viewModel.colorMode),
-                width: Int(geo.size.width),
-                height: Int(geo.size.height),
-                selected: viewModel.selectedNode?.id,
-                scheme: viewModel.colorSchemeActive,
-                abbreviateLabels: viewModel.abbreviateLabels)
-
-            let cells = cache.compute(key: key) {
+            let vizKey = VizKey(generation: viewModel.generation,
+                                node: folder.id,
+                                width: Int(geo.size.width),
+                                height: Int(geo.size.height),
+                                depth: Int(viewModel.depth),
+                                mode: viewModel.colorMode)
+            let cells = cache.compute(key: vizKey) {
                 layout(root: folder, in: CGRect(origin: .zero, size: geo.size))
             }
-
-            ZStack(alignment: .topLeading) {
-                ForEach(cells) { cell in
-                    cellView(cell)
-                        .frame(width: cell.frame.width, height: cell.frame.height)
-                        .position(x: cell.frame.midX, y: cell.frame.midY)
-                }
+            CachedCanvas(key: CanvasKey(layout: vizKey,
+                                        width: Int(geo.size.width),
+                                        height: Int(geo.size.height),
+                                        selected: viewModel.selectedNode?.id,
+                                        scheme: viewModel.colorSchemeActive,
+                                        abbreviateLabels: viewModel.abbreviateLabels)) { context, size in
+                draw(context: context, size: size, cells: cells)
             }
             .clipped()
+            .contentShape(Rectangle())
+            .onTapGesture { location in
+                if let cell = cells.last(where: { $0.frame.contains(location) }) {
+                    if cell.node.isDirectory {
+                        viewModel.enter(folder: cell.node)
+                    } else {
+                        viewModel.select(cell.node)
+                    }
+                }
+            }
+            .onHover { over in
+                hovered = nil
+            }
             .overlay(alignment: .topLeading) {
                 if let hovered {
                     HoverChip(node: hovered)
@@ -64,34 +70,55 @@ struct TreemapView: View {
         .background(theme.background)
     }
 
-    @ViewBuilder
-    private func cellView(_ cell: Cell) -> some View {
-        let selected = viewModel.selectedNode === cell.node
-        RoundedRectangle(cornerRadius: 3)
-            .fill(cell.color.opacity(selected ? 1.0 : 0.88))
-            .overlay(RoundedRectangle(cornerRadius: 3)
-                .strokeBorder(selected ? theme.text : theme.background.opacity(0.85), lineWidth: selected ? 2 : 1.2))
-            .overlay(alignment: .topLeading) {
-                if cell.frame.width > 44 && cell.frame.height > 18 {
-                    Text(cell.node.name)
-                        .font(.system(size: min(9.5, cell.frame.width / 11), weight: .semibold))
-                        .foregroundStyle(.black.opacity(0.75))
-                        .padding(3)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
+    /// Canvas rendering (recovered byte-level from the binary's
+    /// GraphicsContext calls): container panel with 0.5pt inset and 8pt
+    /// continuous corners; file tiles fill at 0.85 opacity with
+    /// min(4, side/2) radius; folder tiles fill at 0.4 plus a
+    /// 1pt black-6% stroke with min(5, side/2) radius; the selected tile
+    /// gets a 1.5pt ink stroke; labels are Text drawn at points with the
+    /// (width - 12) / 6 size heuristic capped at 9.5 and skipped under
+    /// 58×22pt or fewer than 3 units of space.
+    private func draw(context: GraphicsContext, size: CGSize, cells: [Cell]) {
+        let bounds = CGRect(origin: .zero, size: size)
+        // container panel
+        let container = Path(roundedRect: bounds.insetBy(0.5, 0.5),
+                             cornerRadius: 8, style: .continuous)
+        context.fill(container, with: .color(theme.panel))
+        context.stroke(container, with: .color(theme.border), lineWidth: 1)
+
+        for cell in cells {
+            let radius = min(cell.node.isDirectory ? 5.0 : 4.0,
+                             min(cell.frame.width, cell.frame.height) * 0.5)
+            let path = Path(roundedRect: cell.frame, cornerRadius: radius, style: .continuous)
+            if cell.node.isDirectory {
+                context.fill(path, with: .color(cell.color.opacity(0.4)))
+                context.stroke(path, with: .color(.black.opacity(0.06)), lineWidth: 1)
+            } else {
+                context.fill(path, with: .color(cell.color.opacity(0.85)))
             }
-            .onTapGesture {
-                if cell.node.isDirectory {
-                    viewModel.enter(folder: cell.node)
-                } else {
-                    viewModel.select(cell.node)
-                }
-            }
-            .onHover { over in
-                hovered = over ? cell.node : nil
-            }
-            .contextMenu { NodeContextMenu(node: cell.node).environmentObject(viewModel) }
+        }
+
+        // selection highlight
+        if let selected = viewModel.selectedNode,
+           let cell = cells.first(where: { $0.node === selected }) {
+            let path = Path(roundedRect: cell.frame, cornerRadius: 4, style: .continuous)
+            context.stroke(path, with: .color(theme.ink), lineWidth: 1.5)
+        }
+
+        // labels
+        for cell in cells where cell.frame.width > 58 && cell.frame.height > 22 {
+            let sizeUnits = Int((cell.frame.width - 12) / 6)
+            guard sizeUnits >= 3 else { continue }
+            let fontSize = min(9.5, Double(sizeUnits))
+            let name = cell.node.name
+            let shown = name.count <= sizeUnits ? name : String(name.prefix(max(1, sizeUnits - 1))) + "…"
+            context.draw(
+                Text(shown)
+                    .font(.system(size: fontSize, weight: .semibold))
+                    .foregroundColor(.black.opacity(0.75)),
+                at: CGPoint(x: cell.frame.minX + 6, y: cell.frame.minY + 8),
+                anchor: .topLeading)
+        }
     }
 
     // MARK: - Squarified layout (Bruls, Huizing & van Wijk)

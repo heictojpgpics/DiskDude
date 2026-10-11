@@ -39,10 +39,10 @@ final class LayoutCache<Key: Hashable, Value> {
     var key: Key?
     var value: Value?
 
-    func compute(key: Key, _ make: () -> Value) -> Value {
-        if let key, key == key, let value { return value }
+    func compute(key newKey: Key, _ make: () -> Value) -> Value {
+        if let cached = key, cached == newKey, let value { return value }
         let fresh = make()
-        self.key = key
+        self.key = newKey
         self.value = fresh
         return fresh
     }
