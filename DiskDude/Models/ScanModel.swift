@@ -113,17 +113,17 @@ enum ColorMode: String, CaseIterable, Identifiable, Hashable {
 
     var title: String {
         switch self {
-        case .type: return "Type"
-        case .folder: return "Folder"
-        case .age: return "Age"
+        case .type: return "By type"
+        case .folder: return "By folder"
+        case .age: return "By age"
         }
     }
 }
 
 /// Two theme presets used by the Theme struct.
 enum ThemeName: String, CaseIterable, Identifiable, Hashable {
-    case light
-    case dark
+    case light = "Light"
+    case dark = "Dark"
 
     var id: String { rawValue }
 }

@@ -230,6 +230,11 @@ final class DiskScanner: ObservableObject {
         lock.unlock()
 
         if isDirectory {
+            // System bookkeeping volumes the scanner refuses to descend into
+            // (string literals recovered from the binary).
+            if childPath == "/.Spotlight-V100" || childPath == "/.fseventsd" {
+                return
+            }
             stack.push(Job(node: child, path: childPath, insideApp: insideAppBundle))
         }
     }
@@ -245,24 +250,31 @@ final class DiskScanner: ObservableObject {
 }
 
 extension FileCategory {
-    /// Categorize by file extension (recovered switch on extension sets).
+    /// Extension tables stored in the binary as single space-separated
+    /// literals; split at runtime (byte-exact recovery).
+    static let videoExtensions = "mp4 mov m4v mkv avi wmv flv webm mpg mpeg 3gp mts m2ts vob"
+    static let audioExtensions = "mp3 wav aac m4a flac ogg aiff aif alac wma opus mid midi caf m4b"
+    static let imageExtensions = "jpg jpeg png gif heic heif tiff tif bmp webp svg raw cr2 cr3 nef arw dng psd ai sketch fig ico icns exr"
+    static let documentExtensions = "pdf doc docx xls xlsx ppt pptx key pages numbers txt rtf md csv epub odt ods odp html htm tex"
+    static let developerExtensions = "swift m mm h c cc cpp hpp js mjs cjs ts tsx jsx json py pyc rb go rs java kt class jar o a dylib so node wasm map lock yml yaml toml xml sh zsh css scss less gradle pbxproj storyboard xib sql php vue svelte dart lua r ipynb tsbuildinfo d"
+    static let archiveExtensions = "zip gz tgz tar bz2 xz 7z rar dmg iso pkg xip zst lz4 cab"
+    static let otherExtensions = "plist log db sqlite sqlite3 sqlite-wal sqlite-shm db-wal db-shm wal shm cache dat ldb idx pack vmdk img sparseimage sparsebundle asar"
+
+    private static func matches(_ extensions: String, _ ext: String) -> Bool {
+        extensions.split(separator: " ").contains { $0 == ext }
+    }
+
+    /// Categorize by file extension.
     static func from(pathExtension ext: String, isApp: Bool) -> FileCategory {
         if isApp { return .application }
-        switch ext.lowercased() {
-        case "mov", "mp4", "m4v", "avi", "mkv", "wmv", "flv", "webm", "mpg", "mpeg":
-            return .video
-        case "mp3", "m4a", "aac", "wav", "aiff", "flac", "ogg", "wma":
-            return .audio
-        case "jpg", "jpeg", "png", "gif", "heic", "tiff", "bmp", "webp", "svg", "raw", "cr2":
-            return .image
-        case "pdf", "doc", "docx", "txt", "rtf", "md", "pages", "key", "ppt", "pptx", "xls", "xlsx", "csv", "epub":
-            return .document
-        case "zip", "rar", "7z", "tar", "gz", "bz2", "xz", "dmg", "iso", "pkg", "ipa":
-            return .archive
-        case "swift", "m", "h", "c", "cpp", "mm", "js", "ts", "tsx", "jsx", "py", "rb", "go", "rs", "java", "kt", "sh", "pl", "php", "json", "yaml", "yml", "toml", "xcodeproj", "xcworkspace", "plist":
-            return .developer
-        default:
-            return .other
-        }
+        let e = ext.lowercased()
+        if matches(videoExtensions, e) { return .video }
+        if matches(audioExtensions, e) { return .audio }
+        if matches(imageExtensions, e) { return .image }
+        if matches(documentExtensions, e) { return .document }
+        if matches(developerExtensions, e) { return .developer }
+        if matches(archiveExtensions, e) { return .archive }
+        if matches(otherExtensions, e) { return .other }
+        return .other
     }
 }

@@ -39,18 +39,17 @@ enum AppUninstaller {
         var totalSize: Int64 = 0
     }
 
-    /// The Library subfolders searched for leftovers, with their display
-    /// category names (recovered from the uninstaller's string usage).
+    /// The Library subfolders searched for leftovers (byte-exact list from
+    /// the binary's __cstring literals, kept as "Library/…" home-relative
+    /// paths).
     static let leftoverLocations: [(category: String, subpath: String)] = [
-        ("Application Support", "Application Support"),
-        ("Caches", "Caches"),
-        ("Preferences", "Preferences"),
-        ("Containers", "Containers"),
-        ("Group Containers", "Group Containers"),
-        ("Logs", "Logs"),
-        ("Saved Application State", "Saved Application State"),
-        ("WebKit", "WebKit"),
-        ("Cookies", "Cookies"),
+        ("Preferences", "Library/Preferences"),
+        ("Application Support", "Library/Application Support"),
+        ("HTTP Storage", "Library/HTTP Storage"),
+        ("Saved Application State", "Library/Saved Application State"),
+        ("Containers", "Library/Containers"),
+        ("Caches", "Library/Caches"),
+        ("Logs", "Library/Logs"),
     ]
 
     /// Enumerate installed apps from /Applications (and ~/Applications).
@@ -110,7 +109,7 @@ enum AppUninstaller {
         let library = home.appendingPathComponent("Library")
         var groups: [LeftoverGroup] = []
         for (category, sub) in leftoverLocations {
-            let dir = library.appendingPathComponent(sub)
+            let dir = home.appendingPathComponent(sub)
             var urls: [URL] = []
             if let items = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.isDirectoryKey, .totalFileAllocatedSizeKey], options: [.skipsHiddenFiles]) {
                 for item in items {

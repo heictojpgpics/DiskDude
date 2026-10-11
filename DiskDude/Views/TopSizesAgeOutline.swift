@@ -12,15 +12,22 @@ import SwiftUI
 
 struct TopSizesView: View {
     enum Scope: String, CaseIterable, Identifiable {
-        case files
-        case folders
+        case inFolder
+        case filesAnywhere
+        case foldersAnywhere
         var id: String { rawValue }
-        var title: String { self == .files ? "Biggest files anywhere" : "Biggest folders anywhere" }
+        var title: String {
+            switch self {
+            case .inFolder: return "In this folder"
+            case .filesAnywhere: return "Biggest files anywhere"
+            case .foldersAnywhere: return "Biggest folders anywhere"
+            }
+        }
     }
-    let folder: FileNode
+    let folder: FileNode?
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
-    @State private var scope: Scope = .files
+    @State private var scope: Scope = .filesAnywhere
     @Namespace private var scopeNamespace
 
     var body: some View {
@@ -28,11 +35,11 @@ struct TopSizesView: View {
             HStack {
                 Picker("", selection: $scope) {
                     ForEach(Scope.allCases) { s in
-                        Text(s == .files ? "Files" : "Folders").tag(s)
+                        Text(s.title).tag(s)
                     }
                 }
                 .pickerStyle(.segmented)
-                .frame(width: 240)
+                .frame(width: 300)
                 Spacer()
             }
             .padding(14)
@@ -57,7 +64,14 @@ struct TopSizesView: View {
     }
 
     private var rows: [FileNode] {
-        scope == .files ? viewModel.rankings.files : viewModel.rankings.folders
+        switch scope {
+        case .inFolder:
+            return (folder ?? viewModel.currentFolder)?.sortedChildren.filter { $0.isDirectory == (scope == .foldersAnywhere) } ?? viewModel.rankings.files
+        case .filesAnywhere:
+            return viewModel.rankings.files
+        case .foldersAnywhere:
+            return viewModel.rankings.folders
+        }
     }
 
     private var maxBytes: Int64 { rows.first?.sizeOnDisk ?? 1 }
@@ -264,7 +278,8 @@ struct UntouchedCard: View {
             } else {
                 ForEach(report.untouched, id: \.id) { node in
                     HStack(spacing: 8) {
-                        Image(systemName: "clock.arrow.circlepath")
+                        Image(systemName: queue.contains(url: URL(fileURLWithPath: node.path))
+                              ? "checkmark.circle.fill" : "clock.arrow.circlepath")
                             .font(.system(size: 10))
                             .foregroundStyle(theme.textTertiary)
                         Text(node.path)
