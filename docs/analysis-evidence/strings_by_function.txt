@@ -1,0 +1,283 @@
+=== function @ 0x100021444 ===
+  [__cstring] 'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'
+=== function @ 0x10002d190 ===
+  [__cstring] 'CFBundleShortVersionString'
+=== function @ 0x1000438e0 ===
+  [__cstring] 'hw.memsize'
+=== function @ 0x1000486bc ===
+  [__cstring] 'play.rectangle.fill'
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+=== function @ 0x10005331c ===
+  [__cstring] 'Reading modification dates…'
+=== function @ 0x1000539bc ===
+  [__cstring] 'How old are these bytes?'
+=== function @ 0x100055328 ===
+  [__cstring] 'Bytes by last-modified month'
+=== function @ 0x1000582d0 ===
+  [__cstring] 'Nothing over 40 MB has sat untouched for a year here.'
+=== function @ 0x10005a060 ===
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+  [__cstring] 'play.rectangle.fill'
+  [__cstring] 'Remove from cleanup'
+=== function @ 0x10005b39c ===
+  [__cstring] 'checkmark.circle.fill'
+=== function @ 0x10005f1b8 ===
+  [__cstring] "Couldn't fully uninstall "
+=== function @ 0x10005ff24 ===
+  [__cstring] 'No apps found in /Applications.'
+  [__cstring] 'Measuring apps and their Library leftovers…'
+=== function @ 0x1000624ec ===
+  [__cstring] 'Add to Cleanup Queue'
+=== function @ 0x10006312c ===
+  [__cstring] ' leftover item(s) — '
+  [__cstring] " — go to the Trash. The app is quit first if it's running."
+=== function @ 0x100063444 ===
+  [__cstring] 'Open Privacy Settings'
+=== function @ 0x100063688 ===
+  [__cstring] 'x-apple.systempreferences:com.apple.preference.security?Privacy_AppBundles'
+=== function @ 0x1000637e8 ===
+  [__cstring] " item(s) couldn't be moved to the Trash:\n"
+  [__cstring] '\n\nAllow this app under Privacy & Security → App Management (or Full Disk Access), then try again.'
+=== function @ 0x1000697d0 ===
+  [__cstring] 'Reveal in Finder'
+=== function @ 0x10006a168 ===
+  [__cstring] 'arrow.up.forward.square'
+=== function @ 0x100074008 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x1000742f0 ===
+  [__cstring] ' item(s) — check permissions.'
+=== function @ 0x100074c68 ===
+  [__cstring] 'Move to Trash…'
+=== function @ 0x1000755d8 ===
+  [__cstring] 'Nothing staged yet. Stage items from any visualization, Quick Wins, Duplicates, or App Uninstaller.'
+=== function @ 0x1000768d4 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x100076db4 ===
+  [__cstring] '. Items go to the Trash, not permanent deletion — you can still recover them from there.'
+=== function @ 0x100076f30 ===
+  [__cstring] ' items to Trash?'
+  [__cstring] 'pth'
+=== function @ 0x100077520 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x10007a86c ===
+  [__cstring] 'Show or hide the inspector'
+=== function @ 0x10007d9c4 ===
+  [__cstring] 'macwindow.badge.plus'
+  [__cstring] 'waveform.path.ecg'
+  [__cstring] 'clock.arrow.circlepath'
+=== function @ 0x10007fa9c ===
+  [__cstring] 'Filter by name...'
+=== function @ 0x100080a88 ===
+  [__cstring] 'xmark.circle.fill'
+=== function @ 0x100081688 ===
+  [__cstring] 'internaldrive.fill'
+=== function @ 0x10008189c ===
+  [__oslogstring] "Accessing Environment<%s>'s value outside of being installed on a View. This will always read the default value and will not update."
+  [__cstring] "Accessing Environment's value outside of being installed on a View. This will always read the default value and will not update."
+=== function @ 0x100081b0c ===
+  [__oslogstring] "Accessing Environment<%s>'s value outside of being installed on a View. This will always read the default value and will not update."
+  [__cstring] "Accessing Environment's value outside of being installed on a View. This will always read the default value and will not update."
+=== function @ 0x10008532c ===
+  [__cstring] 'Run a scan first.'
+  [__cstring] ' items to Trash?'
+  [__cstring] ' could be reclaimed across '
+  [__cstring] 'No duplicate scan yet, or none found.'
+=== function @ 0x100086118 ===
+  [__cstring] 'Scan for Duplicates'
+=== function @ 0x100086948 ===
+  [__cstring] ' each · wastes '
+=== function @ 0x100086e08 ===
+  [__cstring] 'Keep this, stage the rest'
+=== function @ 0x10008739c ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x100089a8c ===
+  [__cstring] 'internaldrive.fill'
+  [__cstring] 'Map every byte on your Mac'
+  [__cstring] 'A quick scan builds nine ways to look at your disk. Nothing is ever deleted without you.'
+=== function @ 0x10008a3e0 ===
+  [__cstring] 'Choose Folder…'
+=== function @ 0x10008e62c ===
+  [__cstring] 'arrow.up.forward.square'
+  [__cstring] 'Reveal in Finder'
+=== function @ 0x10009046c ===
+  [__cstring] 'Where your bytes sit on a timeline'
+  [__cstring] 'Every file as a rectangle, sized by bytes'
+  [__cstring] 'Rings radiating out from the scan root'
+  [__cstring] 'Nested bubbles, one per folder'
+  [__cstring] 'The biggest items, ranked'
+  [__cstring] 'Browse folder by folder, sized as you go'
+  [__cstring] 'Depth top to bottom, size left to right'
+  [__cstring] 'Every item as an expandable outline'
+  [__cstring] 'Branches from the root, sized by weight'
+=== function @ 0x100091474 ===
+  [__cstring] 'Abbreviate labels to initials'
+=== function @ 0x100092678 ===
+  [__cstring] 'list.bullet.rectangle'
+  [__cstring] 'circle.hexagongrid.fill'
+  [__cstring] 'point.3.filled.connected.trianglepath.dotted'
+  [__cstring] 'smallcircle.filled.circle'
+  [__cstring] 'doc.plaintext.fill'
+  [__cstring] 'square.grid.2x2.fill'
+  [__cstring] 'th'
+=== function @ 0x1000937a0 ===
+  [__cstring] 'square.on.square'
+=== function @ 0x100093adc ===
+  [__cstring] 'square.3.layers.3d'
+=== function @ 0x100094dc4 ===
+  [__cstring] 'Open Privacy Settings'
+=== function @ 0x100095888 ===
+  [__cstring] " couldn't be read — sizes may be incomplete"
+  [__cstring] 'macOS denied access. Granting Full Disk Access includes privacy-protected locations; folders owned by the system or other users stay unreadable.'
+=== function @ 0x100096174 ===
+  [__cstring] ' items to Trash?'
+  [__cstring] 'pth'
+=== function @ 0x10009a63c ===
+  [__cstring] 'o Trash?'
+=== function @ 0x10009a908 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x10009c154 ===
+  [__cstring] 'Nothing here matches “'
+  [__cstring] 'This folder is empty.'
+=== function @ 0x1000a0868 ===
+  [__cstring] 'play.rectangle.fill'
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+=== function @ 0x1000a1964 ===
+  [__cstring] 'Reveal in Finder'
+=== function @ 0x1000a24c0 ===
+  [__cstring] 'Staged from Explore'
+=== function @ 0x1000a607c ===
+  [__cstring] 'Select an item to inspect it.'
+=== function @ 0x1000a7b0c ===
+  [__cstring] 'play.rectangle.fill'
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+=== function @ 0x1000a87ac ===
+  [__cstring] 'play.rectangle.fill'
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+=== function @ 0x1000ac484 ===
+  [__cstring] 'Staged for Cleanup'
+=== function @ 0x1000acb84 ===
+  [__cstring] 'arrow.up.forward.square'
+=== function @ 0x1000ad0b8 ===
+  [__cstring] 'doc.on.clipboard.fill'
+=== function @ 0x1000ad664 ===
+  [__cstring] 'Staged from Explore'
+=== function @ 0x1000b240c ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x1000b3cd8 ===
+  [__cstring] '— you can still recover them from there.'
+=== function @ 0x1000b42d4 ===
+  [__cstring] 'pth'
+=== function @ 0x1000b49d8 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x1000b9f40 ===
+  [__cstring] 'Pressure over time'
+=== function @ 0x1000bc2f4 ===
+  [__cstring] 'Show fewer volumes'
+  [__cstring] 'Free space over time'
+=== function @ 0x1000bcec0 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x1000bd4f4 ===
+  [__cstring] ' items to Trash?'
+=== function @ 0x1000bf6ec ===
+  [__cstring] 'TOP PROCESSES BY '
+=== function @ 0x1000c050c ===
+  [__cstring] 'Filter processes'
+=== function @ 0x1000c0fc0 ===
+  [__cstring] 'No matching processes'
+=== function @ 0x1000c41d4 ===
+  [__cstring] 'pth'
+=== function @ 0x1000c64e0 ===
+  [__cstring] 'pth'
+=== function @ 0x1000c7680 ===
+  [__cstring] '— you can still recover them from there.'
+=== function @ 0x1000c7ca8 ===
+  [__cstring] 'lor'
+=== function @ 0x1000c8f7c ===
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+  [__cstring] 'play.rectangle.fill'
+=== function @ 0x1000caa0c ===
+  [__cstring] 'internaldrive.fill'
+=== function @ 0x1000cc94c ===
+  [__cstring] 'clock.arrow.circlepath'
+=== function @ 0x1000ce848 ===
+  [__cstring] 'arrow.up.forward.square'
+  [__cstring] 'doc.on.clipboard.fill'
+=== function @ 0x1000d12cc ===
+  [__cstring] 'shippingbox.fill'
+  [__cstring] 'arrow.down.circle.fill'
+  [__cstring] 'clock.arrow.circlepath'
+=== function @ 0x1000d1a34 ===
+  [__cstring] 'Xcode DerivedData'
+=== function @ 0x1000d2078 ===
+  [__cstring] 'Reveal in Finder'
+=== function @ 0x1000d2510 ===
+  [__cstring] 'Xcode DerivedData'
+=== function @ 0x1000d40c4 ===
+  [__cstring] 'lor'
+=== function @ 0x1000d8664 ===
+  [__cstring] 'No snapshots yet. Take one after a scan, then compare it to a later scan.'
+=== function @ 0x1000d8fa8 ===
+  [__cstring] 'Take Snapshot Now'
+=== function @ 0x1000d9890 ===
+  [__cstring] 'Pick a Before and an After snapshot to see what grew.'
+  [__cstring] "Couldn't read one of these snapshots."
+  [__cstring] 'These snapshots are of different folders. Pick two of the same folder.'
+  [__cstring] 'No folder changed size.'
+=== function @ 0x1000e3c60 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e3d44 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e3df4 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e3e80 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e3f94 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e5950 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e5c0c ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e5e5c ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e62e0 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000e73b4 ===
+  [__cstring] 'chevron.left.forwardslash.chevron.right'
+  [__cstring] 'shippingbox.fill'
+  [__cstring] 'play.rectangle.fill'
+=== function @ 0x1000e98b4 ===
+  [__cstring] 'Biggest files anywhere'
+  [__cstring] 'Biggest folders anywhere'
+=== function @ 0x1000f160c ===
+  [__cstring] 'kCFAllocatorNull'
+  [__cstring] 'CFDataCreateWithBytesNoCopy'
+  [__cstring] 'CFPropertyListCreateWithData'
+  [__cstring] 'CFPropertyListCreateFromXMLData'
+  [__cstring] 'CFStringCreateWithCStringNoCopy'
+  [__cstring] 'CFDictionaryGetValue'
+  [__cstring] 'CFGetTypeID'
+  [__cstring] 'CFStringGetTypeID'
+  [__cstring] 'CFStringGetCString'
+  [__cstring] 'CFRelease'
+  [__cstring] '/System/Library/CoreServices/SystemVersion.plist'
+  [__cstring] 'ProductVersion'
+  [__cstring] '%d.%d.%d'
+=== function @ 0x1000f1974 ===
+  [__cstring] '__isPlatformOrVariantPlatformVersionAtLeast'
+  [__cstring] 'os_version_check.c'
+  [__cstring] 'Platform2 == PLATFORM_MACOS && "unexpected platform"'

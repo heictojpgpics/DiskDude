@@ -1,0 +1,619 @@
+[
+ {
+  "vmaddr": 4296254736,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296249992,
+  "ro_flags": 192,
+  "instance_start": 16,
+  "instance_size": 16,
+  "name": "_TtC8DiskDude12CleanupQueue",
+  "ivars": [
+   {
+    "name": "_items",
+    "type": "",
+    "size": 0,
+    "offset": 4296254632
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude12CleanupQueue",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296255176,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296246088,
+  "ro_flags": 128,
+  "instance_start": 16,
+  "instance_size": 128,
+  "name": "_TtC8DiskDude8FileNode",
+  "ivars": [
+   {
+    "name": "name",
+    "type": "",
+    "size": 16,
+    "offset": 4295966584
+   },
+   {
+    "name": "isDirectory",
+    "type": "",
+    "size": 1,
+    "offset": 4295966592
+   },
+   {
+    "name": "category",
+    "type": "",
+    "size": 1,
+    "offset": 4295966600
+   },
+   {
+    "name": "children",
+    "type": "",
+    "size": 8,
+    "offset": 4295966608
+   },
+   {
+    "name": "parent",
+    "type": "",
+    "size": 8,
+    "offset": 4295966616
+   },
+   {
+    "name": "rootPath",
+    "type": "",
+    "size": 16,
+    "offset": 4295966624
+   },
+   {
+    "name": "logicalSize",
+    "type": "",
+    "size": 8,
+    "offset": 4295966632
+   },
+   {
+    "name": "sizeOnDisk",
+    "type": "",
+    "size": 8,
+    "offset": 4295966640
+   },
+   {
+    "name": "modifiedStamp",
+    "type": "",
+    "size": 8,
+    "offset": 4295966648
+   },
+   {
+    "name": "createdStamp",
+    "type": "",
+    "size": 8,
+    "offset": 4295966656
+   },
+   {
+    "name": "typeSizes",
+    "type": "",
+    "size": 8,
+    "offset": 4295966664
+   },
+   {
+    "name": "fileCount",
+    "type": "",
+    "size": 8,
+    "offset": 4295966672
+   },
+   {
+    "name": "folderCount",
+    "type": "",
+    "size": 8,
+    "offset": 4295966680
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude8FileNode",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296255952,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296250072,
+  "ro_flags": 192,
+  "instance_start": 16,
+  "instance_size": 64,
+  "name": "_TtC8DiskDude13ScanViewModel",
+  "ivars": [
+   {
+    "name": "_status",
+    "type": "",
+    "size": 0,
+    "offset": 4296255424
+   },
+   {
+    "name": "_root",
+    "type": "",
+    "size": 0,
+    "offset": 4296255432
+   },
+   {
+    "name": "_currentFolder",
+    "type": "",
+    "size": 0,
+    "offset": 4296255440
+   },
+   {
+    "name": "_selectedNode",
+    "type": "",
+    "size": 0,
+    "offset": 4296255448
+   },
+   {
+    "name": "_quickWins",
+    "type": "",
+    "size": 0,
+    "offset": 4296255456
+   },
+   {
+    "name": "_duplicateGroups",
+    "type": "",
+    "size": 0,
+    "offset": 4296255464
+   },
+   {
+    "name": "_isFindingDuplicates",
+    "type": "",
+    "size": 0,
+    "offset": 4296255472
+   },
+   {
+    "name": "_installedApps",
+    "type": "",
+    "size": 0,
+    "offset": 4296255480
+   },
+   {
+    "name": "_isLoadingApps",
+    "type": "",
+    "size": 0,
+    "offset": 4296255488
+   },
+   {
+    "name": "_tab",
+    "type": "",
+    "size": 0,
+    "offset": 4296255496
+   },
+   {
+    "name": "_mode",
+    "type": "",
+    "size": 0,
+    "offset": 4296255504
+   },
+   {
+    "name": "_colorMode",
+    "type": "",
+    "size": 0,
+    "offset": 4296255512
+   },
+   {
+    "name": "_depth",
+    "type": "",
+    "size": 0,
+    "offset": 4296255520
+   },
+   {
+    "name": "_abbreviateLabels",
+    "type": "",
+    "size": 0,
+    "offset": 4296255528
+   },
+   {
+    "name": "_filter",
+    "type": "",
+    "size": 0,
+    "offset": 4296255536
+   },
+   {
+    "name": "_showInspector",
+    "type": "",
+    "size": 0,
+    "offset": 4296255544
+   },
+   {
+    "name": "_themeName",
+    "type": "",
+    "size": 0,
+    "offset": 4296255552
+   },
+   {
+    "name": "_disk",
+    "type": "",
+    "size": 0,
+    "offset": 4296255560
+   },
+   {
+    "name": "_scanDuration",
+    "type": "",
+    "size": 0,
+    "offset": 4296255568
+   },
+   {
+    "name": "_recents",
+    "type": "",
+    "size": 0,
+    "offset": 4296255576
+   },
+   {
+    "name": "_generation",
+    "type": "",
+    "size": 0,
+    "offset": 4296255584
+   },
+   {
+    "name": "_ageReports",
+    "type": "",
+    "size": 0,
+    "offset": 4296255592
+   },
+   {
+    "name": "_rankings",
+    "type": "",
+    "size": 0,
+    "offset": 4296255600
+   },
+   {
+    "name": "_unreadableFolderCount",
+    "type": "",
+    "size": 0,
+    "offset": 4296255608
+   },
+   {
+    "name": "_unreadableFolderSamples",
+    "type": "",
+    "size": 0,
+    "offset": 4296255616
+   },
+   {
+    "name": "_showAccessNotice",
+    "type": "",
+    "size": 0,
+    "offset": 4296255624
+   },
+   {
+    "name": "cleanupQueue",
+    "type": "",
+    "size": 8,
+    "offset": 4296299776
+   },
+   {
+    "name": "snapshotStore",
+    "type": "",
+    "size": 8,
+    "offset": 4296299784
+   },
+   {
+    "name": "scanTask",
+    "type": "",
+    "size": 8,
+    "offset": 4296255632
+   },
+   {
+    "name": "scanner",
+    "type": "",
+    "size": 8,
+    "offset": 4296255640
+   },
+   {
+    "name": "pendingReports",
+    "type": "",
+    "size": 8,
+    "offset": 4296255648
+   },
+   {
+    "name": "activationObserver",
+    "type": "",
+    "size": 8,
+    "offset": 4296255656
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude13ScanViewModel",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296256984,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296250152,
+  "ro_flags": 192,
+  "instance_start": 16,
+  "instance_size": 16,
+  "name": "_TtC8DiskDude13SnapshotStore",
+  "ivars": [
+   {
+    "name": "_summaries",
+    "type": "",
+    "size": 0,
+    "offset": 4296256864
+   },
+   {
+    "name": "_isSaving",
+    "type": "",
+    "size": 0,
+    "offset": 4296256872
+   },
+   {
+    "name": "directory",
+    "type": "",
+    "size": 0,
+    "offset": 4296256880
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude13SnapshotStore",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296258080,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296247744,
+  "ro_flags": 128,
+  "instance_start": 16,
+  "instance_size": 73,
+  "name": "_TtC8DiskDude11DiskScanner",
+  "ivars": [
+   {
+    "name": "lock",
+    "type": "",
+    "size": 8,
+    "offset": 4295971776
+   },
+   {
+    "name": "filesScanned",
+    "type": "",
+    "size": 8,
+    "offset": 4295971784
+   },
+   {
+    "name": "bytesScanned",
+    "type": "",
+    "size": 8,
+    "offset": 4295971792
+   },
+   {
+    "name": "currentPath",
+    "type": "",
+    "size": 16,
+    "offset": 4295971800
+   },
+   {
+    "name": "unreadableCount",
+    "type": "",
+    "size": 8,
+    "offset": 4295971808
+   },
+   {
+    "name": "unreadableSamples",
+    "type": "",
+    "size": 8,
+    "offset": 4295971816
+   },
+   {
+    "name": "cancelled",
+    "type": "",
+    "size": 1,
+    "offset": 4295971824
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude11DiskScanner",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296258288,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296247992,
+  "ro_flags": 128,
+  "instance_start": 16,
+  "instance_size": 40,
+  "name": "_TtCC8DiskDude11DiskScannerP33_822C3600A8CFACBA2E447D5F3AB4488A8JobStack",
+  "ivars": [
+   {
+    "name": "condition",
+    "type": "",
+    "size": 8,
+    "offset": 4295971856
+   },
+   {
+    "name": "jobs",
+    "type": "",
+    "size": 8,
+    "offset": 4295971864
+   },
+   {
+    "name": "active",
+    "type": "",
+    "size": 8,
+    "offset": 4295971872
+   }
+  ],
+  "metaclass": {
+   "name": "_TtCC8DiskDude11DiskScannerP33_822C3600A8CFACBA2E447D5F3AB4488A8JobStack",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296259208,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296250232,
+  "ro_flags": 192,
+  "instance_start": 16,
+  "instance_size": 65,
+  "name": "_TtCO8DiskDude13SystemMonitorP33_7DC0F67502E64F527D7257F37B2190355State",
+  "ivars": [
+   {
+    "name": "previousCPU",
+    "type": "",
+    "size": 17,
+    "offset": 4295972536
+   },
+   {
+    "name": "previousProcessTimes",
+    "type": "",
+    "size": 8,
+    "offset": 4295972544
+   },
+   {
+    "name": "previousNet",
+    "type": "",
+    "size": 0,
+    "offset": 4296259096
+   },
+   {
+    "name": "sessionStart",
+    "type": "",
+    "size": 17,
+    "offset": 4296259104
+   }
+  ],
+  "metaclass": {
+   "name": "_TtCO8DiskDude13SystemMonitorP33_7DC0F67502E64F527D7257F37B2190355State",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296265472,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296248648,
+  "ro_flags": 128,
+  "instance_start": 16,
+  "instance_size": 72,
+  "name": "_TtCV8DiskDude11BubblesViewP33_E7F74CB333A93341BC50FABE161EFF628PackNode",
+  "ivars": [
+   {
+    "name": "node",
+    "type": "",
+    "size": 8,
+    "offset": 4295976872
+   },
+   {
+    "name": "depth",
+    "type": "",
+    "size": 8,
+    "offset": 4295976880
+   },
+   {
+    "name": "color",
+    "type": "",
+    "size": 8,
+    "offset": 4295976888
+   },
+   {
+    "name": "r",
+    "type": "",
+    "size": 8,
+    "offset": 4295976896
+   },
+   {
+    "name": "x",
+    "type": "",
+    "size": 8,
+    "offset": 4295976904
+   },
+   {
+    "name": "y",
+    "type": "",
+    "size": 8,
+    "offset": 4295976912
+   },
+   {
+    "name": "children",
+    "type": "",
+    "size": 8,
+    "offset": 4295976920
+   }
+  ],
+  "metaclass": {
+   "name": "_TtCV8DiskDude11BubblesViewP33_E7F74CB333A93341BC50FABE161EFF628PackNode",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296250416,
+  "superclass_import": "_OBJC_CLASS_$_QLPreviewPanel",
+  "ro_vmaddr": 4296250312,
+  "ro_flags": 452,
+  "instance_start": 0,
+  "instance_size": 8,
+  "name": "_TtC8DiskDude19QuickLookController",
+  "methods": [
+   {
+    "name": "numberOfPreviewItemsInPreviewPanel:",
+    "imp_vmaddr": 4295678252,
+    "imp_fileoff": 710956
+   },
+   {
+    "name": "previewPanel:previewItemAtIndex:",
+    "imp_vmaddr": 4295678456,
+    "imp_fileoff": 711160
+   },
+   {
+    "name": "init",
+    "imp_vmaddr": 4295678712,
+    "imp_fileoff": 711416
+   },
+   {
+    "name": ".cxx_destruct",
+    "imp_vmaddr": 4295678880,
+    "imp_fileoff": 711584
+   }
+  ],
+  "protocols": [],
+  "ivars": [
+   {
+    "name": "url",
+    "type": "",
+    "size": 0,
+    "offset": 4296272032
+   }
+  ],
+  "metaclass": {
+   "name": "_TtC8DiskDude19QuickLookController",
+   "methods": []
+  }
+ },
+ {
+  "vmaddr": 4296273248,
+  "superclass_import": "_swift_deletedMethodError",
+  "ro_vmaddr": 4296249056,
+  "ro_flags": 128,
+  "instance_start": 16,
+  "instance_size": 40,
+  "name": "_TtCV8DiskDude11MindMapViewP33_D37D7A8429E35A1A5CC74EE6AE1A3B268TreeItem",
+  "ivars": [
+   {
+    "name": "node",
+    "type": "",
+    "size": 8,
+    "offset": 4295984608
+   },
+   {
+    "name": "children",
+    "type": "",
+    "size": 8,
+    "offset": 4295984616
+   },
+   {
+    "name": "leaves",
+    "type": "",
+    "size": 8,
+    "offset": 4295984624
+   }
+  ],
+  "metaclass": {
+   "name": "_TtCV8DiskDude11MindMapViewP33_D37D7A8429E35A1A5CC74EE6AE1A3B268TreeItem",
+   "methods": []
+  }
+ }
+]

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Generated into the .app by scripts/build_app.sh. __TOKENS__ come from Packaging/AppConfig.env. -->
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>DiskDude</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.hariprasad.diskdude</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>DiskDude</string>
+	<key>CFBundleDisplayName</key>
+	<string>DiskDude</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.1</string>
+	<key>CFBundleVersion</key>
+	<string>2</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026. All rights reserved.</string>
+
+	<!-- Purpose strings for the privacy prompts macOS shows when a scan walks
+	     into protected locations. They only explain; they grant nothing.
+	     Full Disk Access has no purpose string — the user grants it manually
+	     in System Settings, and the app links there when it detects denials. -->
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>DiskDude measures the size of files on your Desktop so it can show where your disk space goes. Nothing is moved or deleted unless you confirm it.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>DiskDude measures the size of files in Documents so it can show where your disk space goes. Nothing is moved or deleted unless you confirm it.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>DiskDude measures the size of files in Downloads so it can show where your disk space goes. Nothing is moved or deleted unless you confirm it.</string>
+	<key>NSRemovableVolumesUsageDescription</key>
+	<string>DiskDude needs access to scan folders you choose on external drives.</string>
+	<key>NSNetworkVolumesUsageDescription</key>
+	<string>DiskDude needs access to scan folders you choose on network drives.</string>
+</dict>
+</plist>

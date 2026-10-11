@@ -1,0 +1,270 @@
+//
+//  VizSupport.swift
+//  DiskDude
+//
+//  Reconstructed: LayoutCache (class), VizKey, CanvasKey, CachedCanvas,
+//  PressableStyle, CardBackground, SectionCaption, SquareIconButton,
+//  InkButton, OutlineButton, HoverChip, UsageRing — the shared component
+//  kit (exact field sets recovered from reflection metadata).
+//
+
+import SwiftUI
+
+// MARK: - Layout cache
+
+/// Key that invalidates a visualization layout when anything relevant
+/// changes (scan generation, node, size, depth, color mode).
+struct VizKey: Hashable {
+    var generation: Int
+    var node: ObjectIdentifier
+    var width: Int
+    var height: Int
+    var depth: Int
+    var mode: ColorMode
+}
+
+/// Full canvas identity: layout + selection + color scheme + labels.
+struct CanvasKey: Hashable {
+    var layout: VizKey
+    var width: Int
+    var height: Int
+    var selected: ObjectIdentifier?
+    var scheme: ColorScheme
+    var abbreviateLabels: Bool
+}
+
+/// Generic cached layout: layout work happens once per key and is
+/// memoized (recovered: class LayoutCache with key/value fields).
+final class LayoutCache<Key: Hashable, Value> {
+    var key: Key?
+    var value: Value?
+
+    func compute(key: Key, _ make: () -> Value) -> Value {
+        if let key, key == key, let value { return value }
+        let fresh = make()
+        self.key = key
+        self.value = fresh
+        return fresh
+    }
+}
+
+/// A canvas whose rendering closure is cached by CanvasKey.
+struct CachedCanvas: View {
+    let key: CanvasKey
+    let draw: (GraphicsContext, CGSize) -> Void
+
+    var body: some View {
+        Canvas { context, size in
+            draw(context, size)
+        }
+    }
+}
+
+// MARK: - Buttons & chrome
+
+struct PressableStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+struct CardBackground: View {
+    var radius: CGFloat = 12
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: radius)
+            .fill(theme.card)
+            .overlay(RoundedRectangle(cornerRadius: radius).strokeBorder(theme.border, lineWidth: 1))
+    }
+}
+
+struct SectionCaption: View {
+    let title: String
+    var trailing: String?
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline) {
+            Text(title)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(theme.textSecondary)
+            Spacer()
+            if let trailing {
+                Text(trailing)
+                    .font(.system(size: 11))
+                    .foregroundStyle(theme.textTertiary)
+            }
+        }
+    }
+}
+
+struct SquareIconButton: View {
+    var systemImage: String?
+    var label: String?
+    var size: CGFloat = 12
+    let action: () -> Void
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        Button(action: action) {
+            Group {
+                if let systemImage, let label {
+                    Label(label, systemImage: systemImage)
+                } else if let systemImage {
+                    Image(systemName: systemImage)
+                } else if let label {
+                    Text(label)
+                }
+            }
+            .font(.system(size: size, weight: .medium))
+            .frame(width: 26, height: 26)
+            .background(RoundedRectangle(cornerRadius: 7).fill(theme.chip))
+            .contentShape(RoundedRectangle(cornerRadius: 7))
+        }
+        .buttonStyle(.plain)
+        .help(label ?? "")
+    }
+}
+
+struct InkButton: View {
+    let title: String
+    var systemImage: String?
+    var height: CGFloat = 34
+    var fontSize: CGFloat = 12
+    let action: () -> Void
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(size: fontSize - 1, weight: .semibold))
+                }
+                Text(title)
+                    .font(.system(size: fontSize, weight: .bold))
+            }
+            .foregroundStyle(.white)
+            .frame(height: height)
+            .padding(.horizontal, 14)
+            .background(Capsule().fill(theme.ink))
+        }
+        .buttonStyle(PressableStyle())
+    }
+}
+
+/// Outline button with an optional press-and-confirm state (the original
+/// "Move to Trash…" two-stage confirm; recovered _isConfirming state +
+/// confirmTitle/confirmImage/confirmDuration fields).
+struct OutlineButton: View {
+    let title: String
+    var systemImage: String?
+    var height: CGFloat = 32
+    var fontSize: CGFloat = 12
+    var confirmTitle: String?
+    var confirmImage: String?
+    var confirmDuration: Double = 1.2
+    let action: () -> Void
+    @Environment(\.theme) private var theme
+    @State private var isConfirming = false
+
+    var body: some View {
+        Button {
+            if confirmTitle != nil {
+                if isConfirming {
+                    action()
+                    isConfirming = false
+                } else {
+                    withAnimation(.snappy(duration: 0.2)) { isConfirming = true }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + confirmDuration) {
+                        withAnimation(.easeOut(duration: 0.25)) { isConfirming = false }
+                    }
+                }
+            } else {
+                action()
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: isConfirming
+                      ? (confirmImage ?? "checkmark.circle.fill")
+                      : (systemImage ?? "exclamationmark.triangle.fill"))
+                    .font(.system(size: fontSize - 1, weight: .semibold))
+                Text(isConfirming ? (confirmTitle ?? title) : title)
+                    .font(.system(size: fontSize, weight: .semibold))
+            }
+            .foregroundStyle(isConfirming ? .white : theme.text)
+            .frame(height: height)
+            .padding(.horizontal, 14)
+            .background(
+                Capsule().fill(isConfirming ? Color.red : theme.chip)
+            )
+            .overlay(Capsule().strokeBorder(isConfirming ? Color.clear : theme.border, lineWidth: 1))
+        }
+        .buttonStyle(PressableStyle())
+    }
+}
+
+// MARK: - Data display widgets
+
+struct HoverChip: View {
+    let node: FileNode
+    var scanSize: Int64 = 0
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(node.isDirectory ? " \(node.name)" : node.name)
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(1)
+            Text(scanSize > 0 ? scanSize : node.sizeOnDisk, format: .byteCount(style: .file))
+                .font(.system(size: 10))
+                .foregroundStyle(theme.textSecondary)
+            if node.isDirectory {
+                Text("\(node.fileCount) files · \(node.folderCount) folders")
+                    .font(.system(size: 9))
+                    .foregroundStyle(theme.textTertiary)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 7).fill(.ultraThinMaterial))
+    }
+}
+
+struct UsageRing: View {
+    let fraction: Double
+    var lineWidth: CGFloat = 4
+    @Environment(\.theme) private var theme
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(theme.track, lineWidth: lineWidth)
+            Circle()
+                .trim(from: 0, to: min(1, max(0, fraction)))
+                .stroke(theme.ink, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+        }
+    }
+}
+
+// MARK: - Byte formatting
+
+extension Int64 {
+    /// Compact display used across the app (abbreviateLabels shortens
+    /// to initials like "GB" → "G").
+    func compact(abbreviated: Bool) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        if abbreviated {
+            formatter.allowedUnits = [.useKB, .useMB, .useGB, .useTB]
+            formatter.isAdaptive = false
+            formatter.includesUnit = true
+        }
+        return formatter.string(fromByteCount: self)
+    }
+}

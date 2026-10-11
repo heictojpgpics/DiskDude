@@ -1,0 +1,345 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	objectVersion = 56;
+	classes = {
+	};
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA1000012140000000001 /* DiskDudeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000021 /* DiskDudeApp.swift */; };
+		AA1000012140000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000022 /* ContentView.swift */; };
+		AA1000012140000000003 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000023 /* Theme.swift */; };
+		AA1000012140000000004 /* FileNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000024 /* FileNode.swift */; };
+		AA1000012140000000005 /* ScanModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000025 /* ScanModel.swift */; };
+		AA1000012140000000006 /* Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000026 /* Snapshot.swift */; };
+		AA1000012140000000007 /* ScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000027 /* ScanViewModel.swift */; };
+		AA1000012140000000008 /* AppUninstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000028 /* AppUninstaller.swift */; };
+		AA1000012140000000009 /* CleanupQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000029 /* CleanupQueue.swift */; };
+		AA100001214000000000A /* DiskScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002A /* DiskScanner.swift */; };
+		AA100001214000000000B /* DuplicateFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002B /* DuplicateFinder.swift */; };
+		AA100001214000000000C /* QuickLookController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002C /* QuickLookController.swift */; };
+		AA100001214000000000D /* QuickWins.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002D /* QuickWins.swift */; };
+		AA100001214000000000E /* SnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002E /* SnapshotStore.swift */; };
+		AA100001214000000000F /* SystemMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000002F /* SystemMonitor.swift */; };
+		AA1000012140000000010 /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000030 /* ExploreView.swift */; };
+		AA1000012140000000011 /* FlameBubblesMind.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000031 /* FlameBubblesMind.swift */; };
+		AA1000012140000000012 /* FolderVisuals.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000032 /* FolderVisuals.swift */; };
+		AA1000012140000000013 /* MonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000033 /* MonitorView.swift */; };
+		AA1000012140000000014 /* ScanStates.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000034 /* ScanStates.swift */; };
+		AA1000012140000000015 /* SnapshotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000035 /* SnapshotsView.swift */; };
+		AA1000012140000000016 /* SunburstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000036 /* SunburstView.swift */; };
+		AA1000012140000000017 /* TabViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000037 /* TabViews.swift */; };
+		AA1000012140000000018 /* TopBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000038 /* TopBar.swift */; };
+		AA1000012140000000019 /* TopSizesAgeOutline.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000039 /* TopSizesAgeOutline.swift */; };
+		AA100001214000000001A /* TreemapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000003A /* TreemapView.swift */; };
+		AA100001214000000001B /* VizSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000012140000000003B /* VizSupport.swift */; };
+		AA1000012140000000021 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000051 /* Info.plist */; };
+		AA1000012140000000022 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000052 /* AppIcon.icns */; };
+		AA1000012140000000023 /* DiskDude.entitlements in Resources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000053 /* DiskDude.entitlements */; };
+		AA1000012140000000024 /* PkgInfo in Resources */ = {isa = PBXBuildFile; fileRef = AA10000121400000000054 /* PkgInfo */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA10000121400000000021 /* DiskDudeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskDudeApp.swift; sourceTree = "<group>"; };
+		AA10000121400000000022 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		AA10000121400000000023 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		AA10000121400000000024 /* FileNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNode.swift; sourceTree = "<group>"; };
+		AA10000121400000000025 /* ScanModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanModel.swift; sourceTree = "<group>"; };
+		AA10000121400000000026 /* Snapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapshot.swift; sourceTree = "<group>"; };
+		AA10000121400000000027 /* ScanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanViewModel.swift; sourceTree = "<group>"; };
+		AA10000121400000000028 /* AppUninstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUninstaller.swift; sourceTree = "<group>"; };
+		AA10000121400000000029 /* CleanupQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupQueue.swift; sourceTree = "<group>"; };
+		AA1000012140000000002A /* DiskScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskScanner.swift; sourceTree = "<group>"; };
+		AA1000012140000000002B /* DuplicateFinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateFinder.swift; sourceTree = "<group>"; };
+		AA1000012140000000002C /* QuickLookController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookController.swift; sourceTree = "<group>"; };
+		AA1000012140000000002D /* QuickWins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickWins.swift; sourceTree = "<group>"; };
+		AA1000012140000000002E /* SnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotStore.swift; sourceTree = "<group>"; };
+		AA1000012140000000002F /* SystemMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitor.swift; sourceTree = "<group>"; };
+		AA10000121400000000030 /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
+		AA10000121400000000031 /* FlameBubblesMind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlameBubblesMind.swift; sourceTree = "<group>"; };
+		AA10000121400000000032 /* FolderVisuals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderVisuals.swift; sourceTree = "<group>"; };
+		AA10000121400000000033 /* MonitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorView.swift; sourceTree = "<group>"; };
+		AA10000121400000000034 /* ScanStates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanStates.swift; sourceTree = "<group>"; };
+		AA10000121400000000035 /* SnapshotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotsView.swift; sourceTree = "<group>"; };
+		AA10000121400000000036 /* SunburstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SunburstView.swift; sourceTree = "<group>"; };
+		AA10000121400000000037 /* TabViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabViews.swift; sourceTree = "<group>"; };
+		AA10000121400000000038 /* TopBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBar.swift; sourceTree = "<group>"; };
+		AA10000121400000000039 /* TopSizesAgeOutline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopSizesAgeOutline.swift; sourceTree = "<group>"; };
+		AA1000012140000000003A /* TreemapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreemapView.swift; sourceTree = "<group>"; };
+		AA1000012140000000003B /* VizSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VizSupport.swift; sourceTree = "<group>"; };
+		AA10000121400000000051 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA10000121400000000052 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
+		AA10000121400000000053 /* DiskDude.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DiskDude.entitlements; sourceTree = "<group>"; };
+		AA10000121400000000054 /* PkgInfo */ = {isa = PBXFileReference; lastKnownFileType = text; path = PkgInfo; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		AA10000121400000000001 = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000011 /* DiskDude */,
+				AA10000121400000000012 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA10000121400000000011 /* DiskDude */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000021 /* DiskDudeApp.swift */,
+				AA10000121400000000022 /* ContentView.swift */,
+				AA10000121400000000023 /* Theme.swift */,
+				AA10000121400000000041 /* Models */,
+				AA10000121400000000042 /* ViewModels */,
+				AA10000121400000000043 /* Services */,
+				AA10000121400000000044 /* Views */,
+				AA10000121400000000045 /* Resources */,
+			);
+			path = DiskDude;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000041 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000024 /* FileNode.swift */,
+				AA10000121400000000025 /* ScanModel.swift */,
+				AA10000121400000000026 /* Snapshot.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000042 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000027 /* ScanViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000043 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000028 /* AppUninstaller.swift */,
+				AA10000121400000000029 /* CleanupQueue.swift */,
+				AA1000012140000000002A /* DiskScanner.swift */,
+				AA1000012140000000002B /* DuplicateFinder.swift */,
+				AA1000012140000000002C /* QuickLookController.swift */,
+				AA1000012140000000002D /* QuickWins.swift */,
+				AA1000012140000000002E /* SnapshotStore.swift */,
+				AA1000012140000000002F /* SystemMonitor.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000044 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000030 /* ExploreView.swift */,
+				AA10000121400000000031 /* FlameBubblesMind.swift */,
+				AA10000121400000000032 /* FolderVisuals.swift */,
+				AA10000121400000000033 /* MonitorView.swift */,
+				AA10000121400000000034 /* ScanStates.swift */,
+				AA10000121400000000035 /* SnapshotsView.swift */,
+				AA10000121400000000036 /* SunburstView.swift */,
+				AA10000121400000000037 /* TabViews.swift */,
+				AA10000121400000000038 /* TopBar.swift */,
+				AA10000121400000000039 /* TopSizesAgeOutline.swift */,
+				AA1000012140000000003A /* TreemapView.swift */,
+				AA1000012140000000003B /* VizSupport.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000045 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000051 /* Info.plist */,
+				AA10000121400000000052 /* AppIcon.icns */,
+				AA10000121400000000053 /* DiskDude.entitlements */,
+				AA10000121400000000054 /* PkgInfo */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000012 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AA10000121400000000061 /* DiskDude.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AA10000121400000000061 /* DiskDude.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiskDude.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA10000121400000000071 /* DiskDude */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA10000121400000000081 /* Build configuration list for PBXNativeTarget "DiskDude" */;
+			buildPhases = (
+				AA10000121400000000075 /* Sources */,
+				AA10000121400000000076 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DiskDude;
+			productName = DiskDude;
+			productReference = AA10000121400000000061 /* DiskDude.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AA10000121400000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = AA10000121400000000082 /* Build configuration list for PBXProject "DiskDude" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AA10000121400000000001;
+			targets = (
+				AA10000121400000000071 /* DiskDude */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA10000121400000000076 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA1000012140000000021 /* Info.plist in Resources */,
+				AA1000012140000000022 /* AppIcon.icns in Resources */,
+				AA1000012140000000023 /* DiskDude.entitlements in Resources */,
+				AA1000012140000000024 /* PkgInfo in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA10000121400000000075 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA1000012140000000001 /* DiskDudeApp.swift in Sources */,
+				AA1000012140000000002 /* ContentView.swift in Sources */,
+				AA1000012140000000003 /* Theme.swift in Sources */,
+				AA1000012140000000004 /* FileNode.swift in Sources */,
+				AA1000012140000000005 /* ScanModel.swift in Sources */,
+				AA1000012140000000006 /* Snapshot.swift in Sources */,
+				AA1000012140000000007 /* ScanViewModel.swift in Sources */,
+				AA1000012140000000008 /* AppUninstaller.swift in Sources */,
+				AA1000012140000000009 /* CleanupQueue.swift in Sources */,
+				AA100001214000000000A /* DiskScanner.swift in Sources */,
+				AA100001214000000000B /* DuplicateFinder.swift in Sources */,
+				AA100001214000000000C /* QuickLookController.swift in Sources */,
+				AA100001214000000000D /* QuickWins.swift in Sources */,
+				AA100001214000000000E /* SnapshotStore.swift in Sources */,
+				AA100001214000000000F /* SystemMonitor.swift in Sources */,
+				AA1000012140000000010 /* ExploreView.swift in Sources */,
+				AA1000012140000000011 /* FlameBubblesMind.swift in Sources */,
+				AA1000012140000000012 /* FolderVisuals.swift in Sources */,
+				AA1000012140000000013 /* MonitorView.swift in Sources */,
+				AA1000012140000000014 /* ScanStates.swift in Sources */,
+				AA1000012140000000015 /* SnapshotsView.swift in Sources */,
+				AA1000012140000000016 /* SunburstView.swift in Sources */,
+				AA1000012140000000017 /* TabViews.swift in Sources */,
+				AA1000012140000000018 /* TopBar.swift in Sources */,
+				AA1000012140000000019 /* TopSizesAgeOutline.swift in Sources */,
+				AA100001214000000001A /* TreemapView.swift in Sources */,
+				AA100001214000000001B /* VizSupport.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AA10000121400000000091 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INFOPLIST_FILE = DiskDude/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hariprasad.diskdude;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				PRODUCT_NAME = DiskDude;
+				CODE_SIGN_ENTITLEMENTS = DiskDude/Resources/DiskDude.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+			};
+			name = Debug;
+		};
+		AA10000121400000000092 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				INFOPLIST_FILE = DiskDude/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.hariprasad.diskdude;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+				CODE_SIGN_ENTITLEMENTS = DiskDude/Resources/DiskDude.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
+				STRIP_INSTALLED_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA10000121400000000081 /* Build configuration list for PBXNativeTarget "DiskDude" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA10000121400000000091 /* Debug */,
+				AA10000121400000000092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA10000121400000000082 /* Build configuration list for PBXProject "DiskDude" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA10000121400000000091 /* Debug */,
+				AA10000121400000000092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AA10000121400000000001 /* Project object */;
+}

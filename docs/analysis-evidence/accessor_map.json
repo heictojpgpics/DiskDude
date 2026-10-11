@@ -1,0 +1,454 @@
+{
+ "0x23a8": [
+  "host_cpu_load_info",
+  "struct"
+ ],
+ "0x2560": [
+  "DiskDudeApp",
+  "struct"
+ ],
+ "0x2fb4": [
+  "CGRect",
+  "struct"
+ ],
+ "0x2fd4": [
+  "CGPoint",
+  "struct"
+ ],
+ "0x2fe8": [
+  "Name",
+  "struct"
+ ],
+ "0x2ffc": [
+  "URLResourceKey",
+  "struct"
+ ],
+ "0x31c4": [
+  "CGSize",
+  "struct"
+ ],
+ "0x4358": [
+  "CleanupQueue",
+  "class"
+ ],
+ "0x492c": [
+  "Item",
+  "struct"
+ ],
+ "0x8284": [
+  "FileCategory",
+  "enum"
+ ],
+ "0x9da4": [
+  "FileNode",
+  "class"
+ ],
+ "0xa79c": [
+  "NodeBox",
+  "struct"
+ ],
+ "0x1a088": [
+  "ScanViewModel",
+  "class"
+ ],
+ "0x1a668": [
+  "Rankings",
+  "struct"
+ ],
+ "0x1a880": [
+  "AgeReport",
+  "struct"
+ ],
+ "0x1a9ec": [
+  "DiskInfo",
+  "struct"
+ ],
+ "0x1ab3c": [
+  "ColorMode",
+  "enum"
+ ],
+ "0x1ab4c": [
+  "VisualizationMode",
+  "enum"
+ ],
+ "0x1ac9c": [
+  "AppTab",
+  "enum"
+ ],
+ "0x1af48": [
+  "Status",
+  "enum"
+ ],
+ "0x22494": [
+  "Discard",
+  "struct"
+ ],
+ "0x27840": [
+  "SnapshotStore",
+  "class"
+ ],
+ "0x27db0": [
+  "Snapshot",
+  "struct"
+ ],
+ "0x283b0": [
+  "Summary",
+  "struct"
+ ],
+ "0x2b52c": [
+  "CodingKeys",
+  "enum"
+ ],
+ "0x2b67c": [
+  "CodingKeys",
+  "enum"
+ ],
+ "0x2b824": [
+  "Delta",
+  "struct"
+ ],
+ "0x2bc70": [
+  "AppUninstaller",
+  "enum"
+ ],
+ "0x2c6ec": [
+  "InstalledApp",
+  "struct"
+ ],
+ "0x2d0f0": [
+  "LeftoverGroup",
+  "struct"
+ ],
+ "0x30c38": [
+  "DiskScanner",
+  "class"
+ ],
+ "0x30c58": [
+  "JobStack",
+  "class"
+ ],
+ "0x30e3c": [
+  "Job",
+  "struct"
+ ],
+ "0x31e28": [
+  "DuplicateFinder",
+  "enum"
+ ],
+ "0x321cc": [
+  "Group",
+  "struct"
+ ],
+ "0x3593c": [
+  "Key",
+  "struct"
+ ],
+ "0x35d5c": [
+  "QuickWins",
+  "enum"
+ ],
+ "0x35ed8": [
+  "Category",
+  "struct"
+ ],
+ "0x41e70": [
+  "Kind",
+  "enum"
+ ],
+ "0x4236c": [
+  "State",
+  "class"
+ ],
+ "0x42720": [
+  "Snapshot",
+  "struct"
+ ],
+ "0x44b3c": [
+  "ProcessStat",
+  "struct"
+ ],
+ "0x44b4c": [
+  "NetworkStats",
+  "struct"
+ ],
+ "0x44bc8": [
+  "MemoryStats",
+  "struct"
+ ],
+ "0x44bd8": [
+  "SystemMonitor",
+  "enum"
+ ],
+ "0x44be8": [
+  "CPUStats",
+  "struct"
+ ],
+ "0x49638": [
+  "LayoutCache",
+  "class"
+ ],
+ "0x49790": [
+  "ThemeName",
+  "enum"
+ ],
+ "0x49f38": [
+  "Theme",
+  "struct"
+ ],
+ "0x4a4f8": [
+  "CanvasKey",
+  "struct"
+ ],
+ "0x4a640": [
+  "VizKey",
+  "struct"
+ ],
+ "0x4a650": [
+  "ThemeKey",
+  "struct"
+ ],
+ "0x4b0a8": [
+  "SquareIconButton",
+  "struct"
+ ],
+ "0x4bb18": [
+  "HoverChip",
+  "struct"
+ ],
+ "0x4c06c": [
+  "CachedCanvas",
+  "struct"
+ ],
+ "0x4cf70": [
+  "PressableStyle",
+  "struct"
+ ],
+ "0x4dba8": [
+  "SectionCaption",
+  "struct"
+ ],
+ "0x4e854": [
+  "OutlineButton",
+  "struct"
+ ],
+ "0x4f348": [
+  "InkButton",
+  "struct"
+ ],
+ "0x4f55c": [
+  "CardBackground",
+  "struct"
+ ],
+ "0x51778": [
+  "AgeMapView",
+  "struct"
+ ],
+ "0x5bb40": [
+  "UntouchedCard",
+  "struct"
+ ],
+ "0x5bb5c": [
+  "MonthHeatmapCard",
+  "struct"
+ ],
+ "0x5bb70": [
+  "AgeBucketsCard",
+  "struct"
+ ],
+ "0x6415c": [
+  "AppUninstallerView",
+  "struct"
+ ],
+ "0x6b418": [
+  "AppRow",
+  "struct"
+ ],
+ "0x6d7ec": [
+  "VersionChip",
+  "struct"
+ ],
+ "0x70090": [
+  "PackNode",
+  "class"
+ ],
+ "0x70c38": [
+  "BubblesView",
+  "struct"
+ ],
+ "0x73754": [
+  "Bubble",
+  "struct"
+ ],
+ "0x73ee4": [
+  "CleanupQueueView",
+  "struct"
+ ],
+ "0x78624": [
+  "CleanupBadgeButton",
+  "struct"
+ ],
+ "0x827a8": [
+  "ContentView",
+  "struct"
+ ],
+ "0x82950": [
+  "TopBar",
+  "struct"
+ ],
+ "0x851e4": [
+  "DuplicatesView",
+  "struct"
+ ],
+ "0x88eb4": [
+  "ScanningView",
+  "struct"
+ ],
+ "0x897f4": [
+  "EmptyScanView",
+  "struct"
+ ],
+ "0x96df0": [
+  "ExploreView",
+  "struct"
+ ],
+ "0x973b4": [
+  "UnreadableFoldersNotice",
+  "struct"
+ ],
+ "0x9842c": [
+  "Block",
+  "struct"
+ ],
+ "0x9854c": [
+  "FlameGraphView",
+  "struct"
+ ],
+ "0x9bad4": [
+  "FolderGridView",
+  "struct"
+ ],
+ "0xa2e54": [
+  "FileTile",
+  "struct"
+ ],
+ "0xa2db8": [
+  "FolderCard",
+  "struct"
+ ],
+ "0xa4888": [
+  "NodeContextMenu",
+  "struct"
+ ],
+ "0xa52d4": [
+  "FolderShape",
+  "struct"
+ ],
+ "0xadbd0": [
+  "QuickLookController",
+  "class"
+ ],
+ "0xadd84": [
+  "InspectorView",
+  "struct"
+ ],
+ "0xade8c": [
+  "InspectorContent",
+  "struct"
+ ],
+ "0xb1dd0": [
+  "TreeItem",
+  "class"
+ ],
+ "0xb1f00": [
+  "MindMapView",
+  "struct"
+ ],
+ "0xb4914": [
+  "Branch",
+  "struct"
+ ],
+ "0xb4e80": [
+  "ProcessSort",
+  "enum"
+ ],
+ "0xb5294": [
+  "VolumeInfo",
+  "struct"
+ ],
+ "0xb4e64": [
+  "MonitorView",
+  "struct"
+ ],
+ "0xc630c": [
+  "SegmentedBar",
+  "struct"
+ ],
+ "0xc6440": [
+  "Sparkline",
+  "struct"
+ ],
+ "0xc7aec": [
+  "MonitorCard",
+  "struct"
+ ],
+ "0xc8248": [
+  "OutlineListView",
+  "struct"
+ ],
+ "0xca850": [
+  "SidebarView",
+  "struct"
+ ],
+ "0xd4234": [
+  "QuickWinRow",
+  "struct"
+ ],
+ "0xd4288": [
+  "UsageRing",
+  "struct"
+ ],
+ "0xd6234": [
+  "SnapshotsView",
+  "struct"
+ ],
+ "0xd6554": [
+  "Comparison",
+  "enum"
+ ],
+ "0xd6540": [
+  "SnapshotsContent",
+  "struct"
+ ],
+ "0xded44": [
+  "SunArc",
+  "struct"
+ ],
+ "0xdee64": [
+  "SunburstView",
+  "struct"
+ ],
+ "0xe30dc": [
+  "Scope",
+  "enum"
+ ],
+ "0xe3bbc": [
+  "TopSizesView",
+  "struct"
+ ],
+ "0xe9f80": [
+  "TaskKey",
+  "struct"
+ ],
+ "0xe96b0": [
+  "TopSizeRow",
+  "struct"
+ ],
+ "0xeb13c": [
+  "Cell",
+  "struct"
+ ],
+ "0xeb25c": [
+  "TreemapView",
+  "struct"
+ ]
+}

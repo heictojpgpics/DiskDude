@@ -1,0 +1,1108 @@
+{
+ "0x100021444": [
+  [
+   "0x1000fa9e0",
+   "__cstring",
+   "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
+  ]
+ ],
+ "0x10002d190": [
+  [
+   "0x1000faa70",
+   "__cstring",
+   "CFBundleShortVersionString"
+  ]
+ ],
+ "0x1000438e0": [
+  [
+   "0x1000fabfe",
+   "__cstring",
+   "hw.memsize"
+  ]
+ ],
+ "0x1000486bc": [
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ],
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ]
+ ],
+ "0x10005331c": [
+  [
+   "0x1000fac90",
+   "__cstring",
+   "Reading modification dates\u2026"
+  ]
+ ],
+ "0x1000539bc": [
+  [
+   "0x1000fad50",
+   "__cstring",
+   "How old are these bytes?"
+  ]
+ ],
+ "0x100055328": [
+  [
+   "0x1000fad30",
+   "__cstring",
+   "Bytes by last-modified month"
+  ]
+ ],
+ "0x1000582d0": [
+  [
+   "0x1000facb0",
+   "__cstring",
+   "Nothing over 40 MB has sat untouched for a year here."
+  ]
+ ],
+ "0x10005a060": [
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ],
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ],
+  [
+   "0x1000facf0",
+   "__cstring",
+   "Remove from cleanup"
+  ]
+ ],
+ "0x10005b39c": [
+  [
+   "0x1000fad10",
+   "__cstring",
+   "checkmark.circle.fill"
+  ]
+ ],
+ "0x10005f1b8": [
+  [
+   "0x1000fad70",
+   "__cstring",
+   "Couldn't fully uninstall "
+  ]
+ ],
+ "0x10005ff24": [
+  [
+   "0x1000faf20",
+   "__cstring",
+   "No apps found in /Applications."
+  ],
+  [
+   "0x1000faf40",
+   "__cstring",
+   "Measuring apps and their Library leftovers\u2026"
+  ]
+ ],
+ "0x1000624ec": [
+  [
+   "0x1000faf00",
+   "__cstring",
+   "Add to Cleanup Queue"
+  ]
+ ],
+ "0x10006312c": [
+  [
+   "0x1000faea0",
+   "__cstring",
+   " leftover item(s) \u2014 "
+  ],
+  [
+   "0x1000faec0",
+   "__cstring",
+   " \u2014 go to the Trash. The app is quit first if it's running."
+  ]
+ ],
+ "0x100063444": [
+  [
+   "0x1000fae30",
+   "__cstring",
+   "Open Privacy Settings"
+  ]
+ ],
+ "0x100063688": [
+  [
+   "0x1000fae50",
+   "__cstring",
+   "x-apple.systempreferences:com.apple.preference.security?Privacy_AppBundles"
+  ]
+ ],
+ "0x1000637e8": [
+  [
+   "0x1000fad90",
+   "__cstring",
+   " item(s) couldn't be moved to the Trash:\n"
+  ],
+  [
+   "0x1000fadc0",
+   "__cstring",
+   "\n\nAllow this app under Privacy & Security \u2192 App Management (or Full Disk Access), then try again."
+  ]
+ ],
+ "0x1000697d0": [
+  [
+   "0x1000faf70",
+   "__cstring",
+   "Reveal in Finder"
+  ]
+ ],
+ "0x10006a168": [
+  [
+   "0x1000faf90",
+   "__cstring",
+   "arrow.up.forward.square"
+  ]
+ ],
+ "0x100074008": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x1000742f0": [
+  [
+   "0x1000fb0a0",
+   "__cstring",
+   " item(s) \u2014 check permissions."
+  ]
+ ],
+ "0x100074c68": [
+  [
+   "0x1000fb130",
+   "__cstring",
+   "Move to Trash\u2026"
+  ]
+ ],
+ "0x1000755d8": [
+  [
+   "0x1000fb0c0",
+   "__cstring",
+   "Nothing staged yet. Stage items from any visualization, Quick Wins, Duplicates, or App Uninstaller."
+  ]
+ ],
+ "0x1000768d4": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x100076db4": [
+  [
+   "0x1000fb040",
+   "__cstring",
+   ". Items go to the Trash, not permanent deletion \u2014 you can still recover them from there."
+  ]
+ ],
+ "0x100076f30": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ],
+  [
+   "0x1000fb001",
+   "__cstring",
+   "pth"
+  ]
+ ],
+ "0x100077520": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x10007a86c": [
+  [
+   "0x1000fb200",
+   "__cstring",
+   "Show or hide the inspector"
+  ]
+ ],
+ "0x10007d9c4": [
+  [
+   "0x1000fb2a0",
+   "__cstring",
+   "macwindow.badge.plus"
+  ],
+  [
+   "0x1000fb280",
+   "__cstring",
+   "waveform.path.ecg"
+  ],
+  [
+   "0x1000fb260",
+   "__cstring",
+   "clock.arrow.circlepath"
+  ]
+ ],
+ "0x10007fa9c": [
+  [
+   "0x1000fb220",
+   "__cstring",
+   "Filter by name..."
+  ]
+ ],
+ "0x100080a88": [
+  [
+   "0x1000fb240",
+   "__cstring",
+   "xmark.circle.fill"
+  ]
+ ],
+ "0x100081688": [
+  [
+   "0x1000fb150",
+   "__cstring",
+   "internaldrive.fill"
+  ]
+ ],
+ "0x10008189c": [
+  [
+   "0x100128870",
+   "__oslogstring",
+   "Accessing Environment<%s>'s value outside of being installed on a View. This will always read the default value and will not update."
+  ],
+  [
+   "0x1000fb170",
+   "__cstring",
+   "Accessing Environment's value outside of being installed on a View. This will always read the default value and will not update."
+  ]
+ ],
+ "0x100081b0c": [
+  [
+   "0x100128870",
+   "__oslogstring",
+   "Accessing Environment<%s>'s value outside of being installed on a View. This will always read the default value and will not update."
+  ],
+  [
+   "0x1000fb170",
+   "__cstring",
+   "Accessing Environment's value outside of being installed on a View. This will always read the default value and will not update."
+  ]
+ ],
+ "0x10008532c": [
+  [
+   "0x1000fb2c0",
+   "__cstring",
+   "Run a scan first."
+  ],
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ],
+  [
+   "0x1000fb2e0",
+   "__cstring",
+   " could be reclaimed across "
+  ],
+  [
+   "0x1000fb300",
+   "__cstring",
+   "No duplicate scan yet, or none found."
+  ]
+ ],
+ "0x100086118": [
+  [
+   "0x1000fb370",
+   "__cstring",
+   "Scan for Duplicates"
+  ]
+ ],
+ "0x100086948": [
+  [
+   "0x1000fb330",
+   "__cstring",
+   " each \u00b7 wastes "
+  ]
+ ],
+ "0x100086e08": [
+  [
+   "0x1000fb350",
+   "__cstring",
+   "Keep this, stage the rest"
+  ]
+ ],
+ "0x10008739c": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x100089a8c": [
+  [
+   "0x1000fb150",
+   "__cstring",
+   "internaldrive.fill"
+  ],
+  [
+   "0x1000fb390",
+   "__cstring",
+   "Map every byte on your Mac"
+  ],
+  [
+   "0x1000fb3b0",
+   "__cstring",
+   "A quick scan builds nine ways to look at your disk. Nothing is ever deleted without you."
+  ]
+ ],
+ "0x10008a3e0": [
+  [
+   "0x1000fb410",
+   "__cstring",
+   "Choose Folder\u2026"
+  ]
+ ],
+ "0x10008e62c": [
+  [
+   "0x1000faf90",
+   "__cstring",
+   "arrow.up.forward.square"
+  ],
+  [
+   "0x1000faf70",
+   "__cstring",
+   "Reveal in Finder"
+  ]
+ ],
+ "0x10009046c": [
+  [
+   "0x1000fb460",
+   "__cstring",
+   "Where your bytes sit on a timeline"
+  ],
+  [
+   "0x1000fb590",
+   "__cstring",
+   "Every file as a rectangle, sized by bytes"
+  ],
+  [
+   "0x1000fb530",
+   "__cstring",
+   "Rings radiating out from the scan root"
+  ],
+  [
+   "0x1000fb4e0",
+   "__cstring",
+   "Nested bubbles, one per folder"
+  ],
+  [
+   "0x1000fb490",
+   "__cstring",
+   "The biggest items, ranked"
+  ],
+  [
+   "0x1000fb560",
+   "__cstring",
+   "Browse folder by folder, sized as you go"
+  ],
+  [
+   "0x1000fb500",
+   "__cstring",
+   "Depth top to bottom, size left to right"
+  ],
+  [
+   "0x1000fb430",
+   "__cstring",
+   "Every item as an expandable outline"
+  ],
+  [
+   "0x1000fb4b0",
+   "__cstring",
+   "Branches from the root, sized by weight"
+  ]
+ ],
+ "0x100091474": [
+  [
+   "0x1000fb600",
+   "__cstring",
+   "Abbreviate labels to initials"
+  ]
+ ],
+ "0x100092678": [
+  [
+   "0x1000fb620",
+   "__cstring",
+   "list.bullet.rectangle"
+  ],
+  [
+   "0x1000fb670",
+   "__cstring",
+   "circle.hexagongrid.fill"
+  ],
+  [
+   "0x1000fb640",
+   "__cstring",
+   "point.3.filled.connected.trianglepath.dotted"
+  ],
+  [
+   "0x1000fb6b0",
+   "__cstring",
+   "smallcircle.filled.circle"
+  ],
+  [
+   "0x1000fb690",
+   "__cstring",
+   "doc.plaintext.fill"
+  ],
+  [
+   "0x1000fb6d0",
+   "__cstring",
+   "square.grid.2x2.fill"
+  ],
+  [
+   "0x1000fb002",
+   "__cstring",
+   "th"
+  ]
+ ],
+ "0x1000937a0": [
+  [
+   "0x1000fb5c0",
+   "__cstring",
+   "square.on.square"
+  ]
+ ],
+ "0x100093adc": [
+  [
+   "0x1000fb5e0",
+   "__cstring",
+   "square.3.layers.3d"
+  ]
+ ],
+ "0x100094dc4": [
+  [
+   "0x1000fae30",
+   "__cstring",
+   "Open Privacy Settings"
+  ]
+ ],
+ "0x100095888": [
+  [
+   "0x1000fb6f0",
+   "__cstring",
+   " couldn't be read \u2014 sizes may be incomplete"
+  ],
+  [
+   "0x1000fb720",
+   "__cstring",
+   "macOS denied access. Granting Full Disk Access includes privacy-protected locations; folders owned by the system or other users stay unreadable."
+  ]
+ ],
+ "0x100096174": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ],
+  [
+   "0x1000fb001",
+   "__cstring",
+   "pth"
+  ]
+ ],
+ "0x10009a63c": [
+  [
+   "0x1000fb028",
+   "__cstring",
+   "o Trash?"
+  ]
+ ],
+ "0x10009a908": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x10009c154": [
+  [
+   "0x1000fb7c0",
+   "__cstring",
+   "Nothing here matches \u201c"
+  ],
+  [
+   "0x1000fb7e0",
+   "__cstring",
+   "This folder is empty."
+  ]
+ ],
+ "0x1000a0868": [
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ],
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ]
+ ],
+ "0x1000a1964": [
+  [
+   "0x1000faf70",
+   "__cstring",
+   "Reveal in Finder"
+  ]
+ ],
+ "0x1000a24c0": [
+  [
+   "0x1000fb800",
+   "__cstring",
+   "Staged from Explore"
+  ]
+ ],
+ "0x1000a607c": [
+  [
+   "0x1000fb870",
+   "__cstring",
+   "Select an item to inspect it."
+  ]
+ ],
+ "0x1000a7b0c": [
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ],
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ]
+ ],
+ "0x1000a87ac": [
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ],
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ]
+ ],
+ "0x1000ac484": [
+  [
+   "0x1000fb890",
+   "__cstring",
+   "Staged for Cleanup"
+  ]
+ ],
+ "0x1000acb84": [
+  [
+   "0x1000faf90",
+   "__cstring",
+   "arrow.up.forward.square"
+  ]
+ ],
+ "0x1000ad0b8": [
+  [
+   "0x1000fb8b0",
+   "__cstring",
+   "doc.on.clipboard.fill"
+  ]
+ ],
+ "0x1000ad664": [
+  [
+   "0x1000fb800",
+   "__cstring",
+   "Staged from Explore"
+  ]
+ ],
+ "0x1000b240c": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x1000b3cd8": [
+  [
+   "0x1000fb070",
+   "__cstring",
+   "\u2014 you can still recover them from there."
+  ]
+ ],
+ "0x1000b42d4": [
+  [
+   "0x1000fb001",
+   "__cstring",
+   "pth"
+  ]
+ ],
+ "0x1000b49d8": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x1000b9f40": [
+  [
+   "0x1000fb9d0",
+   "__cstring",
+   "Pressure over time"
+  ]
+ ],
+ "0x1000bc2f4": [
+  [
+   "0x1000fb9b0",
+   "__cstring",
+   "Show fewer volumes"
+  ],
+  [
+   "0x1000fb990",
+   "__cstring",
+   "Free space over time"
+  ]
+ ],
+ "0x1000bcec0": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x1000bd4f4": [
+  [
+   "0x1000fb020",
+   "__cstring",
+   " items to Trash?"
+  ]
+ ],
+ "0x1000bf6ec": [
+  [
+   "0x1000fb970",
+   "__cstring",
+   "TOP PROCESSES BY "
+  ]
+ ],
+ "0x1000c050c": [
+  [
+   "0x1000fb950",
+   "__cstring",
+   "Filter processes"
+  ]
+ ],
+ "0x1000c0fc0": [
+  [
+   "0x1000fb930",
+   "__cstring",
+   "No matching processes"
+  ]
+ ],
+ "0x1000c41d4": [
+  [
+   "0x1000fb001",
+   "__cstring",
+   "pth"
+  ]
+ ],
+ "0x1000c64e0": [
+  [
+   "0x1000fb001",
+   "__cstring",
+   "pth"
+  ]
+ ],
+ "0x1000c7680": [
+  [
+   "0x1000fb070",
+   "__cstring",
+   "\u2014 you can still recover them from there."
+  ]
+ ],
+ "0x1000c7ca8": [
+  [
+   "0x1000fb007",
+   "__cstring",
+   "lor"
+  ]
+ ],
+ "0x1000c8f7c": [
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ],
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ]
+ ],
+ "0x1000caa0c": [
+  [
+   "0x1000fb150",
+   "__cstring",
+   "internaldrive.fill"
+  ]
+ ],
+ "0x1000cc94c": [
+  [
+   "0x1000fb260",
+   "__cstring",
+   "clock.arrow.circlepath"
+  ]
+ ],
+ "0x1000ce848": [
+  [
+   "0x1000faf90",
+   "__cstring",
+   "arrow.up.forward.square"
+  ],
+  [
+   "0x1000fb8b0",
+   "__cstring",
+   "doc.on.clipboard.fill"
+  ]
+ ],
+ "0x1000d12cc": [
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ],
+  [
+   "0x1000fba10",
+   "__cstring",
+   "arrow.down.circle.fill"
+  ],
+  [
+   "0x1000fb260",
+   "__cstring",
+   "clock.arrow.circlepath"
+  ]
+ ],
+ "0x1000d1a34": [
+  [
+   "0x1000fb9f0",
+   "__cstring",
+   "Xcode DerivedData"
+  ]
+ ],
+ "0x1000d2078": [
+  [
+   "0x1000faf70",
+   "__cstring",
+   "Reveal in Finder"
+  ]
+ ],
+ "0x1000d2510": [
+  [
+   "0x1000fb9f0",
+   "__cstring",
+   "Xcode DerivedData"
+  ]
+ ],
+ "0x1000d40c4": [
+  [
+   "0x1000fb007",
+   "__cstring",
+   "lor"
+  ]
+ ],
+ "0x1000d8664": [
+  [
+   "0x1000fba30",
+   "__cstring",
+   "No snapshots yet. Take one after a scan, then compare it to a later scan."
+  ]
+ ],
+ "0x1000d8fa8": [
+  [
+   "0x1000fbb60",
+   "__cstring",
+   "Take Snapshot Now"
+  ]
+ ],
+ "0x1000d9890": [
+  [
+   "0x1000fbb20",
+   "__cstring",
+   "Pick a Before and an After snapshot to see what grew."
+  ],
+  [
+   "0x1000fbaf0",
+   "__cstring",
+   "Couldn't read one of these snapshots."
+  ],
+  [
+   "0x1000fbaa0",
+   "__cstring",
+   "These snapshots are of different folders. Pick two of the same folder."
+  ],
+  [
+   "0x1000fba80",
+   "__cstring",
+   "No folder changed size."
+  ]
+ ],
+ "0x1000e3c60": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e3d44": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e3df4": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e3e80": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e3f94": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e5950": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e5c0c": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e5e5c": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e62e0": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000e73b4": [
+  [
+   "0x1000fac40",
+   "__cstring",
+   "chevron.left.forwardslash.chevron.right"
+  ],
+  [
+   "0x1000fac20",
+   "__cstring",
+   "shippingbox.fill"
+  ],
+  [
+   "0x1000fac70",
+   "__cstring",
+   "play.rectangle.fill"
+  ]
+ ],
+ "0x1000e98b4": [
+  [
+   "0x1000fa680",
+   "__cstring",
+   "Biggest files anywhere"
+  ],
+  [
+   "0x1000fa6a0",
+   "__cstring",
+   "Biggest folders anywhere"
+  ]
+ ],
+ "0x1000f160c": [
+  [
+   "0x1000fbbe6",
+   "__cstring",
+   "kCFAllocatorNull"
+  ],
+  [
+   "0x1000fbbf7",
+   "__cstring",
+   "CFDataCreateWithBytesNoCopy"
+  ],
+  [
+   "0x1000fbc13",
+   "__cstring",
+   "CFPropertyListCreateWithData"
+  ],
+  [
+   "0x1000fbc30",
+   "__cstring",
+   "CFPropertyListCreateFromXMLData"
+  ],
+  [
+   "0x1000fbc50",
+   "__cstring",
+   "CFStringCreateWithCStringNoCopy"
+  ],
+  [
+   "0x1000fbc70",
+   "__cstring",
+   "CFDictionaryGetValue"
+  ],
+  [
+   "0x1000fbc85",
+   "__cstring",
+   "CFGetTypeID"
+  ],
+  [
+   "0x1000fbc91",
+   "__cstring",
+   "CFStringGetTypeID"
+  ],
+  [
+   "0x1000fbca3",
+   "__cstring",
+   "CFStringGetCString"
+  ],
+  [
+   "0x1000fbcb6",
+   "__cstring",
+   "CFRelease"
+  ],
+  [
+   "0x1000fbcc0",
+   "__cstring",
+   "/System/Library/CoreServices/SystemVersion.plist"
+  ],
+  [
+   "0x1000fbcf1",
+   "__cstring",
+   "ProductVersion"
+  ],
+  [
+   "0x1000fbd00",
+   "__cstring",
+   "%d.%d.%d"
+  ]
+ ],
+ "0x1000f1974": [
+  [
+   "0x1000fbb72",
+   "__cstring",
+   "__isPlatformOrVariantPlatformVersionAtLeast"
+  ],
+  [
+   "0x1000fbb9e",
+   "__cstring",
+   "os_version_check.c"
+  ],
+  [
+   "0x1000fbbb1",
+   "__cstring",
+   "Platform2 == PLATFORM_MACOS && \"unexpected platform\""
+  ]
+ ]
+}
