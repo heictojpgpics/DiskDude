@@ -67,24 +67,66 @@ retains complete Swift reflection metadata. Recovery pipeline:
 |-----------|----------|
 | Type declarations (106 app types) | **100%** |
 | Field names + var/let modifiers (451) | **100%** |
-| UI strings (cstring xrefs) | **93%** |
-| API surface (Foundation/AppKit/Darwin imports) | matched per-service |
-| File/Info.plist/AppIcon | **byte-exact from DMG** |
+| UI strings (cstring + register small-strings) | **100%** (reverse-audited) |
+| Pure-logic functions (formatters) | **behavior-verified** (fuzzed on Linux vs decompiled binary model) |
+| DMG rebuild | **SHA-256 byte-exact match** |
+| Info.plist / PkgInfo / AppIcon | **byte-exact from DMG** |
 
 Structural facts verified directly from metadata include: the 5-tab layout
 (Explore/Duplicates/Applications/Monitor/Snapshots), the nine visualization
 modes, the 26 @Published ScanViewModel properties, the Combine
-ObservableObject design, SHA256 duplicate detection, the
+ObservableObject design, SHA256 duplicate detection (64 KB threshold, 1 MB
+chunks, `fcntl(F_NOCACHE, 1)`), the
 `~/Library/Application Support/DiskDude/Snapshots` persistence path with
-`snapshots.json`/`index.json`, UserDefaults keys `DISKDUDE_MODE` /
-`DISKDUDE_SCAN` / `recentScans`, and the seven QuickWins categories.
+`snapshots.json`/`index.json`, UserDefaults keys `theme` / `recentScans`, and
+the seven QuickWins categories.
+
+## DMG byte-exact rebuild (Round 5)
+
+The DMG packaging layer was fully reverse-engineered and **rebuilt
+byte-identically**: extracting the HFS+ image from the original UDZO DMG and
+recompressing every zlib chunk (level 1 — hdiutil's UDZO default, verified
+for all 8 zlib chunks byte-for-byte) reproduces the shipped file exactly:
+
+```
+original DiskDude-1.0.1.dmg        1a9811fc6574d3890e37685b88c554ef109eacf0467afaa6fda423b2458a06db
+rebuilt  DiskDude-1.0.1-rebuilt    1a9811fc6574d3890e37685b88c554ef109eacf0467afaa6fda423b2458a06db  ✓
+```
+
+Independent verification: 7-Zip extracts an **identical app bundle** from the
+rebuilt DMG (every file hash matches). See `tools/rebuild_dmg.py` (Linux,
+no macOS required) and `docs/hash-manifest.json`.
+
+Layer status:
+
+| Layer | Status |
+|-------|--------|
+| DMG wrapper (UDIF/UDZO + XML plist + koly) | **byte-exact** |
+| HFS+ disk image (GPT-wrapped) | **byte-exact** |
+| Bundle resources (Info.plist/PkgInfo/AppIcon.icns) | **byte-exact** |
+| Mach-O binary | original bytes carried (recompiling SwiftUI needs Xcode 16 + SDK 26 on macOS — see `build.sh`) |
+
+## Multi-tool verification
+
+Recovery facts were cross-validated across **six independent toolchains**:
+
+| Tool | Role |
+|------|------|
+| Ghidra 12.1.4 (headless + JDK 25) | 5,713-function decompilation export |
+| REA 6.4.0 (github.com/morluto/rea) | composed analysis workflow over Ghidra — 7,181 procedures, 3,372 strings |
+| radare2 6.2.4 | independent disassembly + pseudo-decompilation (4,356 functions) |
+| custom capstone tooling | string xrefs, Swift small-string immediates, chained fixups |
+| ipsw 3.1.736 | Swift metadata cross-check |
+| swiftc 6.1.2 (Linux) | behavioral fuzz harness (compiled recovered formatters vs decompiled binary model) — caught and fixed a real off-by-one unit bug in `formatBytes` |
 
 ## Building
 
 Open `DiskDude.xcodeproj` in Xcode 15+ on macOS 14+, select the DiskDude
-scheme, and build. The reconstructed Swift source is syntax-validated
-(swiftc -parse clean) but was not compiled against the macOS SDK on the
-recovery machine (Linux), so expect only minor compile fixes.
+scheme, and build — or run `./build.sh` for the full source→app→DMG pipeline
+(the DMG packaging parameters match the shipped artifact). The reconstructed
+Swift source is syntax-validated (swiftc -parse clean) but was not compiled
+against the macOS SDK on the recovery machine (Linux), so expect only minor
+compile fixes.
 
 ## Notes on fidelity
 
