@@ -157,31 +157,52 @@ struct InkButton: View {
     }
 }
 
-/// Capsule outline button (title + SF Symbol) used across the app. Destructive
-/// actions are confirmed through alerts at the call sites.
+/// Outline button with an optional press-and-confirm state (fields recovered
+/// from __swift5_fieldmd: confirmTitle / confirmImage / confirmDuration +
+/// the _isConfirming State and its asyncAfter reset timer).
 struct OutlineButton: View {
     let title: String
     var systemImage: String?
     var height: CGFloat = 32
     var fontSize: CGFloat = 12
+    var confirmTitle: String?
+    var confirmImage: String?
+    var confirmDuration: Double = 1.2
     let action: () -> Void
     @Environment(\.theme) private var theme
+    @State private var isConfirming = false
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                if let systemImage {
-                    Image(systemName: systemImage)
-                        .font(.system(size: fontSize - 1, weight: .semibold))
+        Button {
+            if confirmTitle != nil {
+                if isConfirming {
+                    action()
+                    isConfirming = false
+                } else {
+                    withAnimation(.snappy(duration: 0.2)) { isConfirming = true }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + confirmDuration) {
+                        withAnimation(.easeOut(duration: 0.25)) { isConfirming = false }
+                    }
                 }
-                Text(title)
+            } else {
+                action()
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: isConfirming
+                      ? (confirmImage ?? "checkmark.circle.fill")
+                      : (systemImage ?? "exclamationmark.triangle.fill"))
+                    .font(.system(size: fontSize - 1, weight: .semibold))
+                Text(isConfirming ? (confirmTitle ?? title) : title)
                     .font(.system(size: fontSize, weight: .semibold))
             }
-            .foregroundStyle(theme.text)
+            .foregroundStyle(isConfirming ? .white : theme.text)
             .frame(height: height)
             .padding(.horizontal, 14)
-            .background(Capsule().fill(theme.chip))
-            .overlay(Capsule().strokeBorder(theme.border, lineWidth: 1))
+            .background(
+                Capsule().fill(isConfirming ? Color.red : theme.chip)
+            )
+            .overlay(Capsule().strokeBorder(isConfirming ? Color.clear : theme.border, lineWidth: 1))
         }
         .buttonStyle(PressableStyle())
     }
