@@ -29,9 +29,9 @@ enum DuplicateFinder {
         var wasted: Int64 { max(0, size * Int64(files.count - 1)) }
     }
 
-    /// Files smaller than this are skipped (small files are rarely worth
-    /// reporting; the exact threshold was tuned in the original build).
-    static let minimumSize: Int64 = 1_048_576  // 1 MB
+    /// Files smaller than this are skipped (recovered from the binary:
+    /// the candidate filter compares against 0x10000 = 64 KB).
+    static let minimumSize: Int64 = 0x10000  // 64 KB
 
     /// Find duplicate files under `root`, reporting groups as they are
     /// found via `onGroup`.
@@ -79,16 +79,36 @@ enum DuplicateFinder {
         }
     }
 
-    /// Stream hash the file (chunked reads — recovered: fopen/fread/fclose
-    /// imports alongside the SHA256 digest usage).
-    static func sha256(url: URL) -> SHA256Digest? {
-        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
-        defer { try? handle.close() }
+    /// Stream hash the file — byte-exact recovery of the shipped algorithm:
+    /// open(2) with O_CLOEXEC, fcntl(F_NOCACHE, 1) on full reads so hashing
+    /// does not evict the page cache, 1 MB chunks fed to the incremental
+    /// CryptoKit hasher via UnsafeRawBufferPointer, whole file for sizes
+    /// under 1 MB.
+    static func sha256(path: String, size: Int, fullRead: Bool) -> SHA256Digest? {
+        let fd = open(path, O_CLOEXEC)
+        guard fd >= 0 else { return nil }
+        defer { close(fd) }
+        var remaining = size
+        if fullRead {
+            fcntl(fd, F_NOCACHE, 1)
+            remaining = Int.max
+        }
+        let chunkSize = remaining > 0xFFFFF ? 1 << 20 : max(remaining, 1)
+        let buffer = malloc(chunkSize)!
+        defer { free(buffer) }
         var hasher = SHA256()
-        let chunkSize = 1024 * 1024
-        while let chunk = try? handle.read(upToCount: chunkSize), !chunk.isEmpty {
-            hasher.update(data: chunk)
+        while remaining > 0 {
+            let toRead = min(chunkSize, remaining)
+            let n = read(fd, buffer, toRead)
+            if n <= 0 { break }
+            hasher.update(bufferPointer: UnsafeRawBufferPointer(start: buffer, count: n))
+            remaining -= n
         }
         return hasher.finalize()
+    }
+
+    static func sha256(url: URL) -> SHA256Digest? {
+        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        return sha256(path: url.path, size: size, fullRead: true)
     }
 }

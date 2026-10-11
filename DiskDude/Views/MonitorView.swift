@@ -136,7 +136,7 @@ struct MonitorView: View {
                 MonitorCard {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            SectionCaption(title: "TOP PROCESSES BY \(processSort == .cpu ? "CPU" : "MEMORY")",
+                            SectionCaption(title: "TOP PROCESSES BY \(processSort == .cpu ? "CPU" : "Memory")",
                                            trailing: "\(snapshot.processCount) processes")
                             Spacer()
                             Picker("", selection: $processSort) {

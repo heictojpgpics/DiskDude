@@ -333,10 +333,13 @@ struct QuickWinRow: View {
                 Image(systemName: icon)
                     .foregroundStyle(theme.ink)
                 Text(win.kind.title)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(.system(size: 13, weight: .medium))
                 Spacer()
+                Text(win.matches.count == 1 ? "1 item" : "\(win.matches.count) items")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(theme.textTertiary)
                 Text(formatBytes(win.totalSize))
-                    .font(.system(size: 12, weight: .bold).monospacedDigit())
+                    .font(.system(size: 13, weight: .medium).monospacedDigit())
             }
             ForEach(win.matches.prefix(6), id: \.id) { node in
                 HStack {
@@ -363,12 +366,12 @@ struct QuickWinRow: View {
     private var icon: String {
         switch win.kind {
         case .downloads: return "arrow.down.circle.fill"
-        case .caches: return "trash.slash"
-        case .simulators: return "iphone.gen3"
+        case .caches: return "xmark.circle.fill"
+        case .simulators: return "iphone"
         case .largeMedia: return "film.fill"
         case .nodeModules: return "chevron.left.forwardslash.chevron.right"
         case .buildArtifacts: return "hammer.fill"
-        case .derivedData: return "wrench.and.screwdriver.fill"
+        case .derivedData: return "cube.fill"
         }
     }
 }
