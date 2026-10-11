@@ -37,12 +37,13 @@ struct MonitorView: View {
                     MonitorCard {
                         VStack(alignment: .leading, spacing: 8) {
                             SectionCaption(title: "Pressure over time", trailing: nil)
+                            Text(String(format: "%.1f%%", snapshot.cpu.user + snapshot.cpu.system))
+                                .font(.system(size: 22, weight: .bold))
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
                             SegmentedBar(segments: [
                                 snapshot.cpu.user, snapshot.cpu.system, snapshot.cpu.idle,
                             ], total: 100)
-                            Text("User \(snapshot.cpu.user, specifier: "%.1f")% · System \(snapshot.cpu.system, specifier: "%.1f")% · Idle \(snapshot.cpu.idle, specifier: "%.1f")%")
-                                .font(.system(size: 10))
-                                .foregroundStyle(theme.textTertiary)
                             Text("Load \(snapshot.cpu.loadAverage, specifier: "%.2f")")
                                 .font(.system(size: 10))
                                 .foregroundStyle(theme.textSecondary)
@@ -56,7 +57,7 @@ struct MonitorView: View {
                             SectionCaption(title: "Memory", trailing: nil)
                             UsageRing(fraction: snapshot.memory.pressure, lineWidth: 6)
                                 .frame(width: 54, height: 54)
-                            Text("\(snapshot.memory.used.formatted(.byteCount(style: .memory))) of \(snapshot.memory.total.formatted(.byteCount(style: .memory)))")
+                            Text("\(formatBytes(snapshot.memory.used)) of \(formatBytes(snapshot.memory.total))")
                                 .font(.system(size: 10))
                                 .foregroundStyle(theme.textSecondary)
                         }
@@ -71,7 +72,7 @@ struct MonitorView: View {
                             SectionCaption(title: "Free space over time", trailing: nil)
                             Sparkline(values: freeSpaceHistory, color: theme.ink, maxValue: nil)
                                 .frame(height: 44)
-                            Text("\(viewModel.disk.free.formatted(.byteCount(style: .file))) free of \(viewModel.disk.total.formatted(.byteCount(style: .file)))")
+                            Text("\(formatBytes(viewModel.disk.free)) free of \(formatBytes(viewModel.disk.total))")
                                 .font(.system(size: 10))
                                 .foregroundStyle(theme.textSecondary)
                             if !storageExpanded {
@@ -93,7 +94,7 @@ struct MonitorView: View {
                                 stat("↓", snapshot.network.downBytesPerSec, theme.ink)
                                 stat("↑", snapshot.network.upBytesPerSec, theme.categoryColor(.audio))
                             }
-                            Text("Session: ↓ \(snapshot.network.sessionDown.formatted(.byteCount(style: .file))) · ↑ \(snapshot.network.sessionUp.formatted(.byteCount(style: .file)))")
+                            Text("Session: ↓ \(formatBytes(snapshot.network.sessionDown)) · ↑ \(formatBytes(snapshot.network.sessionUp))")
                                 .font(.system(size: 10))
                                 .foregroundStyle(theme.textTertiary)
                         }
@@ -122,7 +123,7 @@ struct MonitorView: View {
                                     Spacer()
                                     UsageRing(fraction: v.total > 0 ? Double(v.total - v.free) / Double(v.total) : 0, lineWidth: 3)
                                         .frame(width: 20, height: 20)
-                                    Text("\(v.free.formatted(.byteCount(style: .file))) free")
+                                    Text("\(formatBytes(v.free)) free")
                                         .font(.system(size: 10).monospacedDigit())
                                         .foregroundStyle(theme.textTertiary)
                                 }
@@ -164,7 +165,7 @@ struct MonitorView: View {
                                     Text("%")
                                         .font(.system(size: 9))
                                 } else {
-                                    Text(proc.memoryBytes.formatted(.byteCount(style: .memory)))
+                                    Text(formatBytes(proc.memoryBytes))
                                         .font(.system(size: 11, weight: .bold).monospacedDigit())
                                         .frame(width: 90, alignment: .trailing)
                                 }
@@ -209,7 +210,7 @@ struct MonitorView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
                 Text(arrow).font(.system(size: 13, weight: .bold))
-                Text(ByteCountFormatter.string(fromByteCount: Int64(perSec * 2), countStyle: .file) + "/s")
+                Text(formatBytes(Int64(perSec * 2)) + "/s")
                     .font(.system(size: 12, weight: .bold).monospacedDigit())
             }
             .foregroundStyle(color)

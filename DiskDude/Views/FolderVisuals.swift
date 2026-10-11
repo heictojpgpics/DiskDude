@@ -85,7 +85,7 @@ struct FolderCard: View {
                         .foregroundStyle(theme.textTertiary)
                 }
                 HStack(spacing: 4) {
-                    Text(node.sizeOnDisk, format: .byteCount(style: .file))
+                    Text(formatBytes(node.sizeOnDisk))
                         .font(.system(size: 15, weight: .bold))
                     Text("· \(node.fileCount) files \(node.folderCount > 0 ? "· \(node.folderCount - 1) folders" : "")")
                         .font(.system(size: 10))
@@ -131,7 +131,7 @@ struct FileTile: View {
                         .font(.system(size: 11, weight: .medium))
                         .lineLimit(1)
                         .foregroundStyle(theme.text)
-                    Text(node.sizeOnDisk, format: .byteCount(style: .file))
+                    Text(formatBytes(node.sizeOnDisk))
                         .font(.system(size: 10))
                         .foregroundStyle(theme.textTertiary)
                 }

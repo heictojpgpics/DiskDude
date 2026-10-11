@@ -44,9 +44,7 @@ struct DuplicatesView: View {
                     if viewModel.root != nil {
                         OutlineButton(title: "Scan for Duplicates",
                                       systemImage: "magnifyingglass",
-                                      height: 34, fontSize: 12,
-                                      confirmTitle: nil, confirmImage: nil,
-                                      confirmDuration: 0.5) {
+                                      height: 34, fontSize: 12) {
                             viewModel.findDuplicates()
                         }
                     }
@@ -61,7 +59,7 @@ struct DuplicatesView: View {
                         }
                     } header: {
                         SectionCaption(title: "Duplicates",
-                                       trailing: "\(totalWasted.formatted(.byteCount(style: .file))) could be reclaimed across \(viewModel.duplicateGroups.count) groups")
+                                       trailing: "\(formatBytes(totalWasted)) could be reclaimed across \(viewModel.duplicateGroups.count) groups")
                     }
                 }
                 .listStyle(.inset)
@@ -79,7 +77,7 @@ struct DuplicateGroupRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(group.files.count) identical files · \(group.size.formatted(.byteCount(style: .file))) each · wastes \(group.wasted.formatted(.byteCount(style: .file)))")
+                Text("\(group.files.count) identical files · \(formatBytes(group.size)) each · wastes \(formatBytes(group.wasted))")
                     .font(.system(size: 11, weight: .semibold))
                 Spacer()
                 Button("Keep this, stage the rest") {
@@ -87,7 +85,7 @@ struct DuplicateGroupRow: View {
                     for file in group.files.dropFirst() {
                         queue.add(url: URL(fileURLWithPath: file.path),
                                   size: file.sizeOnDisk,
-                                  reason: "Duplicate of \(keep?.name ?? "")")
+                                  reason: "Staged for Cleanup")
                     }
                 }
                 .font(.system(size: 10, weight: .semibold))
@@ -106,7 +104,7 @@ struct DuplicateGroupRow: View {
                     Button(queue.contains(url: URL(fileURLWithPath: file.path)) ? "Remove" : "Add to Cleanup Queue") {
                         queue.toggle(url: URL(fileURLWithPath: file.path),
                                      size: file.sizeOnDisk,
-                                     reason: "Duplicate")
+                                     reason: "Staged for Cleanup")
                     }
                     .font(.system(size: 9, weight: .semibold))
                     .buttonStyle(.borderless)
@@ -125,7 +123,7 @@ struct AppUninstallerView: View {
     @State private var expanded: Set<UUID> = []
     @State private var pendingUninstall: AppUninstaller.InstalledApp?
     @State private var uninstallingID: UUID?
-    @State private var failure: String?
+    @State private var failure: (app: String, urls: [URL])?
 
     var body: some View {
         Group {
@@ -144,9 +142,7 @@ struct AppUninstallerView: View {
                         .foregroundStyle(theme.textTertiary)
                     OutlineButton(title: "Reload Apps",
                                   systemImage: "arrow.clockwise",
-                                  height: 32, fontSize: 12,
-                                  confirmTitle: nil, confirmImage: nil,
-                                  confirmDuration: 0.5) {
+                                  height: 32, fontSize: 12) {
                         viewModel.loadInstalledApps()
                     }
                 }
@@ -175,7 +171,7 @@ struct AppUninstallerView: View {
             }
         }
         .background(theme.background)
-        .alert("Move \(pendingUninstall?.displayName ?? "app") to Trash?", isPresented: Binding(
+        .alert("Uninstall \(pendingUninstall?.displayName ?? "app")?", isPresented: Binding(
             get: { pendingUninstall != nil },
             set: { if !$0 { pendingUninstall = nil } })) {
             Button("Cancel", role: .cancel) { pendingUninstall = nil }
@@ -184,19 +180,19 @@ struct AppUninstallerView: View {
                 pendingUninstall = nil
             }
         } message: {
-            Text("\(pendingUninstall?.leftovers.count ?? 0) leftover item(s) — \(pendingUninstall?.displayName ?? "") — go to the Trash. The app is quit first if it's running.")
+            Text("The app and \(pendingUninstall?.leftovers.reduce(0) { $0 + $1.urls.count } ?? 0) leftover item(s) — \(pendingUninstall.map { formatBytes($0.leftovers.reduce(0) { $0 + Int64($1.totalSize) }) } ?? "") — go to the Trash. The app is quit first if it's running.")
         }
-        .alert("Couldn't fully uninstall", isPresented: Binding(
+        .alert("Couldn't fully uninstall \(failure?.app ?? "")", isPresented: Binding(
             get: { failure != nil },
-            set: { if !$0 { failure = nil } })) {
+            set: { if !$0 { failure = nil } }), presenting: failure) { failure in
             Button("Open Privacy Settings") {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AppBundles") {
                     NSWorkspace.shared.open(url)
                 }
             }
             Button("OK", role: .cancel) {}
-        } message: {
-            Text("\(failure ?? "") item(s) couldn't be moved to the Trash:\n\nAllow this app under Privacy & Security → App Management (or Full Disk Access), then try again.")
+        } message: { failure in
+            Text("\(failure.urls.count) item(s) couldn't be moved to the Trash:\n\(failure.urls.prefix(5).map(\.path).joined(separator: "\n"))\n\nAllow this app under Privacy & Security → App Management (or Full Disk Access), then try again.")
         }
     }
 
@@ -211,10 +207,7 @@ struct AppUninstallerView: View {
             await MainActor.run {
                 uninstallingID = nil
                 if !failed.isEmpty {
-                    failure = "\(failed.count)"
-                    // "Couldn't fully uninstall <name>" partial failure path.
-                } else if let first = failed.first {
-                    failure = first.lastPathComponent
+                    failure = (app: app.displayName, urls: failed)
                 } else {
                     viewModel.loadInstalledApps()
                 }
@@ -246,7 +239,7 @@ struct AppRow: View {
                             VersionChip(text: version)
                         }
                     }
-                    Text("\(app.bundleIdentifier) · \(app.bundleSize.formatted(.byteCount(style: .file)))")
+                    Text("\(app.bundleIdentifier) · \(formatBytes(app.bundleSize))")
                         .font(.system(size: 10))
                         .foregroundStyle(theme.textTertiary)
                 }
@@ -283,7 +276,7 @@ struct AppRow: View {
                             .foregroundStyle(theme.textTertiary)
                         Text(group.category)
                             .font(.system(size: 11, weight: .medium))
-                        Text("\(group.urls.count) items · \(group.totalSize.formatted(.byteCount(style: .file)))")
+                        Text("\(group.urls.count) items · \(formatBytes(group.totalSize))")
                             .font(.system(size: 10))
                             .foregroundStyle(theme.textTertiary)
                         Spacer()

@@ -68,7 +68,7 @@ struct TopSizesView: View {
 
     private func share(of node: FileNode) -> String {
         guard let root = viewModel.root, root.sizeOnDisk > 0 else { return "" }
-        return String(format: "%.1f%%", Double(node.sizeOnDisk) / Double(root.sizeOnDisk) * 100)
+        return formatPercentage(node.sizeOnDisk, of: root.sizeOnDisk)
     }
 }
 
@@ -113,7 +113,7 @@ struct TopSizeRow: View {
                 .font(.system(size: 10).monospacedDigit())
                 .foregroundStyle(theme.textTertiary)
                 .frame(width: 46, alignment: .trailing)
-            Text(node.sizeOnDisk, format: .byteCount(style: .file))
+            Text(formatBytes(node.sizeOnDisk))
                 .font(.system(size: 11, weight: .bold).monospacedDigit())
                 .frame(width: 90, alignment: .trailing)
         }
@@ -171,7 +171,7 @@ struct AgeBucketsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionCaption(title: "Bytes by last-modified month",
-                           trailing: report.total.formatted(.byteCount(style: .file)))
+                           trailing: formatBytes(report.total))
             HStack(spacing: 6) {
                 ForEach(Array(zip(labels.indices, labels)), id: \.0) { i, label in
                     VStack(spacing: 4) {
@@ -256,7 +256,7 @@ struct UntouchedCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             SectionCaption(title: "Big & untouched for a year",
-                           trailing: report.untouchedTotal.formatted(.byteCount(style: .file)))
+                           trailing: formatBytes(report.untouchedTotal))
             if report.untouched.isEmpty {
                 Text("Nothing over 40 MB has sat untouched for a year here.")
                     .font(.system(size: 11))
@@ -271,12 +271,12 @@ struct UntouchedCard: View {
                             .font(.system(size: 11))
                             .lineLimit(1)
                         Spacer()
-                        Text(node.sizeOnDisk, format: .byteCount(style: .file))
+                        Text(formatBytes(node.sizeOnDisk))
                             .font(.system(size: 11, weight: .bold).monospacedDigit())
                         Button(queue.contains(url: URL(fileURLWithPath: node.path)) ? "Remove from cleanup" : "Add to Cleanup Queue") {
                             queue.toggle(url: URL(fileURLWithPath: node.path),
                                          size: node.sizeOnDisk,
-                                         reason: "Staged from Age Map")
+                                         reason: "Staged for Cleanup")
                         }
                         .font(.system(size: 10, weight: .semibold))
                         .buttonStyle(.borderless)
@@ -323,7 +323,7 @@ struct OutlineListView: View {
                 Text(node.name)
                     .font(.system(size: 11, weight: node.isDirectory ? .semibold : .regular))
                 Spacer()
-                Text(node.sizeOnDisk, format: .byteCount(style: .file))
+                Text(formatBytes(node.sizeOnDisk))
                     .font(.system(size: 10).monospacedDigit())
                     .foregroundStyle(theme.textSecondary)
                 Text("\(node.fileCount) files")

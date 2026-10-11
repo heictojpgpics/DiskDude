@@ -187,7 +187,7 @@ struct BubblesView: View {
                         .font(.system(size: min(11, bubble.radius / 4.2), weight: .semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.55)
-                    Text(bubble.node.sizeOnDisk, format: .byteCount(style: .file))
+                    Text(formatBytes(bubble.node.sizeOnDisk))
                         .font(.system(size: min(9, bubble.radius / 5.5)))
                         .opacity(0.8)
                 }

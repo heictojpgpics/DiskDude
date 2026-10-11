@@ -47,9 +47,7 @@ struct SnapshotsContent: View {
                     if viewModel.root != nil {
                         OutlineButton(title: "Take Snapshot Now",
                                       systemImage: "camera",
-                                      height: 34, fontSize: 12,
-                                      confirmTitle: nil, confirmImage: nil,
-                                      confirmDuration: 0.5) {
+                                      height: 34, fontSize: 12) {
                             takeSnapshot()
                         }
                     }
@@ -63,9 +61,7 @@ struct SnapshotsContent: View {
                         if viewModel.root != nil {
                             OutlineButton(title: "Take Snapshot Now",
                                           systemImage: "camera",
-                                          height: 30, fontSize: 11,
-                                          confirmTitle: nil, confirmImage: nil,
-                                          confirmDuration: 0.5) {
+                                          height: 30, fontSize: 11) {
                                 takeSnapshot()
                             }
                         }
@@ -127,11 +123,11 @@ struct SnapshotsContent: View {
                                 .font(.system(size: 11))
                                 .lineLimit(1)
                             Spacer()
-                            Text(d.before.formatted(.byteCount(style: .file)))
+                            Text(formatBytes(d.before))
                                 .foregroundStyle(theme.textTertiary)
                             Text("→")
                                 .foregroundStyle(theme.textTertiary)
-                            Text(d.after.formatted(.byteCount(style: .file)))
+                            Text(formatBytes(d.after))
                             Image(systemName: d.grew ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
                                 .foregroundStyle(d.grew ? .red : .green)
                         }
@@ -203,7 +199,7 @@ struct CleanupQueueView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 SectionCaption(title: "Staged for Cleanup",
-                               trailing: queue.totalSize.formatted(.byteCount(style: .file)))
+                               trailing: formatBytes(queue.totalSize))
                 Spacer()
                 SquareIconButton(systemImage: "xmark", label: "Close", size: 12) {
                     dismiss()
@@ -234,7 +230,7 @@ struct CleanupQueueView: View {
                                     .foregroundStyle(theme.textTertiary)
                             }
                             Spacer()
-                            Text(item.size, format: .byteCount(style: .file))
+                            Text(formatBytes(item.size))
                                 .font(.system(size: 11).monospacedDigit())
                             Button("Remove from cleanup") {
                                 queue.remove(url: item.url)
@@ -248,20 +244,25 @@ struct CleanupQueueView: View {
                 Divider()
 
                 HStack {
-                    Text("\(queue.count) items · \(queue.totalSize.formatted(.byteCount(style: .file)))")
+                    Text("\(queue.count) items · \(formatBytes(queue.totalSize))")
                         .font(.system(size: 11))
                         .foregroundStyle(theme.textSecondary)
                     Spacer()
                     OutlineButton(title: "Move to Trash…",
                                   systemImage: "trash",
-                                  height: 32, fontSize: 12,
-                                  confirmTitle: "Move \(queue.count) items to Trash?",
-                                  confirmImage: "trash.fill",
-                                  confirmDuration: 1.4) {
-                        emptyQueueToTrash()
+                                  height: 32, fontSize: 12) {
+                        showConfirm = true
                     }
                 }
                 .padding(14)
+                .alert("Move \(queue.count) items to Trash?", isPresented: $showConfirm) {
+                    Button("Move to Trash", role: .destructive) {
+                        emptyQueueToTrash()
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("This frees \(formatBytes(queue.totalSize)). Items go to the Trash, not permanent deletion — you can still recover them from there.")
+                }
             }
 
             if !failures.isEmpty {
@@ -334,7 +335,7 @@ struct QuickWinRow: View {
                 Text(win.kind.title)
                     .font(.system(size: 12, weight: .bold))
                 Spacer()
-                Text(win.totalSize.formatted(.byteCount(style: .file)))
+                Text(formatBytes(win.totalSize))
                     .font(.system(size: 12, weight: .bold).monospacedDigit())
             }
             ForEach(win.matches.prefix(6), id: \.id) { node in
@@ -347,7 +348,7 @@ struct QuickWinRow: View {
                     Button("Add to Cleanup Queue") {
                         viewModel.cleanupQueue.add(url: URL(fileURLWithPath: node.path),
                                                    size: node.sizeOnDisk,
-                                                   reason: "Quick win: \(win.kind.title)")
+                                                   reason: "Staged for Cleanup")
                     }
                     .font(.system(size: 9, weight: .semibold))
                     .buttonStyle(.borderless)
@@ -464,8 +465,8 @@ struct InspectorContent: View {
 
                 Divider()
 
-                row("Size on disk", node.sizeOnDisk.formatted(.byteCount(style: .file)))
-                row("Logical size", node.logicalSize.formatted(.byteCount(style: .file)))
+                row("Size on disk", formatBytes(node.sizeOnDisk))
+                row("Logical size", formatBytes(node.logicalSize))
                 if let modified = Date(timeIntervalSince1970: node.modifiedStamp) as Date? {
                     row("Modified", modified.formatted(date: .abbreviated, time: .shortened))
                 }
@@ -488,7 +489,7 @@ struct InspectorContent: View {
                                 Circle().fill(theme.categoryColor(cat)).frame(width: 7, height: 7)
                                 Text(cat.label).font(.system(size: 10))
                                 Spacer()
-                                Text(v.formatted(.byteCount(style: .file)))
+                                Text(formatBytes(v))
                                     .font(.system(size: 10).monospacedDigit())
                                     .foregroundStyle(theme.textSecondary)
                             }
@@ -516,14 +517,14 @@ struct InspectorContent: View {
                         OutlineButton(title: "Remove from cleanup",
                                       systemImage: "trash.slash",
                                       height: 30, fontSize: 11,
-                                      confirmTitle: nil, confirmImage: nil, confirmDuration: 0.5) {
+) {
                             queue.remove(url: url)
                         }
                     } else {
                         InkButton(title: "Add to Cleanup Queue",
                                   systemImage: "shippingbox.fill",
                                   height: 30, fontSize: 11) {
-                            queue.add(url: url, size: node.sizeOnDisk, reason: "Staged from Explore")
+                            queue.add(url: url, size: node.sizeOnDisk, reason: "Staged for Cleanup")
                         }
                     }
                 }

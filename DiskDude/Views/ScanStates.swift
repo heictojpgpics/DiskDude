@@ -51,9 +51,7 @@ struct EmptyScanView: View {
                           systemImage: "folder.badge.plus",
                           height: 38,
                           fontSize: 13,
-                          confirmTitle: nil,
-                          confirmImage: nil,
-                          confirmDuration: 0.6) {
+) {
                 NotificationCenter.default.post(name: .chooseScanFolder, object: nil)
             }
         }
@@ -72,7 +70,7 @@ struct ScanningView: View {
         VStack(spacing: 16) {
             ProgressView(value: Double(filesScanned % 100), total: 100)
                 .frame(width: 320)
-            Text("\(filesScanned.formatted()) files · \(bytesScanned.formatted(.byteCount(style: .file)))")
+            Text("\(filesScanned.formatted()) files · \(formatBytes(bytesScanned))")
                 .font(.system(size: 15, weight: .semibold))
             Text(currentPath)
                 .font(.system(size: 10, design: .monospaced))

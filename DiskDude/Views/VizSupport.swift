@@ -157,52 +157,31 @@ struct InkButton: View {
     }
 }
 
-/// Outline button with an optional press-and-confirm state (the original
-/// "Move to Trash…" two-stage confirm; recovered _isConfirming state +
-/// confirmTitle/confirmImage/confirmDuration fields).
+/// Capsule outline button (title + SF Symbol) used across the app. Destructive
+/// actions are confirmed through alerts at the call sites.
 struct OutlineButton: View {
     let title: String
     var systemImage: String?
     var height: CGFloat = 32
     var fontSize: CGFloat = 12
-    var confirmTitle: String?
-    var confirmImage: String?
-    var confirmDuration: Double = 1.2
     let action: () -> Void
     @Environment(\.theme) private var theme
-    @State private var isConfirming = false
 
     var body: some View {
-        Button {
-            if confirmTitle != nil {
-                if isConfirming {
-                    action()
-                    isConfirming = false
-                } else {
-                    withAnimation(.snappy(duration: 0.2)) { isConfirming = true }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + confirmDuration) {
-                        withAnimation(.easeOut(duration: 0.25)) { isConfirming = false }
-                    }
-                }
-            } else {
-                action()
-            }
-        } label: {
+        Button(action: action) {
             HStack(spacing: 6) {
-                Image(systemName: isConfirming
-                      ? (confirmImage ?? "checkmark.circle.fill")
-                      : (systemImage ?? "exclamationmark.triangle.fill"))
-                    .font(.system(size: fontSize - 1, weight: .semibold))
-                Text(isConfirming ? (confirmTitle ?? title) : title)
+                if let systemImage {
+                    Image(systemName: systemImage)
+                        .font(.system(size: fontSize - 1, weight: .semibold))
+                }
+                Text(title)
                     .font(.system(size: fontSize, weight: .semibold))
             }
-            .foregroundStyle(isConfirming ? .white : theme.text)
+            .foregroundStyle(theme.text)
             .frame(height: height)
             .padding(.horizontal, 14)
-            .background(
-                Capsule().fill(isConfirming ? Color.red : theme.chip)
-            )
-            .overlay(Capsule().strokeBorder(isConfirming ? Color.clear : theme.border, lineWidth: 1))
+            .background(Capsule().fill(theme.chip))
+            .overlay(Capsule().strokeBorder(theme.border, lineWidth: 1))
         }
         .buttonStyle(PressableStyle())
     }
@@ -220,9 +199,14 @@ struct HoverChip: View {
             Text(node.isDirectory ? " \(node.name)" : node.name)
                 .font(.system(size: 11, weight: .semibold))
                 .lineLimit(1)
-            Text(scanSize > 0 ? scanSize : node.sizeOnDisk, format: .byteCount(style: .file))
+            Text(formatBytes(scanSize > 0 ? scanSize : node.sizeOnDisk))
                 .font(.system(size: 10))
                 .foregroundStyle(theme.textSecondary)
+            if scanSize > 0 {
+                Text(formatPercentage(node.sizeOnDisk, of: scanSize))
+                    .font(.system(size: 9))
+                    .foregroundStyle(theme.textTertiary)
+            }
             if node.isDirectory {
                 Text("\(node.fileCount) files · \(node.folderCount) folders")
                     .font(.system(size: 9))
@@ -252,19 +236,37 @@ struct UsageRing: View {
     }
 }
 
-// MARK: - Byte formatting
+// MARK: - Byte & percentage formatting
 
-extension Int64 {
-    /// Compact display used across the app (abbreviateLabels shortens
-    /// to initials like "GB" → "G").
-    func compact(abbreviated: Bool) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        if abbreviated {
-            formatter.allowedUnits = [.useKB, .useMB, .useGB, .useTB]
-            formatter.isAdaptive = false
-            formatter.includesUnit = true
-        }
-        return formatter.string(fromByteCount: self)
+/// Hand-rolled decimal byte formatter used across the app (behavior recovered
+/// byte-exact from the binary: 1000-based units, 999.5 rollover, "%.0f"/"%.1f"
+/// /"%.2f" selected at 99.95/9.995).
+func formatBytes(_ bytes: Int64) -> String {
+    let sign = bytes < 0 ? "-" : ""
+    let magnitude = abs(bytes)
+    if magnitude < 1000 {
+        return "\(sign)\(magnitude) B"
     }
+    let units = ["B", "KB", "MB", "GB", "TB", "PB"]
+    var value = Double(magnitude)
+    var unit = 1
+    while value >= 999.5 && unit < units.count - 1 {
+        value /= 1000
+        unit += 1
+    }
+    let pattern = value >= 99.95 ? "%.0f" : (value >= 9.995 ? "%.1f" : "%.2f")
+    return sign + String(format: pattern, value) + " " + units[unit]
+}
+
+/// Share-of-total percentage (recovered from the binary): "0%" when the total
+/// is empty, "<0.1%" for tiny fractions, otherwise one decimal place.
+func formatPercentage(_ part: Int64, of whole: Int64) -> String {
+    if whole > 0 {
+        let fraction = Double(part) / Double(whole) * 100.0
+        if fraction <= 0.0 || fraction >= 0.1 {
+            return String(format: "%.1f%%", fraction)
+        }
+        return "<0.1%"
+    }
+    return "0%"
 }

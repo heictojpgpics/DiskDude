@@ -24,7 +24,7 @@ struct TopBar: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(viewModel.disk.name)
                         .font(.system(size: 11, weight: .semibold))
-                    Text("\(viewModel.disk.used.formatted(.byteCount(style: .file))) of \(viewModel.disk.total.formatted(.byteCount(style: .file)))")
+                    Text("\(formatBytes(viewModel.disk.used)) of \(formatBytes(viewModel.disk.total))")
                         .font(.system(size: 9))
                         .foregroundStyle(theme.textTertiary)
                 }
