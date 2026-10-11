@@ -239,16 +239,11 @@ struct AppRow: View {
                             VersionChip(text: version)
                         }
                     }
-                    Text("\(app.bundleIdentifier) · \(formatBytes(app.bundleSize))")
+                    Text("· last used \(relativeDateText(app.lastUsedDate))")
                         .font(.system(size: 10.5))
                         .foregroundStyle(theme.textTertiary)
                 }
                 Spacer()
-                if let lastUsed = app.lastUsedDate {
-                    Text(lastUsed.formatted(.relative(presentation: .named)))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(theme.textTertiary)
-                }
                 Button(action: uninstall) {
                     if isUninstalling {
                         ProgressView().controlSize(.small)

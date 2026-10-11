@@ -470,12 +470,8 @@ struct InspectorContent: View {
 
                 row("Size on disk", formatBytes(node.sizeOnDisk))
                 row("Logical size", formatBytes(node.logicalSize))
-                if let modified = Date(timeIntervalSince1970: node.modifiedStamp) as Date? {
-                    row("Modified", modified.formatted(date: .abbreviated, time: .shortened))
-                }
-                if node.createdStamp > 0, let created = Date(timeIntervalSince1970: node.createdStamp) {
-                    row("Created", created.formatted(date: .abbreviated, time: .shortened))
-                }
+                row("Modified", relativeDateText(node.modifiedStamp > 0 ? Date(timeIntervalSince1970: node.modifiedStamp) : nil))
+                row("Created", relativeDateText(node.createdStamp > 0 ? Date(timeIntervalSince1970: node.createdStamp) : nil))
                 if node.isDirectory {
                     row("Files", "\(node.fileCount)")
                     row("Folders", "\(node.folderCount - 1)")

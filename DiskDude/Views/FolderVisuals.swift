@@ -119,46 +119,19 @@ struct FileTile: View {
     @Environment(\.theme) private var theme
 
     var body: some View {
-        Button {
-            viewModel.select(node)
-        } label: {
-            HStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 15))
-                    .foregroundStyle(theme.categoryColor(node.category))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(node.name)
-                        .font(.system(size: 11, weight: .medium))
-                        .lineLimit(1)
-                        .foregroundStyle(theme.text)
-                    Text(formatBytes(node.sizeOnDisk))
-                        .font(.system(size: 10.5))
-                        .foregroundStyle(theme.textTertiary)
-                }
-                Spacer()
-            }
-            .padding(10)
-            .background(RoundedRectangle(cornerRadius: 9).fill(isSelected ? theme.chip : theme.background))
-            .overlay {
-                if isSelected { RoundedRectangle(cornerRadius: 9).strokeBorder(theme.ink, lineWidth: 1.6) }
-            }
+        VStack(alignment: .leading, spacing: 2) {
+            Text(node.name)
+                .font(.system(size: 12.5, weight: .medium))
+                .foregroundStyle(theme.text)
+                .truncationMode(.middle)
+                .lineLimit(1)
+            Text("\(node.category.label) · \(relativeDateText(node.modifiedStamp > 0 ? Date(timeIntervalSince1970: node.modifiedStamp) : nil))")
+                .font(.system(size: 10.5))
+                .foregroundStyle(theme.textTertiary)
         }
-        .buttonStyle(.plain)
+        .contentShape(Rectangle())
+        .onTapGesture { viewModel.select(node) }
         .contextMenu { NodeContextMenu(node: node).environmentObject(viewModel) }
-    }
-
-    private var icon: String {
-        switch node.category {
-        case .video: return "play.rectangle.fill"
-        case .audio: return "waveform"
-        case .image: return "photo"
-        case .document: return "doc.fill"
-        case .developer: return "chevron.left.forwardslash.chevron.right"
-        case .archive: return "doc.zipper"
-        case .application: return "shippingbox.fill"
-        case .system: return "gearshape"
-        default: return "doc"
-        }
     }
 }
 

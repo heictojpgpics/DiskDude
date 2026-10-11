@@ -259,9 +259,11 @@ struct UsageRing: View {
 
 // MARK: - Byte & percentage formatting
 
-/// Hand-rolled decimal byte formatter used across the app (behavior recovered
-/// byte-exact from the binary: 1000-based units, 999.5 rollover, "%.0f"/"%.1f"
-/// /"%.2f" selected at 99.95/9.995).
+/// Hand-rolled decimal byte formatter used across the app (behavior verified
+/// byte-exact against the compiled binary by fuzzing on Linux: integer
+/// `magnitude < 1000` test → "\(sign)\(n) B"; first ÷1000 unconditional,
+/// then 999.5 rollover cascade capped at unit 5 (PB); "%.0f"/"%.1f"/"%.2f"
+/// selected at 99.95/9.995; sign prefix "-").
 func formatBytes(_ bytes: Int64) -> String {
     let sign = bytes < 0 ? "-" : ""
     let magnitude = abs(bytes)
@@ -269,9 +271,9 @@ func formatBytes(_ bytes: Int64) -> String {
         return "\(sign)\(magnitude) B"
     }
     let units = ["B", "KB", "MB", "GB", "TB", "PB"]
-    var value = Double(magnitude)
+    var value = Double(magnitude) / 1000
     var unit = 1
-    while value >= 999.5 && unit < units.count - 1 {
+    while value >= 999.5 && unit < 5 {
         value /= 1000
         unit += 1
     }
@@ -291,3 +293,23 @@ func formatPercentage(_ part: Int64, of whole: Int64) -> String {
     }
     return "0%"
 }
+
+/// Relative date text (recovered from FUN_100050b70): nil → "Unknown",
+/// less than 60 s ago → "Just now", otherwise NSRelativeDateTimeFormatter
+/// (unitsStyle .full) localizedString(for:relativeTo:).
+func relativeDateText(_ date: Date?) -> String {
+    guard let date else { return "Unknown" }
+    let interval = Date().timeIntervalSince(date)
+    if interval >= 60.0 {
+        return relativeDateFormatter.localizedString(for: date, relativeTo: Date())
+    }
+    return "Just now"
+}
+
+/// Lazily-created formatter backing `relativeDateText` (recovered:
+/// `swift_once` global with NSRelativeDateTimeFormatter, unitsStyle .full).
+private let relativeDateFormatter: NSRelativeDateTimeFormatter = {
+    let formatter = NSRelativeDateTimeFormatter()
+    formatter.unitsStyle = .full
+    return formatter
+}()
