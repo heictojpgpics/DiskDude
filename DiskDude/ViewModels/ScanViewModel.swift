@@ -321,7 +321,9 @@ final class ScanViewModel: ObservableObject {
     // MARK: - Navigation
 
     func select(_ node: FileNode?) {
-        selectedNode = node
+        withAnimation(.spring(response: 0.25, dampingFraction: 0.85, blendDuration: 0)) {
+            selectedNode = node
+        }
         if let node, node.isDirectory {
             currentFolder = node
         }

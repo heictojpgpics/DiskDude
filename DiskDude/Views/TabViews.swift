@@ -154,7 +154,7 @@ struct AppUninstallerView: View {
                             AppRow(app: app,
                                    isExpanded: expanded.contains(app.id),
                                    isUninstalling: uninstallingID == app.id) {
-                                withAnimation(.snappy(duration: 0.2)) {
+                                withAnimation(.easeInOut(duration: 0.25)) {
                                     if expanded.contains(app.id) { expanded.remove(app.id) }
                                     else { expanded.insert(app.id) }
                                 }

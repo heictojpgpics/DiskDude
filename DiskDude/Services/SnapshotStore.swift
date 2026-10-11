@@ -75,8 +75,6 @@ final class SnapshotStore: ObservableObject {
         isSaving = true
         defer { isSaving = false }
         let encoder = JSONEncoder()
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        encoder.dateEncodingStrategy = .iso8601
         guard let data = try? encoder.encode(snapshot) else { return }
         let url = snapshotURL(Snapshot.Summary(id: snapshot.id, rootPath: snapshot.rootPath,
                                                takenAt: snapshot.takenAt, totalSize: 0,

@@ -179,9 +179,9 @@ struct OutlineButton: View {
                     action()
                     isConfirming = false
                 } else {
-                    withAnimation(.snappy(duration: 0.2)) { isConfirming = true }
+                    withAnimation(.easeOut(duration: 0.15)) { isConfirming = true }
                     DispatchQueue.main.asyncAfter(deadline: .now() + confirmDuration) {
-                        withAnimation(.easeOut(duration: 0.25)) { isConfirming = false }
+                        withAnimation(.easeOut(duration: 0.2)) { isConfirming = false }
                     }
                 }
             } else {

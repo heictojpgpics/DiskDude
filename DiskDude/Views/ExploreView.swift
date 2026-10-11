@@ -49,7 +49,7 @@ struct ExploreView: View {
 
     private func modeButton(_ mode: VisualizationMode) -> some View {
         Button {
-            withAnimation(.snappy(duration: 0.25)) {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.85, blendDuration: 0)) {
                 viewModel.mode = mode
             }
         } label: {

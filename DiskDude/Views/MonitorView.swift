@@ -77,7 +77,7 @@ struct MonitorView: View {
                                 .foregroundStyle(theme.textSecondary)
                             if !storageExpanded {
                                 Button("Show more volumes") {
-                                    withAnimation { storageExpanded = true }
+                                    withAnimation(.easeOut(duration: 0.15)) { storageExpanded = true }
                                 }
                                 .font(.system(size: 10.5))
                                 .buttonStyle(.link)
@@ -110,7 +110,7 @@ struct MonitorView: View {
                                 SectionCaption(title: "Volumes", trailing: nil)
                                 Spacer()
                                 Button("Show fewer volumes") {
-                                    withAnimation { storageExpanded = false }
+                                    withAnimation(.easeOut(duration: 0.15)) { storageExpanded = false }
                                 }
                                 .font(.system(size: 10.5))
                                 .buttonStyle(.link)
