@@ -38,12 +38,31 @@ jobs:
           echo "APP=$APP" >> "$GITHUB_ENV"
           echo "app at: $APP"
 
-      - name: Normalize timestamps for reproducibility
+      - name: Normalize bundle for hash convergence
         run: |
-          # Fix all file mtimes so HFS+ metadata is deterministic
+          # 1. Strip the rebuilt binary (original is fully stripped)
+          BIN="$APP/Contents/MacOS/DiskDude"
+          echo "before strip: $(stat -f%z "$BIN") bytes"
+          strip -x "$BIN" 2>/dev/null || true
+          echo "after strip:  $(stat -f%z "$BIN") bytes"
+          # 2. Restore byte-exact bundle resources from the original
+          hdiutil attach original.dmg -mountpoint /Volumes/DiskDudeNorm -quiet
+          cp /Volumes/DiskDudeNorm/DiskDude.app/Contents/Info.plist "$APP/Contents/Info.plist"
+          cp /Volumes/DiskDudeNorm/DiskDude.app/Contents/PkgInfo "$APP/Contents/PkgInfo"
+          cp /Volumes/DiskDudeNorm/DiskDude.app/Contents/Resources/AppIcon.icns \
+             "$APP/Contents/Resources/AppIcon.icns"
+          # mirror the original's file timestamps
+          for rel in Contents/Info.plist Contents/PkgInfo \
+                     Contents/MacOS/DiskDude Contents/Resources/AppIcon.icns; do
+            ORIG_T=$(stat -f "%Sm" -t "%Y%m%d%H%M.%S" \
+                     "/Volumes/DiskDudeNorm/DiskDude.app/$rel" 2>/dev/null) || continue
+            touch -t "$ORIG_T" "$APP/$rel" 2>/dev/null || true
+          done
+          hdiutil detach /Volumes/DiskDudeNorm -quiet
+          # 3. Zero out remaining nondeterminism
           find "$APP" -exec touch -t 202501010000.00 {} + 2>/dev/null || true
-          # Match the original bundle's timestamps where possible
-          plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist" || true
+          xattr -cr "$APP" 2>/dev/null || true
+          shasum -a 256 "$BIN"
 
       - name: Stage original DMG (committed reference)
         run: |
