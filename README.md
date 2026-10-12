@@ -4,14 +4,16 @@
 [![Verify Recovery](https://github.com/heictojpgpics/DiskDude/actions/workflows/verify-recovery.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/verify-recovery.yml)
 [![Compare](https://github.com/heictojpgpics/DiskDude/actions/workflows/compare.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/compare.yml)
 [![DMG Rebuild](https://github.com/heictojpgpics/DiskDude/actions/workflows/dmg.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/dmg.yml)
+[![UI Visual Test](https://github.com/heictojpgpics/DiskDude/actions/workflows/ui-visual.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/ui-visual.yml)
+[![Windows Build](https://github.com/heictojpgpics/DiskDude/actions/workflows/windows.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/windows.yml)
 
 This project is a **reverse-engineered reconstruction** of DiskDude 1.0.1
 (`com.hariprasad.diskdude`), a macOS disk space analyzer, recovered from the
 official distribution `DiskDude-1.0.1.dmg` (arm64 + x86_64 universal binary).
 
-## CI recovery pipeline (macOS runners)
+## CI recovery pipeline (macOS + Windows runners)
 
-Five GitHub Actions workflows keep the recovery honest:
+Six GitHub Actions workflows keep the recovery honest:
 
 | Workflow | What it does |
 |----------|--------------|
@@ -19,10 +21,29 @@ Five GitHub Actions workflows keep the recovery honest:
 | **Verify Recovery** | source↔binary coverage audit + byte-exact UDIF container rebuild (SHA-256 must match) |
 | **Compare** | original vs rebuilt: bundle hashes, Mach-O sections, Swift metadata sizes, string coverage |
 | **DMG Rebuild** | `hdiutil` UDZO packaging of the rebuilt app + SHA-256 vs original DMG |
-| **UI Visual Test** | launches both apps, `screencapture` screenshots, ImageMagick pixel diff, screen recording |
+| **UI Visual Test** | drives BOTH apps through a full UI tour (5 tabs × 9 visualization modes) over a simulated fixture filesystem, captures per-state screenshots, pixel-diffs every state, records browsing videos |
+| **Windows Build** | builds the cross-platform `DiskDudeCore` + `diskdude-cli` on **Windows**, Linux and macOS from one SwiftPM package, runs the test suite on all three, and verifies the scan report is **byte-identical across all three OSes** |
 
 `reference/DiskDude-1.0.1.dmg` is the hash-pinned original (SHA-256
 `1a9811fc…a06db`) used as the oracle for every comparison.
+
+### Visual evidence
+
+`docs/visual-evidence/` holds side-by-side screenshots of the original and
+rebuilt apps in every UI state, plus per-state pixel-diff numbers. The tour
+is driven by the apps' own hidden developer hooks (binary-verified:
+`DISKDUDE_SCAN` auto-scans a path, `DISKDUDE_MODE` overrides the theme), so
+both binaries process the same simulated file tree (~101 files across every
+category, sparse multi-GB videos, exact duplicate groups, 2019–2026 dates).
+
+### Windows / cross-platform core
+
+The SwiftUI GUI itself is macOS-only by Apple design. The recovered
+Foundation-only core logic — byte-exact `formatBytes`/`formatPercentage`,
+the full FileCategory extension tables, the duplicate-finder SHA-256 with
+its 1 MB chunking and 64 KB threshold, and a portable scanner — lives in
+`cross-platform/` and builds on Windows, Linux and macOS (Swift 6.1.2).
+`diskdude-cli <path>` prints a DiskDude-style report of any directory tree.
 
 ## What is in this tree
 
