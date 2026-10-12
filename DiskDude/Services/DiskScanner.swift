@@ -148,10 +148,11 @@ final class DiskScanner: ObservableObject {
         //   [name string at attr_dataoffset]
         // (ATTR_CMN_RETURNED_ATTRS is 0x80000000 — imported as UInt32, so the
         // bitPattern conversion keeps the whole expression in attrgroup_t)
-        attrList.commonattr = Int32(bitPattern: ATTR_CMN_RETURNED_ATTRS) |
-            ATTR_CMN_ERROR | ATTR_CMN_NAME | ATTR_CMN_OBJTYPE |
-            ATTR_CMN_MODTIME | ATTR_CMN_CRTIME
-        attrList.fileattr = ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE
+        attrList.commonattr = attrgroup_t(bitPattern:
+            Int32(bitPattern: ATTR_CMN_RETURNED_ATTRS) | ATTR_CMN_ERROR |
+            ATTR_CMN_NAME | ATTR_CMN_OBJTYPE | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
+        attrList.fileattr = attrgroup_t(bitPattern:
+            ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE)
 
         // each worker owns a 256 KB getattrlistbulk buffer (binary-verified:
         // 0x40000 per worker). Owned allocation — a Data(capacity:) has
@@ -177,7 +178,7 @@ final class DiskScanner: ObservableObject {
                 let entry = attrBuf + offset
                 // each group starts with a u32 length ("always 8-byte aligned")
                 let sizeField = entry.load(fromByteOffset: 0, as: UInt32.self)
-                let returnedCommon = entry.load(fromByteOffset: 4, as: attrgroup_t.self)
+                let returnedCommon = Int32(bitPattern: entry.load(fromByteOffset: 4, as: UInt32.self))
                 guard sizeField >= 8, returnedCommon != 0 else { break }
                 process(entry: entry, parent: job.node, path: job.path, insideApp: job.insideApp)
                 offset += Int((sizeField + 7) & ~7)  // groups are 8-byte aligned
@@ -193,7 +194,9 @@ final class DiskScanner: ObservableObject {
     /// The returned attribute_set_t's commonattr (entry+4) drives conditional
     /// parsing exactly as the man page prescribes.
     private func process(entry: UnsafeRawPointer, parent: FileNode, path: String, insideApp: Bool) {
-        let returnedCommon = entry.load(fromByteOffset: 4, as: attrgroup_t.self)
+        // the ATTR_* constants import as Int32 while attrgroup_t is UInt32 —
+        // work in Int32 and bridge at the boundaries
+        let returnedCommon = Int32(bitPattern: entry.load(fromByteOffset: 4, as: UInt32.self))
 
         var name: String = ""
         var isDirectory = false
