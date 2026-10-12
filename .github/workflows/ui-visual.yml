@@ -56,7 +56,7 @@ jobs:
         run: |
           set -o pipefail
           swiftc -O DiskDude/Services/DiskScanner.swift DiskDude/Models/FileNode.swift \
-                 ci/probe_main.swift -o /tmp/scanner-probe 2>&1 | head -20
+                 ci/probe/main.swift -o /tmp/scanner-probe 2>&1 | head -20
           DISKDUDE_DEBUG=1 timeout 60 /tmp/scanner-probe "$FIXTURE" 2>&1 | tee probe-output.log
           if grep -q "PROBE RESULT: OK" probe-output.log; then
             echo "scanner is healthy"
