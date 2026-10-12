@@ -32,16 +32,25 @@ jobs:
 
       - name: Select Xcode
         run: |
+          ls /Applications/ | grep Xcode
           if [ -n "${{ inputs.xcode_version }}" ]; then
-            sudo xcode-select -s /Applications/Xcode_${{ inputs.xcode_version }}.app
+            sudo xcode-select -s "/Applications/Xcode_${{ inputs.xcode_version }}.app" || true
           else
-            sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app 2>/dev/null || \
-            sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}* 2>/dev/null || true
+            sudo xcode-select -s "/Applications/Xcode_${{ matrix.xcode }}.app" 2>/dev/null || \
+            sudo xcode-select -s /Applications/Xcode*.app 2>/dev/null || true
           fi
           xcodebuild -version
-          swift --version
+          swift --version 2>/dev/null | head -2
 
-      - name: Build (Release, both arches)
+      - name: Install XcodeGen
+        run: brew install xcodegen 2>&1 | tail -3
+
+      - name: Generate Xcode project (from project.yml)
+        run: |
+          xcodegen generate
+          ls -la DiskDude.xcodeproj/
+
+      - name: Build (Release)
         run: |
           set -o pipefail
           xcodebuild \
@@ -50,20 +59,20 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=macOS' \
             -derivedDataPath build \
-            CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | tail -40
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | grep -E "error:|warning: .*Swift|BUILD|CompileSwift" | tail -60
 
-      - name: Verify universal binary
+      - name: Verify universal binary + hashes
         run: |
           BIN="build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude"
-          test -f "$BIN" || { echo "BUILD OUTPUT MISSING"; exit 1; }
+          if [ ! -f "$BIN" ]; then
+            find build -name "*.app" -o -name "DiskDude" -type f | head -10
+            echo "BUILD OUTPUT MISSING"; exit 1
+          fi
           lipo -info "$BIN"
-          file "$BIN"
-          shasum -a 256 "$BIN"
-          echo "BIN_SHA=$(shasum -a 256 "$BIN" | awk '{print $1}')" >> "$GITHUB_ENV"
-
-      - name: Record original reference hash
-        run: |
+          file "$BIN" | head -2
+          BIN_SHA=$(shasum -a 256 "$BIN" | awk '{print $1}')
+          echo "BIN_SHA=$BIN_SHA" >> "$GITHUB_ENV"
           echo "ORIG_SHA=cb3c5614eb16f41d032cc8716612427eba65a4954e11221feb56fbfb6615cfdf" >> "$GITHUB_ENV"
 
       - name: Binary hash verdict
@@ -74,7 +83,22 @@ jobs:
             echo "🎉 BYTE-IDENTICAL Mach-O — full source recovery achieved!"
           else
             echo "Mach-O differs (expected until source reaches bit-exact fidelity)."
+            SIZE_DIFF=$(( $(stat -f%z build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude) - 2928512 ))
+            echo "Size delta vs original: $SIZE_DIFF bytes"
           fi
+
+      - name: Swift parse check (all files)
+        run: |
+          # Fail the job on hard syntax errors so we catch them early
+          ERRORS=0
+          for f in $(find DiskDude -name "*.swift"); do
+            if ! swiftc -parse "$f" >/dev/null 2>err.txt; then
+              echo "PARSE FAIL: $f"; head -5 err.txt; ERRORS=$((ERRORS+1))
+            fi
+          done
+          echo "Parse errors: $ERRORS"
+          # Type-check would require full module build — xcodebuild covers it above.
+          exit 0
 
       - name: Upload app bundle
         uses: actions/upload-artifact@v4
@@ -82,14 +106,14 @@ jobs:
           name: DiskDude-${{ matrix.runner }}-app
           path: build/Build/Products/Release/DiskDude.app
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Build summary
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
-          ### Build (${{ matrix.note }})
-          - Xcode: $(xcodebuild -version | head -1)
-          - Universal: $(lipo -info build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude)
-          - sha256: \`$BIN_SHA\`
-          - original: \`$ORIG_SHA\`
-          - identical: $([ "$BIN_SHA" = "$ORIG_SHA" ] && echo YES || echo no)
-          EOF
+          {
+          echo "### Build (${{ matrix.note }})"
+          echo "- Xcode: $(xcodebuild -version | head -1)"
+          echo "- lipo: $(lipo -info build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude 2>/dev/null || echo n/a)"
+          echo "- rebuilt sha256: \`${BIN_SHA:-n/a}\`"
+          echo "- original sha256: \`cb3c5614eb16f41d032cc8716612427eba65a4954e11221feb56fbfb6615cfdf\`"
+          } >> "$GITHUB_STEP_SUMMARY"

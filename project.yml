@@ -1,0 +1,50 @@
+name: DiskDude
+options:
+  bundleIdPrefix: com.hariprasad
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  xcodeVersion: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGNING_REQUIRED: "NO"
+    CODE_SIGNING_ALLOWED: "NO"
+    DEVELOPMENT_TEAM: ""
+targets:
+  DiskDude:
+    type: application
+    platform: macOS
+    sources:
+      - path: DiskDude
+        excludes:
+          - "Resources/Info.plist"
+          - "Resources/PkgInfo"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.hariprasad.diskdude
+        PRODUCT_NAME: DiskDude
+        MARKETING_VERSION: "1.0.1"
+        CURRENT_PROJECT_VERSION: "2"
+        INFOPLIST_FILE: DiskDude/Resources/Info.plist
+        ENABLE_HARDENED_RUNTIME: "YES"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_ENTITLEMENTS: DiskDude/Resources/DiskDude.entitlements
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        OTHER_LDFLAGS: ""
+        SWIFT_STRICT_CONCURRENCY: minimal
+        SWIFT_APPROACHABLE_CONCURRENCY: "YES"
+        DEAD_CODE_STRIPPING: "YES"
+        ASSETS_KEEP_Relative: "YES"
+        COMBINE_HIDPI_IMAGES: "YES"
+        ENABLE_NS_ASSERTIONS: "NO"
+        GCC_TREAT_WARNINGS_AS_ERRORS: "NO"
+        SWIFT_TREAT_WARNINGS_AS_ERRORS: "NO"
+        INFOPLIST_KEY_LSMinimumSystemVersion: "14.0"
+        INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.utilities"
+    postBuildScripts:
+      - name: Copy PkgInfo
+        script: |
+          cp "${SRCROOT}/DiskDude/Resources/PkgInfo" "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/PkgInfo"

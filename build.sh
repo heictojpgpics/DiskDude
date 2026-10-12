@@ -22,6 +22,12 @@ CONFIG="Release"
 OUT_DMG="${1:-DiskDude-${APP_VERSION}.dmg}"
 VOL_NAME="DiskDude"
 
+# ---- 0. Generate the Xcode project (requires xcodegen: brew install xcodegen) ----
+if [ ! -f DiskDude.xcodeproj/project.pbxproj ]; then
+  command -v xcodegen >/dev/null || { echo "xcodegen required (brew install xcodegen)"; exit 1; }
+  xcodegen generate
+fi
+
 # ---- 1. Build the app (requires Xcode 16+ / SDK 26, Swift 6) ----
 xcodebuild \
   -project DiskDude.xcodeproj \
