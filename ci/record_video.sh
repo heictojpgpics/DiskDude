@@ -26,7 +26,7 @@ for i in $(seq 1 40); do
 done
 osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' 2>/dev/null || true
 osascript -e 'tell application "System Events" to tell process "DiskDude"
-  set size of window 1 to {1000, 640}
+  set size of window 1 to {1200, 790}
   set position of window 1 to {12, 44}
 end tell' 2>/dev/null || true
 sleep 4   # auto-scan settles on fixture

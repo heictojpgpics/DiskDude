@@ -104,12 +104,22 @@ if [ -z "$RECT" ]; then
 fi
 echo "window up: pid=$APP_PID rect=$RECT"
 
-# Bring frontmost + normalize geometry (respect the app's 1100x720 minimum)
+# Bring frontmost + normalize geometry (retry — early sets can race SwiftUI
+# layout; the original ignored the first set in round 7 which left the two
+# apps at different sizes and polluted every pixel diff)
 osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' 2>/dev/null || true
-osascript -e 'tell application "System Events" to tell process "DiskDude"
-  set size of window 1 to {1100, 730}
-  set position of window 1 to {12, 30}
-end tell' 2>/dev/null || true
+for attempt in 1 2 3; do
+  osascript -e 'tell application "System Events" to tell process "DiskDude"
+    set size of window 1 to {1200, 790}
+    set position of window 1 to {12, 30}
+  end tell' 2>/dev/null || true
+  sleep 1
+  local_rect=$(win_rect)
+  echo "(window normalized attempt $attempt: $local_rect)"
+  case "$local_rect" in
+    "12,30,1200,790") break ;;
+  esac
+done
 sleep 1
 
 # let the auto-scan settle (small fixture completes in ~1s; cover worst case)

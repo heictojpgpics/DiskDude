@@ -133,20 +133,25 @@ final class DiskScanner: ObservableObject {
         attrList.commonattr = attrgroup_t(ATTR_CMN_NAME | ATTR_CMN_ERROR | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
         attrList.fileattr = attrgroup_t(ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE)
 
+        // each worker owns a 256 KB getattrlistbulk buffer (binary-verified:
+        // 0x40000 per worker). Owned allocation — a Data(capacity:) has
+        // count 0 and exposes a zero-length mutable buffer, so it must NOT
+        // be used as the destination of a bulk syscall.
         let capacity = 256 * 1024
-        var buffer = Data(capacity: capacity)
-        let attrBuf = UnsafeMutableRawPointer(buffer.withUnsafeMutableBytes { $0.baseAddress! })
-        var consumed = 0
+        let attrBuf = UnsafeMutableRawPointer.allocate(byteCount: capacity, alignment: 16)
+        defer { attrBuf.deallocate() }
 
         while true {
             if isCancelled { return }
             let n = getattrlistbulk(fd, &attrList, attrBuf, capacity, 0)
             if n == 0 { break }
             if n < 0 {
+                let err = errno
+                if err == EINTR { continue }  // transient — retry, not unreadable
                 noteUnreadable(job.path)
                 return
             }
-            consumed = Int(n)
+            let consumed = Int(n)
             var offset = 0
             while offset < consumed {
                 let entry = attrBuf + offset
