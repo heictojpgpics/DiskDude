@@ -68,7 +68,7 @@ jobs:
             -format UDZO \
             -layout GPTSPUD \
             -fs HFS+ \
-            -noverify -ov \
+            -ov \
             rebuilt.dmg
           REBUILT=$(shasum -a 256 rebuilt.dmg | awk '{print $1}')
           echo "REBUILT_DMG_SHA=$REBUILT" >> "$GITHUB_ENV"
