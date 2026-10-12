@@ -46,9 +46,9 @@ jobs:
           # Match the original bundle's timestamps where possible
           plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist" || true
 
-      - name: Download original DMG (oracle)
+      - name: Stage original DMG (committed reference)
         run: |
-          curl -fsSL -o original.dmg https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          cp reference/DiskDude-1.0.1.dmg original.dmg
           ORIG=$(shasum -a 256 original.dmg | awk '{print $1}')
           echo "ORIG_DMG_SHA=$ORIG" >> "$GITHUB_ENV"
           echo "original dmg sha256: $ORIG"

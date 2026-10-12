@@ -31,14 +31,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: build/
 
-      - name: Download original DMG (pinned by hash)
+      - name: Stage original DMG (committed reference, hash-pinned)
         run: |
-          curl -fsSL -o original/DiskDude-1.0.1.dmg \
-            https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          mkdir -p original
+          cp reference/DiskDude-1.0.1.dmg original/DiskDude-1.0.1.dmg
           EXPECTED="1a9811fc6574d3890e37685b88c554ef109eacf0467afaa6fda423b2458a06db"
           ACTUAL=$(shasum -a 256 original/DiskDude-1.0.1.dmg | awk '{print $1}')
           echo "original dmg: $ACTUAL"
-          [ "$ACTUAL" = "$EXPECTED" ] || { echo "HASH MISMATCH on download!"; exit 1; }
+          [ "$ACTUAL" = "$EXPECTED" ] || { echo "HASH MISMATCH!"; exit 1; }
 
       - name: Mount and extract original app
         run: |

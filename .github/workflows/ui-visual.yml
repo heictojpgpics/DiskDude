@@ -32,9 +32,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: build/
 
-      - name: Download + extract original app
+      - name: Stage + extract original app
         run: |
-          curl -fsSL -o original.dmg https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          cp reference/DiskDude-1.0.1.dmg original.dmg
           hdiutil attach original.dmg -mountpoint /Volumes/DiskDudeOrig -quiet
           cp -R /Volumes/DiskDudeOrig/DiskDude.app original.app
           hdiutil detach /Volumes/DiskDudeOrig -quiet

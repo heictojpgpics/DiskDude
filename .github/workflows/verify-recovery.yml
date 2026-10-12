@@ -22,7 +22,7 @@ jobs:
           # The UDIF container rebuild is fully deterministic and must reproduce
           # the original DMG byte-for-byte from the original HFS+ payload.
           pip3 install --quiet --user requests 2>/dev/null || true
-          curl -fsSL -o original.dmg https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          cp reference/DiskDude-1.0.1.dmg original.dmg
           python3 tools/rebuild_dmg.py original.dmg rebuilt.dmg 2>&1 | tail -20 || true
           if [ -f rebuilt.dmg ]; then
             ORIG=$(sha256sum original.dmg | awk '{print $1}')
