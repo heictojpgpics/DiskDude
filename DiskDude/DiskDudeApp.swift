@@ -15,6 +15,26 @@ import AppKit
 struct DiskDudeApp: App {
     @StateObject private var viewModel = ScanViewModel()
 
+    init() {
+        // Binary-verified developer hooks (app delegate region):
+        //   environment["DISKDUDE_MODE"]  -> theme override ("light"/"dark")
+        //   environment["DISKDUDE_SCAN"]  -> auto-start a scan on the given path
+        // Standard "theme" UserDefaults key is read inside ScanViewModel.
+        let env = ProcessInfo.processInfo.environment
+        if let mode = env["DISKDUDE_MODE"] {
+            switch mode {
+            case "light": viewModel.themeName = .light
+            case "dark": viewModel.themeName = .dark
+            default: break
+            }
+        }
+        if let scanPath = env["DISKDUDE_SCAN"] {
+            DispatchQueue.main.async { [weak viewModel] in
+                viewModel?.startAutoScan(path: scanPath)
+            }
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

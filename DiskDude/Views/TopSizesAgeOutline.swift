@@ -192,8 +192,14 @@ struct AgeBucketsCard: View {
                         GeometryReader { geo in
                             ZStack(alignment: .bottom) {
                                 RoundedRectangle(cornerRadius: 3).fill(theme.track)
+                                // Binary: gradient [color.opacity(0.2) → color.opacity(0)] + 1.6 stroke
+                                let barColor = theme.ageColor(age: Double(i) * 180 * 24 * 3600,
+                                                               maxAge: 5 * 365 * 24 * 3600)
                                 RoundedRectangle(cornerRadius: 3)
-                                    .fill(theme.ageColor(age: Double(i) * 180 * 24 * 3600, maxAge: 5 * 365 * 24 * 3600))
+                                    .fill(LinearGradient(colors: [barColor.opacity(0.2), barColor.opacity(0)],
+                                                         startPoint: .top, endPoint: .bottom))
+                                    .overlay(RoundedRectangle(cornerRadius: 3)
+                                        .strokeBorder(barColor, lineWidth: 1.6))
                                     .frame(height: max(3, geo.size.height * fraction(i)))
                             }
                         }

@@ -82,14 +82,17 @@ final class DiskScanner: ObservableObject {
     // MARK: - Scan
 
     /// Scan `rootURL` and return the FileNode tree.
+    /// Binary-exact pool: DispatchGroup + NSThread(qualityOfService: .userInitiated),
+    /// workerCount = ProcessInfo.activeProcessorCount (min 1, cached once),
+    /// each worker owns a 256 KB getattrlistbulk buffer.
     func scan(rootURL: URL, progress: ((Int, Int64, String) -> Void)? = nil) -> FileNode {
         let root = FileNode(name: rootURL.lastPathComponent, isDirectory: true, rootPath: rootURL.path)
-        let workerCount = max(2, ProcessInfo.processInfo.activeProcessorCount / 2)
+        let workerCount = max(1, ProcessInfo.processInfo.activeProcessorCount)
 
         let group = DispatchGroup()
         for _ in 0..<workerCount {
             group.enter()
-            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            let thread = Thread { [weak self] in
                 guard let self else { group.leave(); return }
                 while let job = self.stack.pop() {
                     if self.isCancelled { continue }
@@ -97,6 +100,8 @@ final class DiskScanner: ObservableObject {
                 }
                 group.leave()
             }
+            thread.qualityOfService = .userInitiated
+            thread.start()
         }
 
         stack.push(Job(node: root, path: rootURL.path, insideApp: false))

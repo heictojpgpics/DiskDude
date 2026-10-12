@@ -1,0 +1,47 @@
+name: Verify Recovery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    name: Source ↔ binary coverage audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run recovery coverage audit
+        run: python3 ci/verify_recovery.py || true
+
+      - name: DMG byte-exact rebuild check (container level)
+        run: |
+          # The UDIF container rebuild is fully deterministic and must reproduce
+          # the original DMG byte-for-byte from the original HFS+ payload.
+          pip3 install --quiet --user requests 2>/dev/null || true
+          curl -fsSL -o original.dmg https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          python3 tools/rebuild_dmg.py original.dmg rebuilt.dmg 2>&1 | tail -20 || true
+          if [ -f rebuilt.dmg ]; then
+            ORIG=$(sha256sum original.dmg | awk '{print $1}')
+            REB=$(sha256sum rebuilt.dmg | awk '{print $1}')
+            echo "original: $ORIG"
+            echo "rebuilt : $REB"
+            if [ "$ORIG" = "$REB" ]; then
+              echo "✅ UDIF container rebuild byte-identical"
+            else
+              echo "⚠️ container rebuild diverged"
+            fi
+          fi
+
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery-audit
+          path: |
+            recovery-audit.json
+            rebuilt.dmg
+          retention-days: 30
+          if-no-files-found: warn

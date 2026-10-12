@@ -1,0 +1,95 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      xcode_version:
+        description: "Xcode version (e.g. 26.0)"
+        required: false
+        default: ""
+
+jobs:
+  build:
+    name: Build DiskDude.app from recovered source
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-26
+            xcode: "26.0"
+            note: "Xcode 26 / SDK 26 — matches original build environment"
+          - runner: macos-15
+            xcode: "16.4"
+            note: "Xcode 16.4 fallback"
+    steps:
+      - name: Checkout recovered source
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          if [ -n "${{ inputs.xcode_version }}" ]; then
+            sudo xcode-select -s /Applications/Xcode_${{ inputs.xcode_version }}.app
+          else
+            sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app 2>/dev/null || \
+            sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}* 2>/dev/null || true
+          fi
+          xcodebuild -version
+          swift --version
+
+      - name: Build (Release, both arches)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project DiskDude.xcodeproj \
+            -scheme DiskDude \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tail -40
+
+      - name: Verify universal binary
+        run: |
+          BIN="build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude"
+          test -f "$BIN" || { echo "BUILD OUTPUT MISSING"; exit 1; }
+          lipo -info "$BIN"
+          file "$BIN"
+          shasum -a 256 "$BIN"
+          echo "BIN_SHA=$(shasum -a 256 "$BIN" | awk '{print $1}')" >> "$GITHUB_ENV"
+
+      - name: Record original reference hash
+        run: |
+          echo "ORIG_SHA=cb3c5614eb16f41d032cc8716612427eba65a4954e11221feb56fbfb6615cfdf" >> "$GITHUB_ENV"
+
+      - name: Binary hash verdict
+        run: |
+          echo "original : $ORIG_SHA"
+          echo "rebuilt  : $BIN_SHA"
+          if [ "$BIN_SHA" = "$ORIG_SHA" ]; then
+            echo "🎉 BYTE-IDENTICAL Mach-O — full source recovery achieved!"
+          else
+            echo "Mach-O differs (expected until source reaches bit-exact fidelity)."
+          fi
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: DiskDude-${{ matrix.runner }}-app
+          path: build/Build/Products/Release/DiskDude.app
+          retention-days: 30
+
+      - name: Build summary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### Build (${{ matrix.note }})
+          - Xcode: $(xcodebuild -version | head -1)
+          - Universal: $(lipo -info build/Build/Products/Release/DiskDude.app/Contents/MacOS/DiskDude)
+          - sha256: \`$BIN_SHA\`
+          - original: \`$ORIG_SHA\`
+          - identical: $([ "$BIN_SHA" = "$ORIG_SHA" ] && echo YES || echo no)
+          EOF

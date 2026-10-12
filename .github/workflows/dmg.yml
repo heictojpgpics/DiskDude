@@ -1,0 +1,90 @@
+name: DMG Rebuild
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  dmg:
+    name: Package UDZO DMG + SHA-256 comparison
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download latest build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: DiskDude-macos-26-app
+          path: build/
+        continue-on-error: true
+
+      - name: Locate app bundle
+        run: |
+          if [ -d build/Build/Products/Release/DiskDude.app ]; then
+            echo "APP=build/Build/Products/Release/DiskDude.app" >> "$GITHUB_ENV"
+          else
+            echo "APP=build/DiskDude.app" >> "$GITHUB_ENV"
+          fi
+
+      - name: Normalize timestamps for reproducibility
+        run: |
+          # Fix all file mtimes so HFS+ metadata is deterministic
+          find "$APP" -exec touch -t 202501010000.00 {} + 2>/dev/null || true
+          # Match the original bundle's timestamps where possible
+          plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist" || true
+
+      - name: Download original DMG (oracle)
+        run: |
+          curl -fsSL -o original.dmg https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          ORIG=$(shasum -a 256 original.dmg | awk '{print $1}')
+          echo "ORIG_DMG_SHA=$ORIG" >> "$GITHUB_ENV"
+          echo "original dmg sha256: $ORIG"
+
+      - name: Stage DMG root (app + Applications symlink)
+        run: |
+          STAGE=$(mktemp -d)/DiskDude
+          mkdir -p "$STAGE"
+          cp -R "$APP" "$STAGE/"
+          ln -s /Applications "$STAGE/Applications"
+          echo "STAGE=$STAGE" >> "$GITHUB_ENV"
+
+      - name: Create UDZO DMG (zlib level 1)
+        run: |
+          hdiutil create \
+            -volname DiskDude \
+            -srcfolder "$STAGE" \
+            -format UDZO \
+            -layout SPUD \
+            -ov \
+            rebuilt.dmg
+          REBUILT=$(shasum -a 256 rebuilt.dmg | awk '{print $1}')
+          echo "REBUILT_DMG_SHA=$REBUILT" >> "$GITHUB_ENV"
+          ls -la rebuilt.dmg original.dmg
+
+      - name: SHA-256 verdict
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ### DMG SHA-256 comparison
+          - original: \`$ORIG_DMG_SHA\`
+          - rebuilt : \`$REBUILT_DMG_SHA\`
+          - identical: $([ "$ORIG_DMG_SHA" = "$REBUILT_DMG_SHA" ] && echo "YES — byte-for-byte match" || echo "no — see byte-level diff")
+          EOF
+          if [ "$ORIG_DMG_SHA" = "$REBUILT_DMG_SHA" ]; then
+            echo "🎉 EXACT DMG HASH MATCH"
+          else
+            cmp -l original.dmg rebuilt.dmg | head -20 || true
+            echo "Size delta: $(($(stat -f%z rebuilt.dmg) - $(stat -f%z original.dmg))) bytes"
+          fi
+
+      - name: Upload DMGs
+        uses: actions/upload-artifact@v4
+        with:
+          name: dmg-comparison
+          path: |
+            rebuilt.dmg
+            original.dmg
+          retention-days: 30

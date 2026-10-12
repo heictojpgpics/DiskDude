@@ -45,46 +45,59 @@ struct FlameGraphView: View {
             let blocks = cache.compute(key: key) {
                 layoutBlocks(width: geo.size.width)
             }
-            let rowHeight = max(13.0, (geo.size.height - 8) / max(1, CGFloat(maxRow(blocks) + 1)))
+            let contentHeight = CGFloat(maxRow(blocks) + 1) * 60 + 2
 
             ScrollView(.vertical, showsIndicators: true) {
-                VStack(alignment: .leading, spacing: 1) {
-                    ForEach(blocks) { block in
-                        blockView(block, rowHeight: rowHeight)
+                Canvas { context, size in
+                    for block in blocks {
+                        drawBlock(block, in: &context)
+                    }
+                    if let hovered {
+                        drawOverlay(hovered, blocks: blocks, in: &context)
                     }
                 }
-                .padding(4)
-                .frame(width: geo.size.width, alignment: .leading)
+                .frame(width: geo.size.width, height: max(contentHeight, geo.size.height))
             }
         }
         .background(theme.background)
     }
 
-    @ViewBuilder
-    private func blockView(_ block: Block, rowHeight: CGFloat) -> some View {
-        let selected = viewModel.selectedNode === block.node
-        HStack(spacing: 4) {
-            if block.width > 70 {
-                Text(block.node.name)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(.black.opacity(0.7))
-                    .lineLimit(1)
-            }
-            Spacer(minLength: 0)
+    // MARK: - Canvas drawing (binary-exact: row 60, cell 58, radius 3, labels 13pt)
+
+    private func cellRect(_ block: Block) -> CGRect {
+        CGRect(x: block.x + 1, y: Double(block.row) * 60 + 1,
+               width: max(block.width - 2, 0.6), height: 58)
+    }
+
+    private func drawBlock(_ block: Block, in context: inout GraphicsContext) {
+        let rect = cellRect(block)
+        let path = Path(roundedRect: rect, cornerRadius: min(rect.width * 0.5, 3), style: .continuous)
+        context.fill(path, with: .color(block.color))
+        if viewModel.selectedNode === block.node, block.row >= 1 {
+            context.stroke(path, with: .color(block.color.opacity(0.8)), lineWidth: 1.5)
         }
-        .frame(width: max(1.5, block.width), height: rowHeight - 2)
-        .background(RoundedRectangle(cornerRadius: 2).fill(block.color.opacity(selected ? 1 : 0.85)))
-        .padding(.leading, block.x)
-        .onTapGesture {
-            if block.node.isDirectory { viewModel.enter(folder: block.node) }
-            else { viewModel.select(block.node) }
+        drawLabel(block, rect: rect, in: &context)
+    }
+
+    private func drawOverlay(_ node: FileNode, blocks: [Block], in context: inout GraphicsContext) {
+        guard let block = blocks.first(where: { $0.node === node }) else { return }
+        let rect = cellRect(block)
+        let path = Path(roundedRect: rect, cornerRadius: min(rect.width * 0.5, 3), style: .continuous)
+        context.fill(path, with: .color(.black.opacity(0.12)))
+        context.stroke(path, with: .color(block.color.opacity(0.8)), lineWidth: 1.5)
+    }
+
+    private func drawLabel(_ block: Block, rect: CGRect, in context: inout GraphicsContext) {
+        guard rect.width > 44 else { return }
+        var label = block.node.name == "/" ? "/" : block.node.name
+        let limit = Int((rect.width - 14) / 6.79)
+        if limit > 2, limit < label.count {
+            label = String(label.prefix(limit - 1)) + "…"
         }
-        .onHover { over in hovered = over ? block.node : nil }
-        .overlay(alignment: .topLeading) {
-            if hovered === block.node {
-                HoverChip(node: block.node).offset(y: 14).allowsHitTesting(false).zIndex(3)
-            }
-        }
+        let text = Text(label)
+            .font(.system(size: 13))
+            .foregroundColor(theme.textPrimary)
+        context.draw(text, at: CGPoint(x: rect.minX + 6, y: rect.midY), anchor: .leading)
     }
 
     private func layoutBlocks(width: CGFloat) -> [Block] {
@@ -165,42 +178,72 @@ struct BubblesView: View {
                 }
             }
             ZStack {
-                ForEach(bubbles) { bubble in
-                    bubbleView(bubble)
+                // Canvas renderer (binary-exact: ellipseIn, 3 fill states, 1.2/1.0/1.6 strokes)
+                Canvas { context, size in
+                    for bubble in bubbles {
+                        drawBubble(bubble, in: &context)
+                    }
                 }
             }
         }
         .background(theme.background)
     }
 
-    @ViewBuilder
-    private func bubbleView(_ bubble: Bubble) -> some View {
-        let selected = viewModel.selectedNode === bubble.node
-        ZStack {
-            Circle()
-                .fill(bubble.color.opacity(bubble.isGroup ? 0.22 : 0.75))
-                .overlay(Circle().strokeBorder(selected ? theme.text : bubble.color.opacity(0.9),
-                                                lineWidth: selected ? 2 : 1))
-            if bubble.radius > 34 {
-                VStack(spacing: 2) {
-                    Text(bubble.node.name)
-                        .font(.system(size: min(11, bubble.radius / 4.2), weight: .semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.55)
-                    Text(formatBytes(bubble.node.sizeOnDisk))
-                        .font(.system(size: min(9, bubble.radius / 5.5)))
-                        .opacity(0.8)
-                }
-                .foregroundStyle(bubble.isGroup ? theme.text : .black.opacity(0.7))
+    private func drawBubble(_ bubble: Bubble, in context: inout GraphicsContext) {
+        let rect = CGRect(x: bubble.center.x - bubble.radius,
+                          y: bubble.center.y - bubble.radius,
+                          width: bubble.radius * 2, height: bubble.radius * 2)
+        let path = Path(ellipseIn: rect)
+        let hoveredState = hovered === bubble.node
+        let hasSelection = viewModel.selectedNode != nil
+        let matchesSelection = viewModel.selectedNode === bubble.node
+
+        if !hasSelection {
+            // Normal: theme fill + 1.2 stroke (binary default state)
+            context.fill(path, with: .color(bubble.color.opacity(bubble.isGroup ? 0.32 : 0.85)))
+            context.stroke(path, with: .color(bubble.color.opacity(0.9)), lineWidth: bubble.isGroup ? 1.0 : 1.2)
+        } else if matchesSelection || hoveredState {
+            // Highlighted: 0.85 fill + white 0.35 stroke @ 0.8
+            context.fill(path, with: .color(bubble.color.opacity(0.85)))
+            context.stroke(path, with: .color(.white.opacity(0.35)), lineWidth: 0.8)
+        } else {
+            // Dimmed: 0.32 fill + 0.9 self-color stroke @ 1.0
+            context.fill(path, with: .color(bubble.color.opacity(0.32)))
+            context.stroke(path, with: .color(bubble.color.opacity(0.9)), lineWidth: 1.0)
+        }
+        // Selection ring: text color at 0.8 opacity, 1.6 wide
+        if matchesSelection, bubble.depth >= 1 {
+            context.stroke(path, with: .color(theme.textPrimary.opacity(0.8)), lineWidth: 1.6)
+        }
+        drawBubbleLabel(bubble, in: &context)
+    }
+
+    private func drawBubbleLabel(_ bubble: Bubble, in context: inout GraphicsContext) {
+        guard bubble.radius > 34 else { return }
+        // Large: 14pt semibold name + size line 14pt below (binary tier 1)
+        if bubble.radius >= 45 {
+            let name = Text(bubble.node.name)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(theme.textPrimary)
+            context.draw(name, at: CGPoint(x: bubble.center.x, y: bubble.center.y - 6), anchor: .center)
+            let size = Text(formatBytes(bubble.node.sizeOnDisk))
+                .font(.system(size: 10))
+                .foregroundColor(theme.textSecondary)
+            context.draw(size, at: CGPoint(x: bubble.center.x, y: bubble.center.y + 8), anchor: .center)
+        } else {
+            // Medium: adaptive size clamp(r/9, 9.5, 14), char budget (r*1.3)/(size*0.58)
+            let fontSize = min(max(bubble.radius / 9, 9.5), 14)
+            let limit = Int((bubble.radius * 1.3) / (fontSize * 0.58))
+            guard limit >= 3 else { return }
+            var label = bubble.node.name
+            if limit < label.count {
+                label = String(label.prefix(limit - 1)) + "…"
             }
+            let text = Text(label)
+                .font(.system(size: fontSize, weight: .semibold))
+                .foregroundColor(theme.textPrimary)
+            context.draw(text, at: bubble.center, anchor: .center)
         }
-        .frame(width: bubble.radius * 2, height: bubble.radius * 2)
-        .position(bubble.center)
-        .onTapGesture {
-            if bubble.node.isDirectory { viewModel.enter(folder: bubble.node) }
-            else { viewModel.select(bubble.node) }
-        }
-        .onHover { over in hovered = over ? bubble.node : nil }
     }
 
     private func color(_ node: FileNode) -> Color {
@@ -332,11 +375,14 @@ struct MindMapView: View {
 
     @ViewBuilder
     private func branchView(_ branch: Branch) -> some View {
+        // Binary uses cubic bezier links: addCurve(to:control1:control2:)
         Path { p in
             p.move(to: branch.parentPoint)
-            let mid = CGPoint(x: (branch.parentPoint.x + branch.point.x) / 2,
-                              y: branch.parentPoint.y)
-            p.addQuadCurve(to: branch.point, control: mid)
+            let c1 = CGPoint(x: (branch.parentPoint.x + branch.point.x) / 2,
+                             y: branch.parentPoint.y)
+            let c2 = CGPoint(x: (branch.parentPoint.x + branch.point.x) / 2,
+                             y: branch.point.y)
+            p.addCurve(to: branch.point, control1: c1, control2: c2)
         }
         .stroke(branch.fill.opacity(0.55), style: StrokeStyle(lineWidth: max(1.5, branch.dot * 0.6), lineCap: .round))
 
@@ -347,7 +393,7 @@ struct MindMapView: View {
             .overlay {
                 if branch.showsLabel && branch.dot > 16 {
                     Text(branch.node.name)
-                        .font(.system(size: min(10, branch.dot / 3.2), weight: .semibold))
+                        .font(.system(size: mindMapFontSize(dot: branch.dot), weight: .semibold))
                         .foregroundStyle(.black.opacity(0.6))
                         .position(x: branch.point.x, y: branch.point.y + branch.dot / 2 + 9)
                         .allowsHitTesting(false)
@@ -363,6 +409,16 @@ struct MindMapView: View {
                     HoverChip(node: branch.node).offset(x: 14, y: 8).allowsHitTesting(false).zIndex(2)
                 }
             }
+    }
+
+    /// Binary label grid: 12.0 / 11.5 / 11.0 / 9.0 by node weight.
+    private func mindMapFontSize(dot: CGFloat) -> CGFloat {
+        switch dot {
+        case 44...: return 12
+        case 30..<44: return 11.5
+        case 20..<30: return 11
+        default: return 9
+        }
     }
 
     /// Tree layout: root at center-left; children fan out by weight.

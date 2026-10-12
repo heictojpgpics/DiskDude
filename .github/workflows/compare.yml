@@ -1,0 +1,75 @@
+name: Compare
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  compare:
+    name: Original vs Rebuilt deep comparison
+    runs-on: macos-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download latest build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: DiskDude-macos-26-app
+          path: build/
+        continue-on-error: true
+
+      - name: Download original DMG (pinned by hash)
+        run: |
+          curl -fsSL -o original/DiskDude-1.0.1.dmg \
+            https://www.disk-dude.com/downloads/DiskDude-1.0.1.dmg
+          EXPECTED="1a9811fc6574d3890e37685b88c554ef109eacf0467afaa6fda423b2458a06db"
+          ACTUAL=$(shasum -a 256 original/DiskDude-1.0.1.dmg | awk '{print $1}')
+          echo "original dmg: $ACTUAL"
+          [ "$ACTUAL" = "$EXPECTED" ] || { echo "HASH MISMATCH on download!"; exit 1; }
+
+      - name: Mount and extract original app
+        run: |
+          hdiutil attach original/DiskDude-1.0.1.dmg -mountpoint /Volumes/DiskDudeOrig -quiet
+          cp -R /Volumes/DiskDudeOrig/DiskDude.app original/DiskDude.app
+          hdiutil detach /Volumes/DiskDudeOrig -quiet
+          ls -la original/DiskDude.app/Contents/MacOS/
+
+      - name: Run comparison suite
+        run: |
+          python3 ci/compare_binaries.py \
+            original/DiskDude.app \
+            build/Build/Products/Release/DiskDude.app \
+            comparison-report.json || true
+          # also accept artifact-root layout
+          if [ ! -d build/Build ]; then
+            python3 ci/compare_binaries.py \
+              original/DiskDude.app \
+              build/DiskDude.app \
+              comparison-report.json || true
+          fi
+
+      - name: Swift metadata section comparison (detailed)
+        run: |
+          echo "### Swift reflection sections" >> "$GITHUB_STEP_SUMMARY"
+          python3 - <<'EOF'
+          import json
+          r = json.load(open("comparison-report.json"))
+          for s in r["checks"].get("slices", []):
+              print(f"slice cputype={s['cputype']}: sections orig={s['n_sections_orig']} "
+                    f"rebuilt={s['n_sections_rebuilt']} match={s['sections_match']}")
+              o, b = s["swift5_orig"], s["swift5_rebuilt"]
+              for k in sorted(set(o) | set(b)):
+                  print(f"  {k:32s} orig={o.get(k, 0):8d}  rebuilt={b.get(k, 0):8d}")
+          EOF
+
+      - name: Upload comparison report
+        uses: actions/upload-artifact@v4
+        with:
+          name: comparison-report
+          path: |
+            comparison-report.json
+          retention-days: 90

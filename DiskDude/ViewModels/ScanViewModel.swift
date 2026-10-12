@@ -132,6 +132,12 @@ final class ScanViewModel: ObservableObject {
 
     // MARK: - Scanning
 
+    /// Binary-verified dev hook: DISKDUDE_SCAN=path auto-starts a scan.
+    func startAutoScan(path: String) {
+        let url = URL(fileURLWithPath: path)
+        scan(root: url)
+    }
+
     func scan(root url: URL) {
         guard case .idle = status else { return }
         status = .scanning(0)
