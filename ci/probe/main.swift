@@ -43,8 +43,31 @@ if dirfd >= 0 {
     }
     print("RAW getattrlistbulk returned: \(n)")
     if n > 0 {
-        let hex = buf.prefix(96).map { String(format: "%02x", $0) }.joined(separator: " ")
-        print("RAW first 96 bytes: \(hex)")
+        let hex = buf.prefix(320).map { String(format: "%02x", $0) }.joined(separator: " ")
+        print("RAW first 320 bytes: \(hex)")
+        // walk entries and try candidate name strategies per entry
+        var off = 0
+        var idx = 0
+        let entryCount = n
+        while off + 8 <= 4096 && idx < entryCount {
+            let len = buf.withUnsafeBytes { $0.load(fromByteOffset: off, as: UInt32.self) }
+            if len < 8 || len > 4096 { print("entry \(idx): bad length \(len) at \(off)"); break }
+            let dataoffset = buf.withUnsafeBytes { $0.load(fromByteOffset: off + 28, as: Int32.self) }
+            let attrLen = buf.withUnsafeBytes { $0.load(fromByteOffset: off + 32, as: UInt32.self) }
+            func cstr(_ base: Int) -> String {
+                guard base > 0, base < 4096 else { return "" }
+                var s = ""
+                var i = base
+                while i < 4096, buf[i] != 0 { s.append(Character(UnicodeScalar(buf[i]))); i += 1 }
+                return s
+            }
+            let a = cstr(off + 32 + Int(dataoffset))   // name @ attr_length field + dataoffset
+            let b = cstr(off + 28 + Int(dataoffset))   // sample's math: attrref + dataoffset
+            let c = cstr(off + Int(dataoffset))        // from entry start
+            print("entry \(idx): len=\(len) dataoffset=\(dataoffset) attrLen=\(attrLen) A=\(a) B=\(b) C=\(c)")
+            off += Int(len)
+            idx += 1
+        }
     }
     close(dirfd)
 } else {
