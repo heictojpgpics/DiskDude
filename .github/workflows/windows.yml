@@ -42,24 +42,30 @@ jobs:
         shell: pwsh
         run: |
           if (Get-Command swift -ErrorAction SilentlyContinue) { swift --version; exit 0 }
+          # winget installs per-user when the shell is non-elevated — search
+          # machine AND user locations
           $roots = @(
             "C:\Program Files\Swift\Toolchains",
             "C:\Library\Developer\Toolchains",
-            "C:\Library\Swift"
+            "C:\Library\Swift",
+            "$env:LOCALAPPDATA\Programs\Swift\Toolchains",
+            "$env:LOCALAPPDATA\Swift\Toolchains",
+            "$env:LOCALAPPDATA\Swift"
           )
-          $chain = $null
+          $bin = $null
           foreach ($r in $roots) {
             if (Test-Path $r) {
-              $chain = Get-ChildItem $r -Directory | Select-Object -First 1
-              if ($chain) { Write-Host "toolchain at: $($chain.FullName)"; break }
+              $hit = Get-ChildItem $r -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
+                Where-Object { $_.FullName -match "usr\\bin" } | Select-Object -First 1
+              if ($hit) { $bin = Split-Path $hit.FullName; Write-Host "toolchain at: $bin"; break }
             }
           }
-          $bin = $null
-          if ($chain) { $bin = Join-Path $chain.FullName "usr\bin" }
-          if (-not $bin -or -not (Test-Path (Join-Path $bin "swift.exe"))) {
-            $hit = Get-ChildItem "C:\Program Files" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
-              Select-Object -First 1
-            if ($hit) { $bin = Split-Path $hit.FullName }
+          if (-not $bin) {
+            foreach ($base in @("C:\Program Files", "$env:LOCALAPPDATA\Programs", "$env:USERPROFILE")) {
+              $hit = Get-ChildItem $base -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
+                Select-Object -First 1
+              if ($hit) { $bin = Split-Path $hit.FullName; Write-Host "toolchain (deep search) at: $bin"; break }
+            }
           }
           if (-not $bin) { throw "swift.exe not found after winget install" }
           Add-Content $env:GITHUB_PATH $bin
