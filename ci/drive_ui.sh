@@ -30,6 +30,21 @@ LOG="$OUT/${PREFIX}-stdout.log"
 pkill -x DiskDude 2>/dev/null || true
 sleep 1
 
+# crash-report helper: prints the newest DiskDude crash report if any
+dump_crash_reports() {
+  local newest
+  newest=$(ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | grep -i diskdude | head -2)
+  if [ -n "$newest" ]; then
+    for f in $newest; do
+      echo "--- crash report: $f ---"
+      head -80 "$HOME/Library/Logs/DiagnosticReports/$f" 2>/dev/null
+    done
+  else
+    echo "(no DiskDude crash reports found)"
+    ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | head -5
+  fi
+}
+
 # ---------------------------------------------------------------- window utils
 win_rect() {
   osascript -e 'tell application "System Events" to tell process "DiskDude"
@@ -47,7 +62,14 @@ RECT=""
 for i in $(seq 1 60); do
   if ! kill -0 "$APP_PID" 2>/dev/null; then
     echo "FATAL: app died during launch (stdout below)"; cat "$LOG"
-    ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | head -3
+    dump_crash_reports
+    exit 1
+  fi
+  # zombie guard: kill -0 succeeds on zombies — a crashed child looks "alive"
+  if [ "$(ps -o stat= -p "$APP_PID" 2>/dev/null | tr -d ' ')" = "Z" ]; then
+    echo "FATAL: app crashed at launch (zombie process — crash report below)"
+    cat "$LOG" 2>/dev/null
+    dump_crash_reports
     exit 1
   fi
   RECT=$(win_rect)
@@ -55,7 +77,12 @@ for i in $(seq 1 60); do
   sleep 0.5
 done
 if [ -z "$RECT" ]; then
-  echo "FATAL: no window appeared after 30s"; cat "$LOG"; exit 1
+  echo "FATAL: no window appeared after 30s"; cat "$LOG" 2>/dev/null
+  # the process may be hung OR crashed with reports — dump both
+  ps -o pid,stat,etime,command -p "$APP_PID" 2>/dev/null || true
+  sample "$APP_PID" 2 2>/dev/null | head -60 || true
+  dump_crash_reports
+  exit 1
 fi
 echo "window up: pid=$APP_PID rect=$RECT"
 

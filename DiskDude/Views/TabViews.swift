@@ -58,8 +58,13 @@ struct DuplicatesView: View {
                             DuplicateGroupRow(group: group)
                         }
                     } header: {
+                        // Binary-verified construction (FUN_10008532c): the middle
+                        // fragment is a PLAIN string literal (" could be reclaimed
+                        // across " at 0x1000fb2e0, created via
+                        // LocalizedStringKey(stringLiteral:) — i.e. runtime '+'
+                        // concatenation of three pieces, not one interpolation.
                         SectionCaption(title: "Duplicates",
-                                       trailing: "\(formatBytes(totalWasted)) could be reclaimed across \(viewModel.duplicateGroups.count) groups")
+                                       trailing: "\(formatBytes(totalWasted))" + " could be reclaimed across " + "\(viewModel.duplicateGroups.count) groups")
                     }
                 }
                 .listStyle(.inset)
@@ -77,7 +82,11 @@ struct DuplicateGroupRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(group.files.count) identical files · \(formatBytes(group.size)) each · wastes \(formatBytes(group.wasted))")
+                // Binary-verified interpolation (FUN_100086948, arm64 immediates):
+                // literalCapacity 27, 3 interpolations: Int %lld + formatBytes x2,
+                // literals " copies · " (11 bytes: 20 63 6f 70 69 65 73 20 c2 b7 20)
+                // and " each · wastes " (0x1000fb330). "copies", not "identical files".
+                Text("\(group.files.count) copies · \(formatBytes(group.size)) each · wastes \(formatBytes(group.wasted))")
                     .font(.system(size: 11, weight: .semibold))
                 Spacer()
                 Button("Keep this, stage the rest") {
