@@ -15,12 +15,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download latest build artifact
+      - name: Resolve last successful build run
+        run: |
+          RUN_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build.yml/runs?status=success&per_page=1" \
+            | python3 -c "import json,sys; print(json.load(sys.stdin)['workflow_runs'][0]['id'])")
+          echo "BUILD_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "Using build run: $RUN_ID"
+
+      - name: Download build artifact (cross-run)
         uses: actions/download-artifact@v4
         with:
           name: DiskDude-macos-26-app
+          run-id: ${{ env.BUILD_RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           path: build/
-        continue-on-error: true
 
       - name: Download original DMG (pinned by hash)
         run: |
