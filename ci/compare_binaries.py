@@ -102,13 +102,23 @@ def cstrings_via_tool(path):
 
 
 def app_owned(s):
-    if len(s) < 4 or s.startswith(("_", "$s", "@", "GCC", "rust", "Xcode")):
+    """UI-grade string: readable English-ish text, not mangled/symbol noise."""
+    if len(s) < 5 or len(s) > 120:
         return False
-    if s.startswith(("libswift", "swift_", "NSObject", "OS_", "NSString", "/Library", "/usr")):
+    if s.startswith(("_", "$s", "@", "GCC", "rust", "Xcode", "libswift", "swift_",
+                     "NSObject", "OS_", "NSString", "/Library", "/usr", ".")):
         return False
-    if s in ("apple", "com.apple"):
+    # require mostly-printable word characters with spaces/punctuation
+    alpha = sum(c.isalpha() for c in s)
+    if alpha < max(3, len(s) // 3):
         return False
-    return any(c.isalpha() for c in s)
+    if not all(c.isalnum() or c in " .,!?'\"…()/-&%:;_+~@#*$" for c in s):
+        return False
+    # reject strings that look like hex/base64 garbage
+    words = s.split()
+    if words and all(w.isupper() or (len(w) in (2, 4) and all(c in "0123456789abcdefABCDEF" for c in w)) for w in words):
+        return False
+    return True
 
 
 def main():
