@@ -130,7 +130,16 @@ final class DiskScanner: ObservableObject {
 
         var attrList = attrlist()
         attrList.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT)
-        attrList.commonattr = attrgroup_t(ATTR_CMN_NAME | ATTR_CMN_ERROR | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
+        // Request bitmap — ATTR_CMN_ERROR is an OUTPUT-only flag (returned in
+        // the attrlist error field); requesting it makes getattrlistbulk
+        // return EINVAL, which aborted every scan at the root with exactly
+        // "1 folders couldn't be read" on the CI runner. ATTR_CMN_OBJTYPE is
+        // REQUIRED for directory detection (VDIR) — without it no child is
+        // ever classified as a folder and subdirectories are never pushed
+        // as jobs (empty treemap). Canonical returned order follows
+        // descending bit values: NAME, OBJTYPE, CRTIME, MODTIME, then file
+        // sizes.
+        attrList.commonattr = attrgroup_t(ATTR_CMN_NAME | ATTR_CMN_OBJTYPE | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
         attrList.fileattr = attrgroup_t(ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE)
 
         // each worker owns a 256 KB getattrlistbulk buffer (binary-verified:
@@ -167,12 +176,15 @@ final class DiskScanner: ObservableObject {
         }
     }
 
-    /// Parse one attribute entry into a child FileNode (structure recovered
-    /// from the decompiled buffer walk: name, type, logical size, allocation
-    /// size with block rounding, dates).
+    /// Parse one attribute entry into a child FileNode. Layout per getattrlist(2):
+    /// [u32 entrySize][attrgroup returnedBitmap][attrreference_t NAME (8B:
+    /// u32 length, u32 dataoffset)][OBJTYPE u32][align8 CRTIME timespec]
+    /// [MODTIME timespec][align8 TOTALSIZE off_t][ALLOCSIZE off_t][DEVTYPE u32]
+    /// ... name string at attr_dataoffset. Attributes appear in descending
+    /// bit-value canonical order (NAME 0x00100000 > OBJTYPE 0x00020000 >
+    /// CRTIME 0x00002000 > MODTIME 0x00001000 > file sizes).
     private func process(entry: UnsafeRawPointer, parent: FileNode, path: String, insideApp: Bool) {
         let attrs = entry.load(fromByteOffset: 4, as: UInt32.self)
-        var cursor = 16
 
         var name: String = ""
         var isDirectory = false
@@ -186,20 +198,23 @@ final class DiskScanner: ObservableObject {
             let namePtr = entry + Int(off)
             name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
         }
-        if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 || attrs & attrgroup_t(ATTR_CMN_ERROR) != 0 {
+        var cursor = 16
+        if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 {
             let objType = entry.load(fromByteOffset: cursor, as: vtype.self)
             isDirectory = (objType == VDIR)
             cursor += 4
         }
-        if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {
-            let t = entry.load(fromByteOffset: cursor, as: timespec.self)
-            modified = Double(t.tv_sec)
-            cursor += MemoryLayout<timespec>.alignment
-        }
+        // timespec (tv_sec i64 + tv_nsec i64) — 8-byte natural alignment
+        cursor = (cursor + 7) & ~7
         if attrs & attrgroup_t(ATTR_CMN_CRTIME) != 0 {
             let t = entry.load(fromByteOffset: cursor, as: timespec.self)
             created = Double(t.tv_sec)
-            cursor += MemoryLayout<timespec>.alignment
+            cursor += MemoryLayout<timespec>.size
+        }
+        if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {
+            let t = entry.load(fromByteOffset: cursor, as: timespec.self)
+            modified = Double(t.tv_sec)
+            cursor += MemoryLayout<timespec>.size
         }
         if attrs & attrgroup_t(ATTR_FILE_TOTALSIZE) != 0 {
             logicalSize = entry.load(fromByteOffset: cursor, as: Int64.self)
@@ -207,12 +222,13 @@ final class DiskScanner: ObservableObject {
         }
         if attrs & attrgroup_t(ATTR_FILE_ALLOCSIZE) != 0 {
             let alloc = entry.load(fromByteOffset: cursor, as: Int64.self)
+            cursor += 8
             // Round up to the allocation block (decompiled: block < 2 → 1).
             let block: Int64 = alloc > 0 ? max(1, alloc) : 1
             sizeOnDisk = ((logicalSize + block - 1) / block) * block
             if sizeOnDisk < logicalSize { sizeOnDisk = logicalSize }
-            cursor += 8
         }
+        // ATTR_FILE_DEVTYPE (u32) follows when requested — not consumed
 
         guard !name.isEmpty, name != ".", name != ".." else { return }
 
@@ -249,6 +265,9 @@ final class DiskScanner: ObservableObject {
     }
 
     private func noteUnreadable(_ path: String) {
+        if ProcessInfo.processInfo.environment["DISKDUDE_DEBUG"] != nil {
+            FileHandle.standardError.write(Data("DiskDude scanner: unreadable \(path) errno=\(errno)\n".utf8))
+        }
         lock.lock()
         unreadableCount += 1
         if unreadableSamples.count < 12 {
