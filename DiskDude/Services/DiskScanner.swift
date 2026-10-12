@@ -182,8 +182,8 @@ final class DiskScanner: ObservableObject {
             name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
         }
         if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 || attrs & attrgroup_t(ATTR_CMN_ERROR) != 0 {
-            let objType = entry.load(fromByteOffset: cursor, as: Int32.self)
-            isDirectory = (objType == Int32(truncatingIfNeeded: VDIR))
+            let objType = entry.load(fromByteOffset: cursor, as: vtype.self)
+            isDirectory = (objType == VDIR)
             cursor += 4
         }
         if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {
