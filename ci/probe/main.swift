@@ -27,6 +27,30 @@ let tree = scanner.scan(rootURL: root) { files, bytes, current in
 }
 let elapsed = Date().timeIntervalSince(start)
 
+// raw first-entry dump: helps debug empty trees (layout verification)
+let dirfd = open(root.path, O_RDONLY | O_DIRECTORY | O_CLOEXEC)
+if dirfd >= 0 {
+    var attrList = attrlist()
+    attrList.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT)
+    attrList.commonattr = attrgroup_t(bitPattern:
+        Int32(bitPattern: ATTR_CMN_RETURNED_ATTRS) | ATTR_CMN_ERROR |
+        ATTR_CMN_NAME | ATTR_CMN_OBJTYPE | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
+    attrList.fileattr = attrgroup_t(bitPattern:
+        ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE)
+    var buf = [UInt8](repeating: 0, count: 4096)
+    let n = buf.withUnsafeMutableBytes { raw in
+        getattrlistbulk(dirfd, &attrList, raw.baseAddress!, 4096, 0)
+    }
+    print("RAW getattrlistbulk returned: \(n)")
+    if n > 0 {
+        let hex = buf.prefix(96).map { String(format: "%02x", $0) }.joined(separator: " ")
+        print("RAW first 96 bytes: \(hex)")
+    }
+    close(dirfd)
+} else {
+    print("RAW open failed: errno=\(errno)")
+}
+
 func countFiles(_ node: FileNode) -> (Int, Int, Int64) {
     var f = 0, d = 0, b: Int64 = 0
     for child in node.children {
