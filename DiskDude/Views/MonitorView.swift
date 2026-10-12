@@ -28,7 +28,11 @@ struct MonitorView: View {
     @State private var processSort: ProcessSort = .cpu
 
     private let state = SystemMonitor.State()
-    private let timer = Timer.publish(every: 2.0, on: .main, in: .common).autoconnect()
+    // Binary-verified sampling loop (FUN_100012154/FUN_1000123a8):
+    //   while !Task.isCancelled { sample(); try await clock.sleep(for: .milliseconds(150)) }
+    // The Duration literal at __const 0x1000f4040 = (150000000000000000, 0)
+    // = Duration.milliseconds(150) — ground-truth compiled byte layout.
+    private let monitorClock = ContinuousClock()
 
     var body: some View {
         ScrollView {
@@ -183,12 +187,16 @@ struct MonitorView: View {
             .padding(14)
         }
         .background(theme.background)
-        .onReceive(timer) { _ in
-            let snap = SystemMonitor.sample(state: state)
-            snapshot = snap
-            appendCapped(&cpuHistory, 100 - snap.cpu.idle)
-            appendCapped(&memoryHistory, snap.memory.pressure * 100)
-            appendCapped(&freeSpaceHistory, Double(viewModel.disk.free))
+        .task {
+            // 150 ms cadence via ContinuousClock (binary-verified)
+            while !Task.isCancelled {
+                let snap = SystemMonitor.sample(state: state)
+                snapshot = snap
+                appendCapped(&cpuHistory, 100 - snap.cpu.idle)
+                appendCapped(&memoryHistory, snap.memory.pressure * 100)
+                appendCapped(&freeSpaceHistory, Double(viewModel.disk.free))
+                try? await monitorClock.sleep(for: .milliseconds(150))
+            }
         }
         .onAppear {
             refreshVolumes()

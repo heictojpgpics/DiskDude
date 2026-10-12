@@ -18,23 +18,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Swift toolchain (swift.org installer, verified URL)
+      - name: Install Swift toolchain
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "6.1.2"
+        continue-on-error: true
+
+      - name: Swift install fallback (direct installer with logging)
         shell: pwsh
         run: |
-          # verified pattern: .../<tag>/windows10/swift-<ver>-RELEASE/swift-<ver>-RELEASE-windows10.exe
+          if (Get-Command swift -ErrorAction SilentlyContinue) {
+            swift --version; Write-Host "setup-swift worked"; exit 0
+          }
+          Write-Host "setup-swift unavailable — running the swift.org installer"
           $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
           Invoke-WebRequest $url -OutFile swift-installer.exe
           if ((Get-Item swift-installer.exe).Length -lt 100MB) { throw "installer download too small" }
-          Start-Process .\swift-installer.exe -ArgumentList "/install /quiet /norestart" -Wait
-          Write-Host "installer done"
+          $p = Start-Process .\swift-installer.exe -ArgumentList "/install","/quiet","/norestart","/l*v","install.log" -Wait -PassThru
+          Write-Host "installer exit code: $($p.ExitCode)"
+          if (Test-Path install.log) { Get-Content install.log -Tail 40 }
 
       - name: Locate Swift and add to PATH
         shell: pwsh
         run: |
-          $chain = Get-ChildItem "C:\Program Files\Swift\Toolchains" -Directory |
-            Select-Object -First 1
-          if (-not $chain) { throw "no Swift toolchain found" }
-          $bin = Join-Path $chain.FullName "usr\bin"
+          if (Get-Command swift -ErrorAction SilentlyContinue) { swift --version; exit 0 }
+          $roots = @(
+            "C:\Program Files\Swift\Toolchains",
+            "C:\Library\Developer\Toolchains",
+            "C:\Library\Swift"
+          )
+          $chain = $null
+          foreach ($r in $roots) {
+            if (Test-Path $r) {
+              $chain = Get-ChildItem $r -Directory | Select-Object -First 1
+              if ($chain) { Write-Host "toolchain at: $($chain.FullName)"; break }
+            }
+          }
+          if (-not $chain) {
+            # last resort: search the whole program files
+            $hit = Get-ChildItem "C:\Program Files" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
+              Select-Object -First 1
+            if ($hit) { $bin = Split-Path $hit.FullName }
+          } else {
+            $bin = Join-Path $chain.FullName "usr\bin"
+          }
+          if (-not $bin -or -not (Test-Path (Join-Path $bin "swift.exe"))) {
+            throw "swift.exe not found anywhere"
+          }
           Add-Content $env:GITHUB_PATH $bin
           & "$bin\swift.exe" --version
 
@@ -57,9 +87,9 @@ jobs:
         shell: pwsh
         run: |
           $root = "$env:RUNNER_TEMP\fixture"
-          $r = Get-Content report-windows.txt -Raw
-          $r = $r.Replace($root, "ROOT")
-          Set-Content -NoNewline report-windows.txt $r
+          $r = [System.IO.File]::ReadAllText("report-windows.txt")
+          $r = $r.Replace($root, "ROOT").Replace("$env:RUNNER_TEMP/fixture", "ROOT")
+          [System.IO.File]::WriteAllText("report-windows.txt", $r)
 
       - name: Upload report
         uses: actions/upload-artifact@v4
@@ -115,12 +145,15 @@ jobs:
           cross-platform/.build/release/diskdude-cli "$RUNNER_TEMP/fixture" --top 10 --out report-macos.txt
           head -30 report-macos.txt
       - name: Normalize report (root path -> ROOT)
-        shell: pwsh
+        shell: bash
         run: |
-          $root = "$env:RUNNER_TEMP/fixture"
-          $r = Get-Content report-macos.txt -Raw
-          $r = $r.Replace($root, "ROOT").Replace("$env:RUNNER_TEMP\fixture", "ROOT")
-          Set-Content -NoNewline report-macos.txt $r
+          python3 - <<'PYEOF'
+          import os, pathlib
+          t = os.environ["RUNNER_TEMP"] + "/fixture"
+          p = pathlib.Path("report-macos.txt")
+          s = p.read_text()
+          p.write_text(s.replace(t, "ROOT"))
+          PYEOF
       - uses: actions/upload-artifact@v4
         with:
           name: parity-report-macos

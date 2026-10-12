@@ -39,17 +39,19 @@ enum AppUninstaller {
         var totalSize: Int64 = 0
     }
 
-    /// The Library subfolders searched for leftovers (byte-exact list from
-    /// the binary's __cstring literals, kept as "Library/…" home-relative
-    /// paths).
+    /// The Library subfolders searched for leftovers. Byte-exact from the
+    /// binary's static array at 0x100139b00 (7 records of two Swift String
+    /// fields, in this exact order; labels "Saved State" and
+    /// "Container Data" match the binary's literals, subpaths resolve
+    /// through the shared-string pointers into __cstring).
     static let leftoverLocations: [(category: String, subpath: String)] = [
+        ("Caches", "Library/Caches"),
         ("Preferences", "Library/Preferences"),
         ("Application Support", "Library/Application Support"),
-        ("HTTP Storage", "Library/HTTP Storage"),
-        ("Saved Application State", "Library/Saved Application State"),
-        ("Containers", "Library/Containers"),
-        ("Caches", "Library/Caches"),
         ("Logs", "Library/Logs"),
+        ("HTTP Storage", "Library/HTTP Storage"),
+        ("Saved State", "Library/Saved Application State"),
+        ("Container Data", "Library/Containers"),
     ]
 
     /// Enumerate installed apps from /Applications (and ~/Applications).

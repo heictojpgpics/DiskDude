@@ -126,6 +126,7 @@ jobs:
           fi
 
       - name: Upload visual artifacts
+        if: always()   # failed tours still upload whatever was captured
         uses: actions/upload-artifact@v4
         with:
           name: ui-visual-artifacts
