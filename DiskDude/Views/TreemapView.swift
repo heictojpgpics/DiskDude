@@ -13,6 +13,7 @@ struct TreemapView: View {
     let folder: FileNode
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var hovered: FileNode?
     @State private var cache = LayoutCache<VizKey, [Cell]>()
 
@@ -22,7 +23,7 @@ struct TreemapView: View {
         var color: Color
         var id: ObjectIdentifier { node.id }
         static func == (l: Cell, r: Cell) -> Bool { l.node === r.node && l.frame == r.frame }
-        func hash(into h: inout Hasher) { h.combine(node.id); h.combine(frame) }
+        func hash(into h: inout Hasher) { h.combine(node.id); h.combine(frame.origin.x); h.combine(frame.origin.y); h.combine(frame.size.width); h.combine(frame.size.height) }
     }
 
     var body: some View {
@@ -40,7 +41,7 @@ struct TreemapView: View {
                                         width: Int(geo.size.width),
                                         height: Int(geo.size.height),
                                         selected: viewModel.selectedNode?.id,
-                                        scheme: viewModel.colorSchemeActive,
+                                        scheme: colorScheme,
                                         abbreviateLabels: viewModel.abbreviateLabels)) { context, size in
                 draw(context: context, size: size, cells: cells)
             }
@@ -81,7 +82,7 @@ struct TreemapView: View {
     private func draw(context: GraphicsContext, size: CGSize, cells: [Cell]) {
         let bounds = CGRect(origin: .zero, size: size)
         // container panel
-        let container = Path(roundedRect: bounds.insetBy(0.5, 0.5),
+        let container = Path(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5),
                              cornerRadius: 8, style: .continuous)
         context.fill(container, with: .color(theme.panel))
         context.stroke(container, with: .color(theme.border), lineWidth: 1)

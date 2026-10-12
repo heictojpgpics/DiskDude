@@ -13,13 +13,17 @@ struct SnapshotsView: View {
     @EnvironmentObject private var viewModel: ScanViewModel
 
     var body: some View {
-        SnapshotsContent()
+        SnapshotsContent(store: viewModel.snapshotStore)
     }
 }
 
 struct SnapshotsContent: View {
     @EnvironmentObject private var viewModel: ScanViewModel
-    @ObservedObject private var store = viewModel.snapshotStore
+    @ObservedObject private var store: SnapshotStore
+
+    init(store: SnapshotStore) {
+        _store = ObservedObject(wrappedValue: store)
+    }
     @Environment(\.theme) private var theme
     @State private var beforeID: Snapshot.Summary.ID?
     @State private var afterID: Snapshot.Summary.ID?
@@ -399,7 +403,7 @@ struct UnreadableFoldersNotice: View {
                 Spacer()
                 if let first = viewModel.unreadableFolderSamples.first {
                     Button("Reveal in Finder") {
-                        NSWorkspace.shared.activateFileViewerSelectingURLs([URL(fileURLWithPath: first)])
+                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: first)])
                     }
                     .font(.system(size: 10.5))
                     .buttonStyle(.link)
@@ -481,7 +485,7 @@ struct InspectorContent: View {
 
                 if let sizes = node.typeSizes, node.isDirectory {
                     SectionCaption(title: "By type", trailing: nil)
-                    ForEach(FileCategory.allCases) { cat in
+                    ForEach(FileCategory.allCases, id: \.self) { cat in
                         let v = sizes[safe: cat.rawValue] ?? 0
                         if v > 0 {
                             HStack {
@@ -504,7 +508,7 @@ struct InspectorContent: View {
                             QuickLookController.show(url: URL(fileURLWithPath: node.path))
                         }
                         SquareIconButton(systemImage: "arrow.up.forward.square", label: "Reveal in Finder", size: 11) {
-                            NSWorkspace.shared.activateFileViewerSelectingURLs([URL(fileURLWithPath: node.path)])
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: node.path)])
                         }
                         SquareIconButton(systemImage: "doc.on.clipboard.fill", label: "Copy path", size: 11) {
                             NSPasteboard.general.clearContents()

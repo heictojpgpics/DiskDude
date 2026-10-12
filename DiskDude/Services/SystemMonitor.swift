@@ -195,7 +195,7 @@ enum SystemMonitor {
             let pid = buffer[i]
             guard pid > 0 else { continue }
             var nameBuf = [CChar](repeating: 0, count: Int(MAXPATHLEN))
-            let nameLen = proc_name(pid, &nameBuf, Int32(MAXPATHLEN))
+            let nameLen = proc_name(pid, &nameBuf, UInt32(MAXPATHLEN))
             let name = nameLen > 0 ? String(cString: nameBuf) : "pid \(pid)"
             var rusage = rusage_info_current()
             let rsize = MemoryLayout<rusage_info_current>.size

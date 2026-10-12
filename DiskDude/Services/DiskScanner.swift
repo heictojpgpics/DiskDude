@@ -177,31 +177,31 @@ final class DiskScanner: ObservableObject {
         var modified: Double = 0
         var created: Double = 0
 
-        if attrs & ATTR_CMN_NAME != 0 {
+        if attrs & attrgroup_t(ATTR_CMN_NAME) != 0 {
             let off = entry.load(fromByteOffset: 12, as: UInt32.self)
             let namePtr = entry + Int(off)
             name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
         }
-        if attrs & ATTR_CMN_OBJTYPE != 0 || attrs & ATTR_CMN_ERROR != 0 {
+        if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 || attrs & attrgroup_t(ATTR_CMN_ERROR) != 0 {
             let objType = entry.load(fromByteOffset: cursor, as: UInt32.self)
-            isDirectory = (objType == VDIR)
+            isDirectory = (objType == UInt32(VDIR))
             cursor += 4
         }
-        if attrs & ATTR_CMN_MODTIME != 0 {
+        if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {
             let t = entry.load(fromByteOffset: cursor, as: timespec.self)
             modified = Double(t.tv_sec)
             cursor += MemoryLayout<timespec>.alignment
         }
-        if attrs & ATTR_CMN_CRTIME != 0 {
+        if attrs & attrgroup_t(ATTR_CMN_CRTIME) != 0 {
             let t = entry.load(fromByteOffset: cursor, as: timespec.self)
             created = Double(t.tv_sec)
             cursor += MemoryLayout<timespec>.alignment
         }
-        if attrs & ATTR_FILE_TOTALSIZE != 0 {
+        if attrs & attrgroup_t(ATTR_FILE_TOTALSIZE) != 0 {
             logicalSize = entry.load(fromByteOffset: cursor, as: Int64.self)
             cursor += 8
         }
-        if attrs & ATTR_FILE_ALLOCSIZE != 0 {
+        if attrs & attrgroup_t(ATTR_FILE_ALLOCSIZE) != 0 {
             let alloc = entry.load(fromByteOffset: cursor, as: Int64.self)
             // Round up to the allocation block (decompiled: block < 2 → 1).
             let block: Int64 = alloc > 0 ? max(1, alloc) : 1

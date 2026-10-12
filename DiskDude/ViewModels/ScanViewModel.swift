@@ -61,7 +61,7 @@ final class ScanViewModel: ObservableObject {
     var scanTask: Task<Void, Never>?
     var scanner: DiskScanner?
     var pendingReports: Set<String> = []
-    var activationObserver: NSObject?
+    var activationObserver: NSObjectProtocol?
 
     // MARK: - Init
 
@@ -122,7 +122,7 @@ final class ScanViewModel: ObservableObject {
                       values.volumeIsBrowsable == true,
                       values.volumeIsInternal == true else { continue }
                 let total = Int64(values.volumeTotalCapacity ?? 0)
-                let free = values.volumeAvailableCapacityForImportantUsage.map(Int64.init)
+                let free = values.volumeAvailableCapacityForImportantUsage.map { Int64($0) }
                     ?? Int64(values.volumeAvailableCapacity ?? 0)
                 disk = DiskInfo(name: name, total: total, free: free)
                 break
@@ -231,7 +231,7 @@ final class ScanViewModel: ObservableObject {
         Array(root.children.filter(\.isDirectory).sorted { $0.sizeOnDisk > $1.sizeOnDisk }.prefix(limit))
     }
 
-    static func buildAgeReport(for folder: FileNode) -> AgeReport {
+    nonisolated static func buildAgeReport(for folder: FileNode) -> AgeReport {
         var buckets = Array(repeating: Int64(0), count: 8)
         var months: [Int: [Int64]] = [:]
         var untouched: [FileNode] = []
@@ -288,7 +288,7 @@ final class ScanViewModel: ObservableObject {
         isFindingDuplicates = true
         duplicateGroups = []
         Task.detached(priority: .userInitiated) { [weak self] in
-            let groups = DuplicateFinder.findDuplicates(in: root) { group in
+            let groups = DuplicateFinder.findDuplicates(in: root, onGroup: { group in
                 Task { @MainActor in
                     self?.duplicateGroups.append(group)
                 }
@@ -307,7 +307,7 @@ final class ScanViewModel: ObservableObject {
         isLoadingApps = true
         installedApps = []
         Task.detached(priority: .userInitiated) { [weak self] in
-            var apps = AppUninstaller.loadInstalledApps { app in
+            var apps = AppUninstaller.loadInstalledApps(onApp: { app in
                 Task { @MainActor in
                     self?.installedApps.append(app)
                 }

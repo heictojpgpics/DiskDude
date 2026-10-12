@@ -15,6 +15,7 @@ struct SunburstView: View {
     let folder: FileNode
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var hovered: FileNode?
     @State private var cache = LayoutCache<CanvasKey, [SunArc]>()
 
@@ -148,7 +149,7 @@ struct SunburstView: View {
     }
 
     private func labelColor(node: FileNode) -> Color {
-        node === viewModel.selectedNode ? theme.ink : theme.textPrimary
+        node === viewModel.selectedNode ? theme.ink : theme.text
     }
 
     // MARK: - Hit testing
@@ -200,7 +201,7 @@ struct SunburstView: View {
                            depth: Int(viewModel.depth), mode: viewModel.colorMode),
             width: Int(geo.size.width), height: Int(geo.size.height),
             selected: viewModel.selectedNode?.id,
-            scheme: viewModel.colorSchemeActive,
+            scheme: colorScheme,
             abbreviateLabels: viewModel.abbreviateLabels)
     }
 

@@ -18,6 +18,7 @@ struct FlameGraphView: View {
     let folder: FileNode
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var hovered: FileNode?
     @State private var cache = LayoutCache<CanvasKey, [Block]>()
 
@@ -40,7 +41,7 @@ struct FlameGraphView: View {
                                depth: Int(viewModel.depth), mode: viewModel.colorMode),
                 width: Int(geo.size.width), height: Int(geo.size.height),
                 selected: viewModel.selectedNode?.id,
-                scheme: viewModel.colorSchemeActive,
+                scheme: colorScheme,
                 abbreviateLabels: viewModel.abbreviateLabels)
             let blocks = cache.compute(key: key) {
                 layoutBlocks(width: geo.size.width)
@@ -96,7 +97,7 @@ struct FlameGraphView: View {
         }
         let text = Text(label)
             .font(.system(size: 13))
-            .foregroundColor(theme.textPrimary)
+            .foregroundColor(theme.text)
         context.draw(text, at: CGPoint(x: rect.minX + 6, y: rect.midY), anchor: .leading)
     }
 
@@ -139,6 +140,7 @@ struct BubblesView: View {
     let folder: FileNode
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var hovered: FileNode?
     @State private var cache = LayoutCache<CanvasKey, [Bubble]>()
 
@@ -162,13 +164,13 @@ struct BubblesView: View {
                                depth: Int(viewModel.depth), mode: viewModel.colorMode),
                 width: Int(geo.size.width), height: Int(geo.size.height),
                 selected: viewModel.selectedNode?.id,
-                scheme: viewModel.colorSchemeActive,
+                scheme: colorScheme,
                 abbreviateLabels: viewModel.abbreviateLabels)
             let bubbles = cache.compute(key: key) {
                 let root = PackNode(node: folder, depth: 0, color: color(folder))
                 root.pack(width: Double(geo.size.width), height: Double(geo.size.height),
                           maxDepth: Int(viewModel.depth))
-                return root.flatten().map { pack in
+                return root.flattenNodes().map { pack in
                     Bubble(node: pack.node,
                            center: CGPoint(x: pack.x, y: pack.y),
                            radius: pack.r,
@@ -213,7 +215,7 @@ struct BubblesView: View {
         }
         // Selection ring: text color at 0.8 opacity, 1.6 wide
         if matchesSelection, bubble.depth >= 1 {
-            context.stroke(path, with: .color(theme.textPrimary.opacity(0.8)), lineWidth: 1.6)
+            context.stroke(path, with: .color(theme.text.opacity(0.8)), lineWidth: 1.6)
         }
         drawBubbleLabel(bubble, in: &context)
     }
@@ -224,7 +226,7 @@ struct BubblesView: View {
         if bubble.radius >= 45 {
             let name = Text(bubble.node.name)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(theme.textPrimary)
+                .foregroundColor(theme.text)
             context.draw(name, at: CGPoint(x: bubble.center.x, y: bubble.center.y - 6), anchor: .center)
             let size = Text(formatBytes(bubble.node.sizeOnDisk))
                 .font(.system(size: 10))
@@ -241,7 +243,7 @@ struct BubblesView: View {
             }
             let text = Text(label)
                 .font(.system(size: fontSize, weight: .semibold))
-                .foregroundColor(theme.textPrimary)
+                .foregroundColor(theme.text)
             context.draw(text, at: bubble.center, anchor: .center)
         }
     }
@@ -318,7 +320,7 @@ final class PackNode {
         sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2))
     }
 
-    func flatten() -> [PackNode] {
+    func flattenNodes() -> [PackNode] {
         [self] + children.flatMap(\.flatten)
     }
 }
@@ -329,6 +331,7 @@ struct MindMapView: View {
     let folder: FileNode
     @EnvironmentObject private var viewModel: ScanViewModel
     @Environment(\.theme) private var theme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var hovered: FileNode?
     @State private var cache = LayoutCache<CanvasKey, [Branch]>()
 
@@ -358,7 +361,7 @@ struct MindMapView: View {
                                depth: Int(viewModel.depth), mode: viewModel.colorMode),
                 width: Int(geo.size.width), height: Int(geo.size.height),
                 selected: viewModel.selectedNode?.id,
-                scheme: viewModel.colorSchemeActive,
+                scheme: colorScheme,
                 abbreviateLabels: viewModel.abbreviateLabels)
             let branches = cache.compute(key: key) {
                 buildBranches(width: geo.size.width, height: geo.size.height)

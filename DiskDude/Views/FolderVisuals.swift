@@ -163,7 +163,7 @@ struct NodeContextMenu: View {
                 QuickLookController.show(url: url)
             }
             Button("Reveal in Finder") {
-                NSWorkspace.shared.activateFileViewerSelectingURLs([url])
+                NSWorkspace.shared.activateFileViewerSelecting([url])
             }
             Button("Copy Path") {
                 NSPasteboard.general.clearContents()

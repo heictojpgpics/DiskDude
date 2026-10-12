@@ -295,7 +295,7 @@ func formatPercentage(_ part: Int64, of whole: Int64) -> String {
 }
 
 /// Relative date text (recovered from FUN_100050b70): nil → "Unknown",
-/// less than 60 s ago → "Just now", otherwise NSRelativeDateTimeFormatter
+/// less than 60 s ago → "Just now", otherwise RelativeDateTimeFormatter
 /// (unitsStyle .full) localizedString(for:relativeTo:).
 func relativeDateText(_ date: Date?) -> String {
     guard let date else { return "Unknown" }
@@ -307,9 +307,9 @@ func relativeDateText(_ date: Date?) -> String {
 }
 
 /// Lazily-created formatter backing `relativeDateText` (recovered:
-/// `swift_once` global with NSRelativeDateTimeFormatter, unitsStyle .full).
-private let relativeDateFormatter: NSRelativeDateTimeFormatter = {
-    let formatter = NSRelativeDateTimeFormatter()
+/// `swift_once` global with RelativeDateTimeFormatter, unitsStyle .full).
+nonisolated(unsafe) private let relativeDateFormatter: RelativeDateTimeFormatter = {
+    let formatter = RelativeDateTimeFormatter()
     formatter.unitsStyle = .full
     return formatter
 }()

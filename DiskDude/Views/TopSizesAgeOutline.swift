@@ -330,9 +330,8 @@ struct OutlineListView: View {
         .background(theme.background)
     }
 
-    @ViewBuilder
-    private func outlineSection(node: FileNode, level: Int) -> some View {
-        DisclosureGroup(isExpanded: Binding(
+    private func outlineSection(node: FileNode, level: Int) -> AnyView {
+        AnyView(DisclosureGroup(isExpanded: Binding(
             get: { expanded.contains(node.id) },
             set: { on in
                 if on { expanded.insert(node.id) } else { expanded.remove(node.id) }
@@ -366,5 +365,5 @@ struct OutlineListView: View {
 /// Shared cleanup queue instance for views without an explicit
 /// EnvironmentObject injection.
 extension CleanupQueue {
-    static let sharedGlobal = CleanupQueue()
+    nonisolated(unsafe) static let sharedGlobal = CleanupQueue()
 }

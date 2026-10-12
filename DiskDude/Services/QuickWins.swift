@@ -68,7 +68,7 @@ enum QuickWins {
         switch kind {
         case .downloads:
             // Everything in ~/Downloads over a floor size.
-            return root.descendants(where: { $0.rootPath == nil || true }, in: "Downloads")
+            return root.descendants(in: "Downloads")
         case .caches:
             return root.descendants(namedAny: ["Caches", "logs"], minSize: 256 * 1024 * 1024)
         case .simulators:
