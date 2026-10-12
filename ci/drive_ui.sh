@@ -53,15 +53,33 @@ win_rect() {
 }
 
 # ---------------------------------------------------------------- launch
-echo "launching $BIN (DISKDUDE_SCAN=$FIXTURE, DISKDUDE_MODE=$MODE)"
-DISKDUDE_SCAN="$FIXTURE" DISKDUDE_MODE="$MODE" "$BIN" > "$LOG" 2>&1 &
-APP_PID=$!
-echo "$APP_PID" > "$OUT/${PREFIX}.pid"
+# Strategy: LaunchServices first (proper app activation — proven to open
+# windows for both apps in round 6), keeping the env hooks via --env.
+# Fall back to direct exec if open misbehaves (gives us stdout capture).
+echo "launching $APP (DISKDUDE_SCAN=$FIXTURE, DISKDUDE_MODE=$MODE)"
+APP_PID=""
+open -n --env DISKDUDE_SCAN="$FIXTURE" --env DISKDUDE_MODE="$MODE" "$APP" 2>/dev/null || true
+for i in $(seq 1 30); do
+  RECT=$(win_rect)
+  [ -n "$RECT" ] && break
+  sleep 0.5
+done
+if [ -n "$RECT" ]; then
+  APP_PID=$(pgrep -x DiskDude | head -1)
+  echo "(window via LaunchServices, pid=$APP_PID)"
+else
+  echo "(LaunchServices launch showed no window — direct exec fallback)"
+  pkill -x DiskDude 2>/dev/null || true
+  sleep 1
+  DISKDUDE_SCAN="$FIXTURE" DISKDUDE_MODE="$MODE" "$BIN" > "$LOG" 2>&1 &
+  APP_PID=$!
+  echo "$APP_PID" > "$OUT/${PREFIX}.pid"
+fi
 
 RECT=""
 for i in $(seq 1 60); do
   if ! kill -0 "$APP_PID" 2>/dev/null; then
-    echo "FATAL: app died during launch (stdout below)"; cat "$LOG"
+    echo "FATAL: app died during launch (stdout below)"; cat "$LOG" 2>/dev/null
     dump_crash_reports
     exit 1
   fi

@@ -9,8 +9,11 @@ DUR="${4:-20}"
 
 BIN="$APP/Contents/MacOS/DiskDude"
 chmod +x "$BIN" 2>/dev/null || true
-DISKDUDE_SCAN="$FIXTURE" DISKDUDE_MODE=light "$BIN" > /tmp/video-app.log 2>&1 &
-PID=$!
+pkill -x DiskDude 2>/dev/null || true
+sleep 1
+# LaunchServices launch with env hooks (proven window path)
+open -n --env DISKDUDE_SCAN="$FIXTURE" --env DISKDUDE_MODE=light "$APP" 2>/dev/null || true
+PID=$(pgrep -x DiskDude | head -1)
 
 # wait for window (System Events — no pyobjc dependency)
 for i in $(seq 1 40); do
