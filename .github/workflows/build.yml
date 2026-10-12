@@ -100,11 +100,16 @@ jobs:
           # Type-check would require full module build — xcodebuild covers it above.
           exit 0
 
+      - name: Stage app for artifact (preserve .app wrapper)
+        run: |
+          rm -rf artifact && mkdir -p artifact
+          cp -R "build/Build/Products/Release/DiskDude.app" artifact/DiskDude.app
+
       - name: Upload app bundle
         uses: actions/upload-artifact@v4
         with:
           name: DiskDude-${{ matrix.runner }}-app
-          path: build/Build/Products/Release/DiskDude.app
+          path: artifact
           retention-days: 30
           if-no-files-found: warn
 
