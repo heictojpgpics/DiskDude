@@ -74,7 +74,12 @@ jobs:
       - name: Build + test (VS dev environment)
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat" -arch=x64
+          rem resolve the VS installation dynamically (edition varies by runner image)
+          set VSWHERE="C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"
+          for /f "usebackq tokens=*" %%i in (`%VSWHERE% -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set VS_PATH=%%i
+          if "%VS_PATH%"=="" (echo vswhere found nothing & exit /b 1)
+          echo VS at: %VS_PATH%
+          call "%VS_PATH%\Common7\Tools\vsdevcmd.bat" -arch=x64
           cd cross-platform
           swift build -c release
           swift test
