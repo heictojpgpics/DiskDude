@@ -18,17 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Swift toolchain
+      - name: Install Swift toolchain (swift.org installer, verified URL)
         shell: pwsh
         run: |
-          # try chocolatey first, fall back to the swift.org installer
-          choco install swift -y --no-progress
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "choco failed; direct installer fallback"
-            $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2/swift-6.1.2-windows10.exe"
-            Invoke-WebRequest $url -OutFile swift-installer.exe
-            Start-Process .\swift-installer.exe -ArgumentList "/install /quiet /norestart" -Wait
-          }
+          # verified pattern: .../<tag>/windows10/swift-<ver>-RELEASE/swift-<ver>-RELEASE-windows10.exe
+          $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
+          Invoke-WebRequest $url -OutFile swift-installer.exe
+          if ((Get-Item swift-installer.exe).Length -lt 100MB) { throw "installer download too small" }
+          Start-Process .\swift-installer.exe -ArgumentList "/install /quiet /norestart" -Wait
+          Write-Host "installer done"
 
       - name: Locate Swift and add to PATH
         shell: pwsh
@@ -92,8 +90,9 @@ jobs:
           cross-platform/.build/release/diskdude-cli "$RUNNER_TEMP/fixture" --top 10 --out report-linux.txt
           head -30 report-linux.txt
       - name: Normalize report (root path -> ROOT)
+        shell: bash
         run: |
-          sed -i "s|$RUNNER_TEMP/fixture|ROOT|g" report-linux.txt
+          sed -i.bak "s|$RUNNER_TEMP/fixture|ROOT|g" report-linux.txt && rm -f report-linux.txt.bak
       - uses: actions/upload-artifact@v4
         with:
           name: parity-report-linux
@@ -116,8 +115,12 @@ jobs:
           cross-platform/.build/release/diskdude-cli "$RUNNER_TEMP/fixture" --top 10 --out report-macos.txt
           head -30 report-macos.txt
       - name: Normalize report (root path -> ROOT)
+        shell: pwsh
         run: |
-          sed -i "s|$RUNNER_TEMP/fixture|ROOT|g" report-macos.txt
+          $root = "$env:RUNNER_TEMP/fixture"
+          $r = Get-Content report-macos.txt -Raw
+          $r = $r.Replace($root, "ROOT").Replace("$env:RUNNER_TEMP\fixture", "ROOT")
+          Set-Content -NoNewline report-macos.txt $r
       - uses: actions/upload-artifact@v4
         with:
           name: parity-report-macos

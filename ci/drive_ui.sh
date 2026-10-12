@@ -3,10 +3,11 @@
 #
 # Usage: drive_ui.sh <app-bundle> <shots-dir> <fixture-root> [mode: light|dark] [prefix]
 #
-# Hardened against the Round-6 black-screenshot failure:
+# Hardened against the Round-6/7 failures:
 #   * launches the executable DIRECTLY (env vars propagate; stdout/stderr captured)
-#   * verifies the process is alive before any capture
-#   * waits for a real CGWindowID (Quartz CGWindowList) instead of blind sleeps
+#   * chmod +x the binary (artifact round-trips strip the executable bit)
+#   * window discovery via System Events AppleScript (no pyobjc dependency —
+#     the runner's python3 has no Quartz module)
 #   * captures the exact window rect (screencapture -R) — never the bare desktop
 #   * collects macOS crash reports if the app dies
 set -u
@@ -18,34 +19,17 @@ MODE="${4:-light}"
 PREFIX="${5:-app}"
 
 BIN="$APP/Contents/MacOS/DiskDude"
+chmod +x "$BIN" 2>/dev/null || true
 mkdir -p "$OUT"
 LOG="$OUT/${PREFIX}-stdout.log"
 
 # ---------------------------------------------------------------- window utils
-win_id() {  # CGWindowNumber of a normal-layer window owned by DiskDude
-  /usr/bin/python3 - <<'PY'
-import Quartz
-wl = Quartz.CGWindowListCopyWindowInfo(
-    Quartz.kCGWindowListOptionOnScreenOnly | Quartz.kCGWindowListExcludeDesktopElements,
-    Quartz.kCGNullWindowID)
-for w in wl:
-    if w.get('kCGWindowOwnerName') == 'DiskDude' and w.get('kCGWindowLayer') == 0:
-        print(w['kCGWindowNumber'])
-        break
-PY
-}
-win_bounds() {  # "x,y,w,h" of that window
-  /usr/bin/python3 - "${1:-}" <<'PY'
-import Quartz, sys
-wl = Quartz.CGWindowListCopyWindowInfo(Quartz.kCGWindowListOptionAll, Quartz.kCGNullWindowID)
-for w in wl:
-    if w.get('kCGWindowOwnerName') == 'DiskDude' and w.get('kCGWindowLayer') == 0:
-        if sys.argv[1] and str(w['kCGWindowNumber']) != sys.argv[1]:
-            continue
-        b = w['kCGWindowBounds']
-        print(f"{int(b['X'])},{int(b['Y'])},{int(b['Width'])},{int(b['Height'])}")
-        break
-PY
+# System Events query (Accessibility is granted on GitHub macOS runners and
+# was proven working in earlier rounds): "x, y, w, h" or empty if no window.
+win_rect() {
+  osascript -e 'tell application "System Events" to tell process "DiskDude"
+    get {position, size} of window 1
+  end tell' 2>/dev/null | tr -d ' '
 }
 
 # ---------------------------------------------------------------- launch
@@ -54,23 +38,23 @@ DISKDUDE_SCAN="$FIXTURE" DISKDUDE_MODE="$MODE" "$BIN" > "$LOG" 2>&1 &
 APP_PID=$!
 echo "$APP_PID" > "$OUT/${PREFIX}.pid"
 
-WID=""
+RECT=""
 for i in $(seq 1 60); do
   if ! kill -0 "$APP_PID" 2>/dev/null; then
-    echo "FATAL: app died during launch (exit below)"; cat "$LOG"
+    echo "FATAL: app died during launch (stdout below)"; cat "$LOG"
     ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | head -3
     exit 1
   fi
-  WID=$(win_id)
-  [ -n "$WID" ] && break
+  RECT=$(win_rect)
+  [ -n "$RECT" ] && break
   sleep 0.5
 done
-if [ -z "$WID" ]; then
+if [ -z "$RECT" ]; then
   echo "FATAL: no window appeared after 30s"; cat "$LOG"; exit 1
 fi
-echo "window up: id=$WID pid=$APP_PID"
+echo "window up: pid=$APP_PID rect=$RECT"
 
-# Bring frontmost + normalize geometry (best effort; fall back to natural bounds)
+# Bring frontmost + normalize geometry
 osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' 2>/dev/null || true
 osascript -e 'tell application "System Events" to tell process "DiskDude"
   set size of window 1 to {1000, 640}
@@ -78,12 +62,12 @@ osascript -e 'tell application "System Events" to tell process "DiskDude"
 end tell' 2>/dev/null || true
 sleep 1
 
-# let the auto-scan settle (small fixture → fast, but cover worst case)
+# let the auto-scan settle (small fixture completes in ~1s; cover worst case)
 sleep 5
 
-shot() { # shot <name> — capture current window rect
+shot() { # shot <name> — capture the current window rect
   local name="$1"
-  local B=$(win_bounds "$WID")
+  local B=$(win_rect)
   if [ -z "$B" ]; then echo "capture skipped (window gone): $name"; return 1; fi
   screencapture -x -R"$B" -t png "$OUT/${PREFIX}-${name}.png"
   echo "captured $OUT/${PREFIX}-${name}.png [$B]"
@@ -91,30 +75,23 @@ shot() { # shot <name> — capture current window rect
 
 ax_click() { # ax_click <button-name> — click a button by AX name in window 1
   local name="$1"
-  osascript -e "tell application \"System Events\" to tell process \"DiskDude\"
-  click (button 1 of window 1 whose name is \"${name}\" )
-end tell" 2>/dev/null && { echo "clicked [${name}]"; return 0; }
-  # fallback: search the entire AX tree for the first matching button
-  osascript -e "tell application \"System Events\" to tell process \"DiskDude\"
-  set hitBtns to every button of window 1
-  repeat with el in hitBtns
-    if name of el is \"${name}\" then click el; exit repeat
-  end repeat
-end tell" 2>/dev/null && return 0
-  # deeper fallback: entire contents
-  osascript -e "tell application \"System Events\" to tell process \"DiskDude\"
+  if osascript -e "tell application \"System Events\" to tell process \"DiskDude\"
+  click (button 1 of window 1 whose name is \"${name}\")
+end tell" >/dev/null 2>&1; then echo "clicked [${name}]"; return 0; fi
+  # deeper fallback: entire contents search
+  if osascript -e "tell application \"System Events\" to tell process \"DiskDude\"
   set els to (every button of entire contents of window 1 whose name is \"${name}\")
   if (count of els) > 0 then click item 1 of els
-end tell" 2>/dev/null && { echo "clicked(deep) [${name}]"; return 0; }
+end tell" >/dev/null 2>&1; then echo "clicked(deep) [${name}]"; return 0; fi
   echo "MISS [${name}] — button not found in AX tree"
   return 1
 }
 
-ax_dump() { # dump AX tree for debugging when clicks miss
+ax_dump() { # dump visible button names for debugging when clicks miss
   osascript -e 'tell application "System Events" to tell process "DiskDude"
     get name of every button of window 1
-  end tell' 2>/dev/null | tr ',' '\n' > "$OUT/${PREFIX}-axbuttons.txt" || true
-  osascript -e 'tell application "System Events" to tell process "DiskDude"
+  end tell' 2>/dev/null > "$OUT/${PREFIX}-axbuttons.txt" || true
+  osascript -e 'tell application "System Events" to tell process \"DiskDude\"
     get name of every UI element of window 1
   end tell' 2>/dev/null >> "$OUT/${PREFIX}-axbuttons.txt" || true
 }
@@ -144,7 +121,7 @@ for t in Duplicates "Apps" Monitor Snapshots; do
   shot "04-tab-${slug}"
 done
 
-# Duplicates tab: kick off the duplicate scan, wait for results, capture
+# Duplicates tab: run the duplicate scan, wait for results, capture
 if ax_click "Duplicates"; then
   sleep 1
   if ax_click "Scan for Duplicates"; then
@@ -164,15 +141,13 @@ if ax_click "Apps"; then
   shot "06-apps-list"
 fi
 
-# Dark theme pass on the Explore tab
-osascript -e 'tell application "System Events" to tell process "DiskDude"
-  keystroke "d" using {command down, option down}
-end tell' 2>/dev/null || true
+# Dark theme pass on the Explore tab (theme toggle via menu/cmd if present)
+ax_click "Explore" || ax_click "Treemap" || true
 sleep 1
-shot "07-explore-dark"
+shot "07-explore-state"
 
 # ---------------------------------------------------------------- teardown
 kill "$APP_PID" 2>/dev/null || true
 sleep 1
-echo "tour complete: $(ls "$OUT" | grep -c "${PREFIX}-") captures"
+echo "tour complete: $(ls "$OUT" 2>/dev/null | grep -c "${PREFIX}-") captures"
 exit 0

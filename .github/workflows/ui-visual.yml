@@ -60,12 +60,24 @@ jobs:
 
       - name: Drive ORIGINAL app through the tour
         run: |
+          set -o pipefail
           chmod +x ci/drive_ui.sh
           ./ci/drive_ui.sh "$ORIGINAL_APP" "$PWD/shots" "$FIXTURE" light original 2>&1 | tee original-tour.log
 
       - name: Drive REBUILT app through the tour
         run: |
+          set -o pipefail
           ./ci/drive_ui.sh "$BUILT_APP" "$PWD/shots" "$FIXTURE" light rebuilt 2>&1 | tee rebuilt-tour.log
+
+      - name: Fail loudly if either tour produced no captures
+        run: |
+          ORIG_N=$(ls shots 2>/dev/null | grep -c '^original-' || true)
+          REB_N=$(ls shots 2>/dev/null | grep -c '^rebuilt-' || true)
+          echo "original captures: $ORIG_N | rebuilt captures: $REB_N"
+          if [ "$ORIG_N" -lt 5 ] || [ "$REB_N" -lt 5 ]; then
+            echo "::error::tour incomplete (original=$ORIG_N rebuilt=$REB_N) — check the tour logs"
+            exit 1
+          fi
 
       - name: Per-state pixel diff + side-by-side montages
         run: |
