@@ -49,17 +49,12 @@ jobs:
 
       - name: Run comparison suite
         run: |
+          APP=$(find build -name "DiskDude.app" -type d 2>/dev/null | head -1)
+          [ -n "$APP" ] || { echo "No app found"; find build -maxdepth 3 | head; exit 1; }
           python3 ci/compare_binaries.py \
             original/DiskDude.app \
-            build/Build/Products/Release/DiskDude.app \
+            "$APP" \
             comparison-report.json || true
-          # also accept artifact-root layout
-          if [ ! -d build/Build ]; then
-            python3 ci/compare_binaries.py \
-              original/DiskDude.app \
-              build/DiskDude.app \
-              comparison-report.json || true
-          fi
 
       - name: Swift metadata section comparison (detailed)
         run: |

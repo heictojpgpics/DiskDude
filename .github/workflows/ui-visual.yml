@@ -41,8 +41,7 @@ jobs:
 
       - name: Clear quarantine + prepare both apps
         run: |
-          BUILT=build/Build/Products/Release/DiskDude.app
-          [ -d "$BUILT" ] || BUILT=build/DiskDude.app
+          BUILT=$(find build -name "DiskDude.app" -type d 2>/dev/null | head -1)
           echo "BUILT_APP=$BUILT" >> "$GITHUB_ENV"
           # ad-hoc sign so Gatekeeper lets us launch on the runner
           codesign --force --deep --sign - "$BUILT" || true

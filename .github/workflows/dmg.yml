@@ -33,11 +33,10 @@ jobs:
 
       - name: Locate app bundle
         run: |
-          if [ -d build/Build/Products/Release/DiskDude.app ]; then
-            echo "APP=build/Build/Products/Release/DiskDude.app" >> "$GITHUB_ENV"
-          else
-            echo "APP=build/DiskDude.app" >> "$GITHUB_ENV"
-          fi
+          APP=$(find build -name "DiskDude.app" -type d 2>/dev/null | head -1)
+          [ -n "$APP" ] || { echo "No DiskDude.app in artifact"; find build -maxdepth 3 | head -10; exit 1; }
+          echo "APP=$APP" >> "$GITHUB_ENV"
+          echo "app at: $APP"
 
       - name: Normalize timestamps for reproducibility
         run: |
