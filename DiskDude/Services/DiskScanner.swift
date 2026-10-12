@@ -129,7 +129,7 @@ final class DiskScanner: ObservableObject {
         defer { close(fd) }
 
         var attrList = attrlist()
-        attrList.bitmapcount = u_int16_t(ATTR_BIT_MAP_COUNT)
+        attrList.bitmapcount = UInt16(ATTR_BIT_MAP_COUNT)
         attrList.commonattr = attrgroup_t(ATTR_CMN_NAME | ATTR_CMN_ERROR | ATTR_CMN_MODTIME | ATTR_CMN_CRTIME)
         attrList.fileattr = attrgroup_t(ATTR_FILE_TOTALSIZE | ATTR_FILE_ALLOCSIZE | ATTR_FILE_DEVTYPE)
 
@@ -150,12 +150,11 @@ final class DiskScanner: ObservableObject {
             var offset = 0
             while offset < consumed {
                 let entry = attrBuf + offset
-                let record = entry.assumingMemoryBound(to: attrlist_extent_t?.self)
                 // The layout below mirrors the decompiled entry walk:
                 // size, name offset, flags, file type, sizes, dates.
                 let sizeField = entry.load(fromByteOffset: 0, as: UInt32.self)
                 let infoField = entry.load(fromByteOffset: 4, as: UInt32.self)
-                guard sizeField >= 8, infoField & ATTR_CMN_NAME != 0 || infoField != 0 else { break }
+                guard sizeField >= 8, infoField != 0 else { break }
                 process(entry: entry, parent: job.node, path: job.path, insideApp: job.insideApp)
                 offset += Int(sizeField)
                 if offset <= 0 { break }
@@ -183,8 +182,8 @@ final class DiskScanner: ObservableObject {
             name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
         }
         if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 || attrs & attrgroup_t(ATTR_CMN_ERROR) != 0 {
-            let objType = entry.load(fromByteOffset: cursor, as: UInt32.self)
-            isDirectory = (objType == UInt32(VDIR))
+            let objType = entry.load(fromByteOffset: cursor, as: Int32.self)
+            isDirectory = (objType == VDIR)
             cursor += 4
         }
         if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {

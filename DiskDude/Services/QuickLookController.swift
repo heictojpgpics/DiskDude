@@ -13,7 +13,7 @@ final class QuickLookController: QLPreviewPanel, QLPreviewPanelDataSource, QLPre
         url == nil ? 0 : 1
     }
 
-    func previewPanel(_ panel: QLPreviewPanel, previewItem index: Int) -> QLPreviewItem {
+    func previewPanel(_ panel: QLPreviewPanel, previewItemAt index: Int) -> QLPreviewItem {
         (url ?? URL(fileURLWithPath: "/")) as NSURL
     }
 
@@ -21,7 +21,7 @@ final class QuickLookController: QLPreviewPanel, QLPreviewPanelDataSource, QLPre
     /// (sharedPreviewPanel -> setDataSource -> reloadData -> makeKeyAndOrderFront,
     /// recovered from the import call sequence).
     static func show(url: URL?) {
-        guard let panel = QLPreviewPanel.shared else { return }
+        guard let panel = QLPreviewPanel.shared() else { return }
         let controller = QuickLookController.shared
         controller.url = url
         panel.dataSource = controller
@@ -34,7 +34,7 @@ final class QuickLookController: QLPreviewPanel, QLPreviewPanelDataSource, QLPre
     }()
 
     static func hide() {
-        if let panel = QLPreviewPanel.shared {
+        if let panel = QLPreviewPanel.shared() {
             panel.orderOut(nil)
         }
     }

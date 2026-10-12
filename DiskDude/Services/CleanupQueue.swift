@@ -72,9 +72,8 @@ final class CleanupQueue: ObservableObject {
         var failed: [Item] = []
         var moved = 0
         // NSWorkspace.recycle — recovered from imports (recycleURLs:completionHandler:)
-        let nsurls = urls as [NSURL]
         let succeeded = await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
-            NSWorkspace.shared.recycle(nsurls) { error in
+            NSWorkspace.shared.recycle(urls) { _, error in
                 cont.resume(returning: error == nil)
             }
         }
@@ -92,6 +91,6 @@ final class CleanupQueue: ObservableObject {
     /// Reveal the first staged item in Finder (activateFileViewerSelectingURLs).
     func revealInFinder() {
         guard let first = items.first else { return }
-        NSWorkspace.shared.activateFileViewerSelectingURLs([first.url])
+        NSWorkspace.shared.activateFileViewerSelecting([first.url])
     }
 }

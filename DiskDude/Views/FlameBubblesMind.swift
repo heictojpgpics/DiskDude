@@ -321,7 +321,7 @@ final class PackNode {
     }
 
     func flattenNodes() -> [PackNode] {
-        [self] + children.flatMap(\.flatten)
+        [self] + children.flatMap { $0.flattenNodes() }
     }
 }
 

@@ -166,8 +166,7 @@ enum AppUninstaller {
         var failed: [URL] = []
         var urls = [app.bundleURL]
         for group in app.leftovers { urls.append(contentsOf: group.urls) }
-        let nsurls = urls as [NSURL]
-        let ok = TrashQueue.recycleSync(nsurls)
+        let ok = TrashQueue.recycleSync(urls)
         if !ok { failed = urls }
         return failed
     }
@@ -175,10 +174,10 @@ enum AppUninstaller {
 
 /// Small helper that runs NSWorkspace.recycle synchronously.
 private enum TrashQueue {
-    static func recycleSync(_ urls: [NSURL]) -> Bool {
+    static func recycleSync(_ urls: [URL]) -> Bool {
         let sem = DispatchSemaphore(value: 0)
         var success = false
-        NSWorkspace.shared.recycle(urls) { error in
+        NSWorkspace.shared.recycle(urls) { _, error in
             success = (error == nil)
             sem.signal()
         }
