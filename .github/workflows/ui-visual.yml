@@ -57,7 +57,18 @@ jobs:
           set -o pipefail
           swiftc -O DiskDude/Services/DiskScanner.swift DiskDude/Models/FileNode.swift \
                  ci/probe/main.swift -o /tmp/scanner-probe 2>&1 | head -20
-          DISKDUDE_DEBUG=1 timeout 60 /tmp/scanner-probe "$FIXTURE" 2>&1 | tee probe-output.log
+          # macOS has no `timeout` — run with a manual 60s watchdog
+          DISKDUDE_DEBUG=1 /tmp/scanner-probe "$FIXTURE" 2>&1 | tee probe-output.log &
+          PROBE_PID=$!
+          for i in $(seq 1 120); do
+            kill -0 "$PROBE_PID" 2>/dev/null || break
+            sleep 0.5
+          done
+          if kill -0 "$PROBE_PID" 2>/dev/null; then
+            echo "::error::scanner probe HUNG (killed after 60s) — partial output above"
+            kill "$PROBE_PID" 2>/dev/null || true
+            exit 1
+          fi
           if grep -q "PROBE RESULT: OK" probe-output.log; then
             echo "scanner is healthy"
           else
