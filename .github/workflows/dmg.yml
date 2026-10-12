@@ -66,8 +66,9 @@ jobs:
             -volname DiskDude \
             -srcfolder "$STAGE" \
             -format UDZO \
-            -layout SPUD \
-            -ov \
+            -layout GPTSPUD \
+            -fs HFS+ \
+            -noverify -ov \
             rebuilt.dmg
           REBUILT=$(shasum -a 256 rebuilt.dmg | awk '{print $1}')
           echo "REBUILT_DMG_SHA=$REBUILT" >> "$GITHUB_ENV"
