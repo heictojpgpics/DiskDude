@@ -33,11 +33,19 @@ jobs:
           Write-Host "setup-swift unavailable — running the swift.org installer"
           $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
           Invoke-WebRequest $url -OutFile swift-installer.exe
-          if ((Get-Item swift-installer.exe).Length -lt 100MB) { throw "installer download too small" }
-          $p = Start-Process .\swift-installer.exe -ArgumentList "/install","/quiet","/norestart" -Wait -PassThru
+          $sz = (Get-Item swift-installer.exe).Length
+          Write-Host "installer size: $sz bytes"
+          if ($sz -lt 100MB) { throw "installer download too small" }
+          # -Verb RunAs: the WiX bundle needs elevation; runner shells are
+          # non-elevated, and an un-elevated quiet bundle exits 0 WITHOUT
+          # installing anything (observed twice — no child processes either).
+          # UAC auto-approves for the runner's admin user.
+          $abs = (Resolve-Path .\swift-installer.exe).Path
+          $log = "$env:RUNNER_TEMP\swift-install.log"
+          $p = Start-Process $abs -ArgumentList "/install","/quiet","/norestart","/log","$log" -Verb RunAs -Wait -PassThru
           Write-Host "bundle exit code: $($p.ExitCode)"
-          # the WiX bundle parent can exit 0 immediately while the elevated
-          # child installs in the background — POLL for the toolchain
+          if (Test-Path $log) { Get-Content $log -Tail 30 }
+          # poll for the toolchain regardless (elevation child may detach)
           $deadline = (Get-Date).AddMinutes(8)
           $found = $null
           while ((Get-Date) -lt $deadline) {
