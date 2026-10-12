@@ -24,42 +24,50 @@ jobs:
           swift-version: "6.1.2"
         continue-on-error: true
 
-      - name: Swift install fallback (direct installer with logging)
+      - name: Swift install (7z-extract the WiX bundle, run the MSIs directly)
         shell: pwsh
         run: |
           if (Get-Command swift -ErrorAction SilentlyContinue) {
-            swift --version; Write-Host "setup-swift worked"; exit 0
+            swift --version; Write-Host "swift already present"; exit 0
           }
-          Write-Host "setup-swift unavailable — running the swift.org installer"
+          Write-Host "setup-swift has no Windows support (src throws 'Windows is not supported yet') — extracting the swift.org bundle"
           $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
           Invoke-WebRequest $url -OutFile swift-installer.exe
           $sz = (Get-Item swift-installer.exe).Length
-          Write-Host "installer size: $sz bytes"
-          if ($sz -lt 100MB) { throw "installer download too small" }
-          # -Verb RunAs: the WiX bundle needs elevation; runner shells are
-          # non-elevated, and an un-elevated quiet bundle exits 0 WITHOUT
-          # installing anything (observed twice — no child processes either).
-          # UAC auto-approves for the runner's admin user.
-          $abs = (Resolve-Path .\swift-installer.exe).Path
-          $log = "$env:RUNNER_TEMP\swift-install.log"
-          $p = Start-Process $abs -ArgumentList "/install","/quiet","/norestart","/log","$log" -Verb RunAs -Wait -PassThru
-          Write-Host "bundle exit code: $($p.ExitCode)"
-          if (Test-Path $log) { Get-Content $log -Tail 30 }
-          # poll for the toolchain regardless (elevation child may detach)
-          $deadline = (Get-Date).AddMinutes(8)
+          Write-Host "bundle size: $sz bytes"
+          if ($sz -lt 100MB) { throw "download too small" }
+
+          # 7-Zip understands WiX burn containers — the MSIs inside are
+          # installed directly with msiexec (the bundle exe itself exits 0
+          # without doing anything on these runners — no log, no children)
+          & 7z x swift-installer.exe -oextracted -y | Select-Object -Last 6
+          $msis = Get-ChildItem extracted -Recurse -Filter *.msi | Sort-Object Length -Descending
+          $msis | ForEach-Object { Write-Host "msi: $($_.FullName) ($($_.Length) bytes)" }
+          if (-not $msis) {
+            Get-ChildItem extracted -Recurse | Select-Object -First 30 | ForEach-Object { Write-Host "  $($_.FullName)" }
+            throw "no MSIs found in the bundle"
+          }
+          $i = 0
+          foreach ($msi in $msis) {
+            $i++
+            Write-Host "installing MSI $i/$($msis.Count): $($msi.Name)"
+            $p = Start-Process msiexec.exe -ArgumentList "/i","`"$($msi.FullName)`"","/qn","/norestart","/L*v","`"$env:RUNNER_TEMP\msi$i.log`"" -Wait -PassThru
+            Write-Host "msiexec exit: $($p.ExitCode)"
+          }
+          Get-ChildItem "$env:RUNNER_TEMP" -Filter "msi*.log" | ForEach-Object { Get-Content $_.FullName -Tail 15 }
+
+          # poll for the toolchain (msiexec may detach)
+          $deadline = (Get-Date).AddMinutes(6)
           $found = $null
           while ((Get-Date) -lt $deadline) {
             $found = Get-ChildItem "C:\Program Files\Swift" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
               Where-Object { $_.FullName -match "usr\\bin" } | Select-Object -First 1
             if ($found) { break }
-            Write-Host "waiting for background install..."
+            Write-Host "waiting for install..."
             Start-Sleep -Seconds 15
           }
           if ($found) { Write-Host "toolchain ready: $($found.FullName)" }
-          else {
-            Get-Process | Where-Object { $_.Name -match "swift|burn|msiexec" } | Format-Table Name, Id, CPU
-            throw "swift.exe never appeared after 8 minutes"
-          }
+          else { throw "swift.exe never appeared" }
 
       - name: Locate Swift and add to PATH
         shell: pwsh
