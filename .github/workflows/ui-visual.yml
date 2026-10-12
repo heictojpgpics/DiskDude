@@ -52,6 +52,19 @@ jobs:
           python3 ci/make_fixtures.py "$PWD/fixture" --home "$HOME"
           echo "FIXTURE=$PWD/fixture" >> "$GITHUB_ENV"
 
+      - name: Scanner probe (real DiskScanner over the fixture, stdout visible)
+        run: |
+          set -o pipefail
+          swiftc -O DiskDude/Services/DiskScanner.swift DiskDude/Models/FileNode.swift \
+                 ci/probe_main.swift -o /tmp/scanner-probe 2>&1 | head -20
+          DISKDUDE_DEBUG=1 timeout 60 /tmp/scanner-probe "$FIXTURE" 2>&1 | tee probe-output.log
+          if grep -q "PROBE RESULT: OK" probe-output.log; then
+            echo "scanner is healthy"
+          else
+            echo "::error::scanner probe failed — see probe-output.log above"
+            exit 1
+          fi
+
       - name: Clear quarantine + ad-hoc sign both apps
         run: |
           codesign --force --deep --sign - "$BUILT_APP" || true
