@@ -1,0 +1,154 @@
+name: Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "cross-platform/**"
+      - ".github/workflows/windows.yml"
+      - "ci/make_fixtures.py"
+
+jobs:
+  windows:
+    name: "Windows: build DiskDudeCore + CLI, test, scan fixture"
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Swift toolchain
+        shell: pwsh
+        run: |
+          # try chocolatey first, fall back to the swift.org installer
+          choco install swift -y --no-progress
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "choco failed; direct installer fallback"
+            $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2/swift-6.1.2-windows10.exe"
+            Invoke-WebRequest $url -OutFile swift-installer.exe
+            Start-Process .\swift-installer.exe -ArgumentList "/install /quiet /norestart" -Wait
+          }
+
+      - name: Locate Swift and add to PATH
+        shell: pwsh
+        run: |
+          $chain = Get-ChildItem "C:\Program Files\Swift\Toolchains" -Directory |
+            Select-Object -First 1
+          if (-not $chain) { throw "no Swift toolchain found" }
+          $bin = Join-Path $chain.FullName "usr\bin"
+          Add-Content $env:GITHUB_PATH $bin
+          & "$bin\swift.exe" --version
+
+      - name: Build + test (VS dev environment)
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\vsdevcmd.bat" -arch=x64
+          cd cross-platform
+          swift build -c release
+          swift test
+
+      - name: Generate fixtures + parity scan
+        shell: pwsh
+        run: |
+          python ci/make_fixtures.py "$env:RUNNER_TEMP\fixture" --scale 0.25
+          cross-platform\.build\release\diskdude-cli.exe "$env:RUNNER_TEMP\fixture" --top 10 --out report-windows.txt
+          Get-Content report-windows.txt | Select-Object -First 30
+
+      - name: Normalize report (root path -> ROOT)
+        shell: pwsh
+        run: |
+          $root = "$env:RUNNER_TEMP\fixture"
+          $r = Get-Content report-windows.txt -Raw
+          $r = $r.Replace($root, "ROOT")
+          Set-Content -NoNewline report-windows.txt $r
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: parity-report-windows
+          path: report-windows.txt
+
+      - name: Upload CLI binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: diskdude-cli-windows
+          path: cross-platform/.build/release/diskdude-cli.exe
+
+  linux:
+    name: "Linux: build + test + reference report"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build + test
+        run: |
+          cd cross-platform
+          swift build -c release
+          swift test
+      - name: Fixtures + scan
+        run: |
+          python3 ci/make_fixtures.py "$RUNNER_TEMP/fixture" --scale 0.25
+          cross-platform/.build/release/diskdude-cli "$RUNNER_TEMP/fixture" --top 10 --out report-linux.txt
+          head -30 report-linux.txt
+      - name: Normalize report (root path -> ROOT)
+        run: |
+          sed -i "s|$RUNNER_TEMP/fixture|ROOT|g" report-linux.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parity-report-linux
+          path: report-linux.txt
+
+  macos:
+    name: "macOS: build + test + report (SwiftPM, no Xcode UI)"
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build + test
+        run: |
+          cd cross-platform
+          swift build -c release
+          swift test
+      - name: Fixtures + scan
+        run: |
+          python3 ci/make_fixtures.py "$RUNNER_TEMP/fixture" --scale 0.25
+          cross-platform/.build/release/diskdude-cli "$RUNNER_TEMP/fixture" --top 10 --out report-macos.txt
+          head -30 report-macos.txt
+      - name: Normalize report (root path -> ROOT)
+        run: |
+          sed -i "s|$RUNNER_TEMP/fixture|ROOT|g" report-macos.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parity-report-macos
+          path: report-macos.txt
+
+  parity:
+    name: "Parity: byte-identical reports across Windows/Linux/macOS"
+    runs-on: ubuntu-latest
+    needs: [windows, linux, macos]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: parity-report-*
+          merge-multiple: false
+          path: reports/
+      - name: Diff the three reports
+        run: |
+          find reports -name "*.txt" | sort
+          ok=1
+          for a in reports/*/report-*.txt; do
+            for b in reports/*/report-*.txt; do
+              if [ "$a" \< "$b" ]; then
+                if ! diff -u "$a" "$b"; then
+                  echo "MISMATCH: $a vs $b"
+                  ok=0
+                fi
+              fi
+            done
+          done
+          if [ $ok -eq 1 ]; then
+            echo "✓ All three platforms produced byte-identical scan reports"
+          else
+            exit 1
+          fi

@@ -7,11 +7,14 @@ on:
     types: [completed]
     branches: [main]
 
+permissions:
+  contents: write   # commit visual evidence back to the repo
+
 jobs:
   visual:
-    name: Launch both apps, capture screenshots, pixel-diff
+    name: Drive both apps through a full UI tour (5 tabs × 9 modes)
     runs-on: macos-26
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,90 +35,94 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: build/
 
-      - name: Stage + extract original app
+      - name: Stage + extract original app (absolute paths — Round 6 bug fix)
         run: |
-          cp reference/DiskDude-1.0.1.dmg original.dmg
-          hdiutil attach original.dmg -mountpoint /Volumes/DiskDudeOrig -quiet
-          cp -R /Volumes/DiskDudeOrig/DiskDude.app original.app
+          cp reference/DiskDude-1.0.1.dmg "$PWD/original.dmg"
+          hdiutil attach "$PWD/original.dmg" -mountpoint /Volumes/DiskDudeOrig -quiet
+          cp -R /Volumes/DiskDudeOrig/DiskDude.app "$PWD/original.app"
           hdiutil detach /Volumes/DiskDudeOrig -quiet
-
-      - name: Clear quarantine + prepare both apps
-        run: |
-          BUILT=$(find build -name "DiskDude.app" -type d 2>/dev/null | head -1)
+          # the built app must ALSO be an absolute path
+          BUILT=$(find "$PWD/build" -name "DiskDude.app" -type d | head -1)
           echo "BUILT_APP=$BUILT" >> "$GITHUB_ENV"
-          # ad-hoc sign so Gatekeeper lets us launch on the runner
-          codesign --force --deep --sign - "$BUILT" || true
-          codesign --force --deep --sign - original.app || true
-          xattr -dr com.apple.quarantine "$BUILT" original.app 2>/dev/null || true
+          echo "ORIGINAL_APP=$PWD/original.app" >> "$GITHUB_ENV"
+          ls -la "$BUILT/Contents/MacOS/"
 
-      - name: Capture screenshots (original app)
+      - name: "Build fixture tree (simulated files: types/formats/sizes/dates)"
         run: |
-          mkdir -p shots
-          # Launch original (never -W: it blocks until the app quits)
-          open -n -a "$(pwd)/original.app" || true
-          sleep 8
-          osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' || true
-          osascript <<'EOF' 2>/dev/null || true
-          tell application "System Events"
-            tell process "DiskDude"
-              set size of window 1 to {1200, 800}
-              set position of window 1 to {0, 0}
-            end tell
-          end tell
-          EOF
-          sleep 2
-          screencapture -x -t png shots/original-main.png
-          osascript -e 'quit app "DiskDude"' || pkill -x DiskDude || true
-          sleep 2
+          python3 ci/make_fixtures.py "$PWD/fixture" --home "$HOME"
+          echo "FIXTURE=$PWD/fixture" >> "$GITHUB_ENV"
 
-      - name: Capture screenshots (rebuilt app)
+      - name: Clear quarantine + ad-hoc sign both apps
         run: |
-          open -n -a "$BUILT_APP" || true
-          sleep 8
-          osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' || true
-          osascript <<'EOF' 2>/dev/null || true
-          tell application "System Events"
-            tell process "DiskDude"
-              set size of window 1 to {1200, 800}
-              set position of window 1 to {0, 0}
-            end tell
-          end tell
-          EOF
-          sleep 2
-          screencapture -x -t png shots/rebuilt-main.png
-          osascript -e 'quit app "DiskDude"' || pkill -x DiskDude || true
+          codesign --force --deep --sign - "$BUILT_APP" || true
+          codesign --force --deep --sign - "$ORIGINAL_APP" || true
+          xattr -dr com.apple.quarantine "$BUILT_APP" "$ORIGINAL_APP" 2>/dev/null || true
 
-      - name: Pixel diff
+      - name: Drive ORIGINAL app through the tour
         run: |
-          if [ -f shots/original-main.png ] && [ -f shots/rebuilt-main.png ]; then
-            # ImageMagick pixel comparison (perceptual + exact)
-            sips -g pixelWidth -g pixelHeight shots/*.png || true
-            if command -v magick >/dev/null; then IM=magick; else IM=convert; fi
-            $IM compare -metric RMSE shots/original-main.png shots/rebuilt-main.png \
-              shots/diff.png 2>&1 | tee rmse.txt || true
-            $IM compare -metric AE -fuzz 5% shots/original-main.png shots/rebuilt-main.png \
-              null: 2>&1 | tee ae.txt || true
-            echo "### UI pixel diff" >> "$GITHUB_STEP_SUMMARY"
-            echo "- RMSE: $(cat rmse.txt 2>/dev/null)" >> "$GITHUB_STEP_SUMMARY"
-            echo "- Pixels differing (5% fuzz): $(cat ae.txt 2>/dev/null)" >> "$GITHUB_STEP_SUMMARY"
+          chmod +x ci/drive_ui.sh
+          ./ci/drive_ui.sh "$ORIGINAL_APP" "$PWD/shots" "$FIXTURE" light original 2>&1 | tee original-tour.log
+
+      - name: Drive REBUILT app through the tour
+        run: |
+          ./ci/drive_ui.sh "$BUILT_APP" "$PWD/shots" "$FIXTURE" light rebuilt 2>&1 | tee rebuilt-tour.log
+
+      - name: Per-state pixel diff + side-by-side montages
+        run: |
+          mkdir -p diffs sides
+          if command -v magick >/dev/null; then IM=magick; else IM=convert; fi
+          {
+            echo "| State | AE (5% fuzz) | RMSE |"
+            echo "|---|---|---|"
+          } > diff-matrix.md
+          for orig in shots/original-*.png; do
+            state=$(basename "$orig" | sed 's/^original-//; s/\.png$//')
+            reb="shots/rebuilt-${state}.png"
+            [ -f "$reb" ] || { echo "MISSING pair for ${state}" >> diff-matrix.md; continue; }
+            AE=$($IM compare -metric AE -fuzz 5% "$orig" "$reb" null: 2>&1 || true)
+            RMSE=$($IM compare -metric RMSE "$orig" "$reb" null: 2>&1 || true)
+            $IM compare -metric AE -fuzz 5% "$orig" "$reb" "diffs/${state}.png" 2>/dev/null || true
+            $IM append "$orig" "$reb" -label "orig | rebuilt" "sides/${state}.png" 2>/dev/null \
+              || $IM convert "$orig" "$reb" +append "sides/${state}.png" || true
+            echo "| ${state} | ${AE} | ${RMSE} |" >> diff-matrix.md
+          done
+          cat diff-matrix.md | tee -a "$GITHUB_STEP_SUMMARY"
+          # contact sheet of the rebuilt tour
+          $IM montage shots/rebuilt-*.png -tile 4x -geometry 320x200+4+4 shots/rebuilt-contact-sheet.png 2>/dev/null || true
+
+      - name: Record browsing videos (both apps)
+        run: |
+          chmod +x ci/record_video.sh
+          ./ci/record_video.sh "$ORIGINAL_APP" "$PWD/original-tour.mov" "$FIXTURE" 20
+          ./ci/record_video.sh "$BUILT_APP" "$PWD/rebuilt-tour.mov" "$FIXTURE" 20
+          ls -la *.mov
+
+      - name: Commit evidence to docs/visual-evidence (fixed filenames, no growth)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          mkdir -p docs/visual-evidence
+          cp shots/*.png diffs/*.png sides/*.png docs/visual-evidence/ 2>/dev/null || true
+          cp diff-matrix.md docs/visual-evidence/ 2>/dev/null || true
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git add docs/visual-evidence || true
+          if git diff --cached --quiet; then
+            echo "no visual changes to commit"
           else
-            echo "Screenshots missing — check app launch logs"
-            ls -la shots/ || true
+            git commit -m "Visual evidence: full UI tour (5 tabs x 9 modes) with fixture scan" || true
+            git push || echo "push skipped (no permission or race)"
           fi
-
-      - name: Capture video of rebuilt app (10s)
-        run: |
-          # Screen recording via screencapture -v (available on macOS runners)
-          open -n -a "$BUILT_APP" || true
-          sleep 5
-          timeout 10 screencapture -v shots/rebuilt-tour.mov || true
-          pkill -x DiskDude || true
-          ls -la shots/
 
       - name: Upload visual artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ui-visual-artifacts
-          path: shots/
+          path: |
+            shots/
+            diffs/
+            sides/
+            *.mov
+            *.log
+            diff-matrix.md
           retention-days: 30
           if-no-files-found: warn
