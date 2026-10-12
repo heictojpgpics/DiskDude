@@ -34,9 +34,24 @@ jobs:
           $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
           Invoke-WebRequest $url -OutFile swift-installer.exe
           if ((Get-Item swift-installer.exe).Length -lt 100MB) { throw "installer download too small" }
-          $p = Start-Process .\swift-installer.exe -ArgumentList "/install","/quiet","/norestart","/l*v","install.log" -Wait -PassThru
-          Write-Host "installer exit code: $($p.ExitCode)"
-          if (Test-Path install.log) { Get-Content install.log -Tail 40 }
+          $p = Start-Process .\swift-installer.exe -ArgumentList "/install","/quiet","/norestart" -Wait -PassThru
+          Write-Host "bundle exit code: $($p.ExitCode)"
+          # the WiX bundle parent can exit 0 immediately while the elevated
+          # child installs in the background — POLL for the toolchain
+          $deadline = (Get-Date).AddMinutes(8)
+          $found = $null
+          while ((Get-Date) -lt $deadline) {
+            $found = Get-ChildItem "C:\Program Files\Swift" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -match "usr\\bin" } | Select-Object -First 1
+            if ($found) { break }
+            Write-Host "waiting for background install..."
+            Start-Sleep -Seconds 15
+          }
+          if ($found) { Write-Host "toolchain ready: $($found.FullName)" }
+          else {
+            Get-Process | Where-Object { $_.Name -match "swift|burn|msiexec" } | Format-Table Name, Id, CPU
+            throw "swift.exe never appeared after 8 minutes"
+          }
 
       - name: Locate Swift and add to PATH
         shell: pwsh
