@@ -52,7 +52,11 @@ final class DiskScanner: ObservableObject {
         func jobDidFinish() {
             condition.lock()
             active -= 1
-            condition.signal()
+            // BROADCAST, not signal: when active hits 0 every waiting worker
+            // must re-check the exit condition — a single signal wakes one
+            // waiter, the rest sleep forever and group.wait() deadlocks
+            // (proven by the standalone scanner probe on the CI runner)
+            condition.broadcast()
             condition.unlock()
         }
     }
@@ -89,6 +93,11 @@ final class DiskScanner: ObservableObject {
         let root = FileNode(name: rootURL.lastPathComponent, isDirectory: true, rootPath: rootURL.path)
         let workerCount = max(1, ProcessInfo.processInfo.activeProcessorCount)
 
+        // Push the root job BEFORE starting workers — a worker that finds
+        // an empty stack with active == 0 exits immediately, so a late push
+        // can race away the entire pool.
+        stack.push(Job(node: root, path: rootURL.path, insideApp: false))
+
         let group = DispatchGroup()
         for _ in 0..<workerCount {
             group.enter()
@@ -104,7 +113,6 @@ final class DiskScanner: ObservableObject {
             thread.start()
         }
 
-        stack.push(Job(node: root, path: rootURL.path, insideApp: false))
         group.wait()
         return root
     }
