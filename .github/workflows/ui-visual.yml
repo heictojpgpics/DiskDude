@@ -51,10 +51,9 @@ jobs:
       - name: Capture screenshots (original app)
         run: |
           mkdir -p shots
-          # Launch original in a deterministic state: window 1200x800 at origin
-          open -W -n -a "$(pwd)/original.app" --args -WindowState 2>/dev/null || \
+          # Launch original (never -W: it blocks until the app quits)
           open -n -a "$(pwd)/original.app" || true
-          sleep 6
+          sleep 8
           osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' || true
           osascript <<'EOF' 2>/dev/null || true
           tell application "System Events"
@@ -72,7 +71,7 @@ jobs:
       - name: Capture screenshots (rebuilt app)
         run: |
           open -n -a "$BUILT_APP" || true
-          sleep 6
+          sleep 8
           osascript -e 'tell application "System Events" to set frontmost of process "DiskDude" to true' || true
           osascript <<'EOF' 2>/dev/null || true
           tell application "System Events"
