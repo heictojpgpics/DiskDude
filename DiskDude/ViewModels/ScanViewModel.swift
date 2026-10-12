@@ -67,6 +67,7 @@ final class ScanViewModel: ObservableObject {
 
     init() {
         restoreSettings()
+        applyEnvironmentHooks()
         observeActivation()
         refreshDiskInfo()
     }
@@ -74,6 +75,38 @@ final class ScanViewModel: ObservableObject {
     deinit {
         if let observer = activationObserver {
             NotificationCenter.default.removeObserver(observer)
+        }
+    }
+
+    /// Binary-verified developer hooks (FUN_10000ebf0):
+    ///   ProcessInfo.processInfo.environment["DISKDUDE_MODE"] -> _findStringSwitchCase
+    ///   ("light"/"dark") -> writes the themeName @Published property
+    ///   environment["DISKDUDE_SCAN"] -> auto-scan on app activation via an
+    ///   NSApplicationDidBecomeActiveNotification observer (main queue) that
+    ///   launches a DispatchWorkItem (.userInitiated).
+    /// Registered from the viewModel's own init — the binary's Published
+    /// writes go through Published._enclosingInstance keypaths on the class
+    /// instance, i.e. self here, not any SwiftUI wrapper.
+    private func applyEnvironmentHooks() {
+        let env = ProcessInfo.processInfo.environment
+        if let mode = env["DISKDUDE_MODE"] {
+            switch mode {
+            case "light": themeName = .light
+            case "dark": themeName = .dark
+            default: break
+            }
+        }
+        if let scanPath = env["DISKDUDE_SCAN"], !scanPath.isEmpty {
+            NotificationCenter.default.addObserver(
+                forName: NSApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                let work = DispatchWorkItem(qos: .userInitiated) { [weak self] in
+                    self?.startAutoScan(path: scanPath)
+                }
+                DispatchQueue.main.async(execute: work)
+            }
         }
     }
 

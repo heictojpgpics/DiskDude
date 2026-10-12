@@ -81,6 +81,7 @@ jobs:
 
       - name: Per-state pixel diff + side-by-side montages
         run: |
+          brew install imagemagick 2>/dev/null || true
           mkdir -p diffs sides
           if command -v magick >/dev/null; then IM=magick; else IM=convert; fi
           {

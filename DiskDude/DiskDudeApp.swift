@@ -13,38 +13,15 @@ import AppKit
 
 @main
 struct DiskDudeApp: App {
+    // Binary-verified architecture (FUN_10000ebf0 + keypath writes): the
+    // DISKDUDE_MODE / DISKDUDE_SCAN env hooks live inside ScanViewModel's
+    // own initialization region (Published writes via
+    // Published._enclosingInstance on the class instance itself — NOT via
+    // the App struct's @StateObject wrapper, which would materialize a
+    // temporary instance disconnected from the installed view tree; that
+    // mismatch is exactly why an env-driven auto-scan never fired in the
+    // rebuilt app while the original scans).
     @StateObject private var viewModel = ScanViewModel()
-
-    init() {
-        // Binary-verified developer hooks (FUN_10000ebf0):
-        //   ProcessInfo.processInfo.environment["DISKDUDE_MODE"] -> _findStringSwitchCase
-        //   ("light"/"dark") -> writes themeName @Published via keypaths
-        //   environment["DISKDUDE_SCAN"] -> auto-scan starts on app activation:
-        //   the binary registers an NSApplicationDidBecomeActiveNotification
-        //   observer (main queue) that launches a DispatchWorkItem (.userInitiated)
-        //   to start the scan. Standard "theme" UserDefaults key is read inside
-        //   ScanViewModel.
-        let env = ProcessInfo.processInfo.environment
-        if let mode = env["DISKDUDE_MODE"] {
-            switch mode {
-            case "light": viewModel.themeName = .light
-            case "dark": viewModel.themeName = .dark
-            default: break
-            }
-        }
-        if let scanPath = env["DISKDUDE_SCAN"] {
-            NotificationCenter.default.addObserver(
-                forName: NSApplication.didBecomeActiveNotification,
-                object: nil,
-                queue: .main
-            ) { [weak viewModel] _ in
-                let work = DispatchWorkItem(qos: .userInitiated) { [weak viewModel] in
-                    viewModel?.startAutoScan(path: scanPath)
-                }
-                DispatchQueue.main.async(execute: work)
-            }
-        }
-    }
 
     var body: some Scene {
         WindowGroup {
