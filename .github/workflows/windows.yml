@@ -18,56 +18,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Swift toolchain
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "6.1.2"
-        continue-on-error: true
-
-      - name: Swift install (7z-extract the WiX bundle, run the MSIs directly)
+      - name: Install Swift toolchain (winget — the official swift.org package)
         shell: pwsh
         run: |
           if (Get-Command swift -ErrorAction SilentlyContinue) {
             swift --version; Write-Host "swift already present"; exit 0
           }
-          Write-Host "setup-swift has no Windows support (src throws 'Windows is not supported yet') — extracting the swift.org bundle"
-          $url = "https://download.swift.org/swift-6.1.2-release/windows10/swift-6.1.2-RELEASE/swift-6.1.2-RELEASE-windows10.exe"
-          Invoke-WebRequest $url -OutFile swift-installer.exe
-          $sz = (Get-Item swift-installer.exe).Length
-          Write-Host "bundle size: $sz bytes"
-          if ($sz -lt 100MB) { throw "download too small" }
-
-          # 7-Zip understands WiX burn containers — the MSIs inside are
-          # installed directly with msiexec (the bundle exe itself exits 0
-          # without doing anything on these runners — no log, no children)
-          & 7z x swift-installer.exe -oextracted -y | Select-Object -Last 6
-          $msis = Get-ChildItem extracted -Recurse -Filter *.msi | Sort-Object Length -Descending
-          $msis | ForEach-Object { Write-Host "msi: $($_.FullName) ($($_.Length) bytes)" }
-          if (-not $msis) {
-            Get-ChildItem extracted -Recurse | Select-Object -First 30 | ForEach-Object { Write-Host "  $($_.FullName)" }
-            throw "no MSIs found in the bundle"
+          # swift.org/install/windows documents:
+          #   winget install --id Swift.Toolchain -e --source winget
+          # (the direct WiX bundle exe no-ops on GH runners and
+          #  setup-swift v2 has no Windows support at all)
+          winget install --id Swift.Toolchain -e --source winget --silent `
+            --accept-source-agreements --accept-package-agreements
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "winget pinned install failed, trying latest"
+            winget install --id Swift.Toolchain -e --source winget --silent `
+              --accept-source-agreements --accept-package-agreements --version 6.4.0
           }
-          $i = 0
-          foreach ($msi in $msis) {
-            $i++
-            Write-Host "installing MSI $i/$($msis.Count): $($msi.Name)"
-            $p = Start-Process msiexec.exe -ArgumentList "/i","`"$($msi.FullName)`"","/qn","/norestart","/L*v","`"$env:RUNNER_TEMP\msi$i.log`"" -Wait -PassThru
-            Write-Host "msiexec exit: $($p.ExitCode)"
-          }
-          Get-ChildItem "$env:RUNNER_TEMP" -Filter "msi*.log" | ForEach-Object { Get-Content $_.FullName -Tail 15 }
-
-          # poll for the toolchain (msiexec may detach)
-          $deadline = (Get-Date).AddMinutes(6)
-          $found = $null
-          while ((Get-Date) -lt $deadline) {
-            $found = Get-ChildItem "C:\Program Files\Swift" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -match "usr\\bin" } | Select-Object -First 1
-            if ($found) { break }
-            Write-Host "waiting for install..."
-            Start-Sleep -Seconds 15
-          }
-          if ($found) { Write-Host "toolchain ready: $($found.FullName)" }
-          else { throw "swift.exe never appeared" }
+          winget list --id Swift.Toolchain --source winget
+          if ($LASTEXITCODE -ne 0) { Write-Host "winget list failed (non-fatal)" }
 
       - name: Locate Swift and add to PATH
         shell: pwsh
@@ -85,17 +54,14 @@ jobs:
               if ($chain) { Write-Host "toolchain at: $($chain.FullName)"; break }
             }
           }
-          if (-not $chain) {
-            # last resort: search the whole program files
+          $bin = $null
+          if ($chain) { $bin = Join-Path $chain.FullName "usr\bin" }
+          if (-not $bin -or -not (Test-Path (Join-Path $bin "swift.exe"))) {
             $hit = Get-ChildItem "C:\Program Files" -Recurse -Filter "swift.exe" -ErrorAction SilentlyContinue |
               Select-Object -First 1
             if ($hit) { $bin = Split-Path $hit.FullName }
-          } else {
-            $bin = Join-Path $chain.FullName "usr\bin"
           }
-          if (-not $bin -or -not (Test-Path (Join-Path $bin "swift.exe"))) {
-            throw "swift.exe not found anywhere"
-          }
+          if (-not $bin) { throw "swift.exe not found after winget install" }
           Add-Content $env:GITHUB_PATH $bin
           & "$bin\swift.exe" --version
 
