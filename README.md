@@ -1,8 +1,28 @@
 # DiskDude 1.0.1 — Recovered Source
 
+[![Build](https://github.com/heictojpgpics/DiskDude/actions/workflows/build.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/build.yml)
+[![Verify Recovery](https://github.com/heictojpgpics/DiskDude/actions/workflows/verify-recovery.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/verify-recovery.yml)
+[![Compare](https://github.com/heictojpgpics/DiskDude/actions/workflows/compare.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/compare.yml)
+[![DMG Rebuild](https://github.com/heictojpgpics/DiskDude/actions/workflows/dmg.yml/badge.svg)](https://github.com/heictojpgpics/DiskDude/actions/workflows/dmg.yml)
+
 This project is a **reverse-engineered reconstruction** of DiskDude 1.0.1
 (`com.hariprasad.diskdude`), a macOS disk space analyzer, recovered from the
 official distribution `DiskDude-1.0.1.dmg` (arm64 + x86_64 universal binary).
+
+## CI recovery pipeline (macOS runners)
+
+Five GitHub Actions workflows keep the recovery honest:
+
+| Workflow | What it does |
+|----------|--------------|
+| **Build** | `xcodegen` + `xcodebuild` (Xcode 26, SDK 26) → universal `DiskDude.app` artifact, hash verdict vs original Mach-O |
+| **Verify Recovery** | source↔binary coverage audit + byte-exact UDIF container rebuild (SHA-256 must match) |
+| **Compare** | original vs rebuilt: bundle hashes, Mach-O sections, Swift metadata sizes, string coverage |
+| **DMG Rebuild** | `hdiutil` UDZO packaging of the rebuilt app + SHA-256 vs original DMG |
+| **UI Visual Test** | launches both apps, `screencapture` screenshots, ImageMagick pixel diff, screen recording |
+
+`reference/DiskDude-1.0.1.dmg` is the hash-pinned original (SHA-256
+`1a9811fc…a06db`) used as the oracle for every comparison.
 
 ## What is in this tree
 
