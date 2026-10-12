@@ -183,7 +183,7 @@ final class DiskScanner: ObservableObject {
         }
         if attrs & attrgroup_t(ATTR_CMN_OBJTYPE) != 0 || attrs & attrgroup_t(ATTR_CMN_ERROR) != 0 {
             let objType = entry.load(fromByteOffset: cursor, as: Int32.self)
-            isDirectory = (objType == VDIR)
+            isDirectory = (objType == Int32(truncatingIfNeeded: VDIR))
             cursor += 4
         }
         if attrs & attrgroup_t(ATTR_CMN_MODTIME) != 0 {

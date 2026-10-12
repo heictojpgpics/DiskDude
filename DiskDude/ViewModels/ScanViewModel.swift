@@ -262,7 +262,7 @@ final class ScanViewModel: ObservableObject {
                          untouchedTotal: untouchedTotal)
     }
 
-    private static func ageBucket(_ age: Double) -> Int {
+    nonisolated private static func ageBucket(_ age: Double) -> Int {
         switch age {
         case ..<(30 * 24 * 3600): return 0        // < 30 days
         case ..<(90 * 24 * 3600): return 1
@@ -275,7 +275,7 @@ final class ScanViewModel: ObservableObject {
         }
     }
 
-    private static func monthNumber(_ stamp: Double) -> Int {
+    nonisolated private static func monthNumber(_ stamp: Double) -> Int {
         let date = Date(timeIntervalSince1970: stamp)
         let comps = Calendar.current.dateComponents([.year, .month], from: date)
         return (comps.year ?? 1970) * 12 + (comps.month ?? 1)
