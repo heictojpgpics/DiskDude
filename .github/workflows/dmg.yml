@@ -38,6 +38,13 @@ jobs:
           echo "APP=$APP" >> "$GITHUB_ENV"
           echo "app at: $APP"
 
+      - name: Stage original DMG (committed reference)
+        run: |
+          cp reference/DiskDude-1.0.1.dmg original.dmg
+          ORIG=$(shasum -a 256 original.dmg | awk '{print $1}')
+          echo "ORIG_DMG_SHA=$ORIG" >> "$GITHUB_ENV"
+          echo "original dmg sha256: $ORIG"
+
       - name: Normalize bundle for hash convergence
         run: |
           # 1. Strip the rebuilt binary (original is fully stripped)
@@ -63,13 +70,6 @@ jobs:
           find "$APP" -exec touch -t 202501010000.00 {} + 2>/dev/null || true
           xattr -cr "$APP" 2>/dev/null || true
           shasum -a 256 "$BIN"
-
-      - name: Stage original DMG (committed reference)
-        run: |
-          cp reference/DiskDude-1.0.1.dmg original.dmg
-          ORIG=$(shasum -a 256 original.dmg | awk '{print $1}')
-          echo "ORIG_DMG_SHA=$ORIG" >> "$GITHUB_ENV"
-          echo "original dmg sha256: $ORIG"
 
       - name: Stage DMG root (app + Applications symlink)
         run: |
