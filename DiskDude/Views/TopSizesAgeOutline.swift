@@ -359,6 +359,7 @@ struct OutlineListView: View {
             .onTapGesture { viewModel.select(node) }
             .contextMenu { NodeContextMenu(node: node).environmentObject(viewModel) }
         }
+        )
     }
 }
 

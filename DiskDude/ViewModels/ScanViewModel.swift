@@ -292,7 +292,7 @@ final class ScanViewModel: ObservableObject {
                 Task { @MainActor in
                     self?.duplicateGroups.append(group)
                 }
-            }
+            })
             await MainActor.run {
                 self?.duplicateGroups = groups
                 self?.isFindingDuplicates = false
@@ -311,7 +311,7 @@ final class ScanViewModel: ObservableObject {
                 Task { @MainActor in
                     self?.installedApps.append(app)
                 }
-            }
+            })
             // Measure leftovers after listing ("Measuring apps and their
             // Library leftovers…").
             for i in apps.indices {
