@@ -61,9 +61,9 @@ if dirfd >= 0 {
                 while i < 4096, buf[i] != 0 { s.append(Character(UnicodeScalar(buf[i]))); i += 1 }
                 return s
             }
-            let a = cstr(off + 32 + Int(dataoffset))   // name @ attr_length field + dataoffset
-            let b = cstr(off + 28 + Int(dataoffset))   // sample's math: attrref + dataoffset
-            let c = cstr(off + Int(dataoffset))        // from entry start
+            let a = cstr(off + 24 + Int(dataoffset))   // PROVEN: attrref@24 + dataoffset
+            let b = cstr(off + 28 + Int(dataoffset))   // alt: error-shifted attrref
+            let c = cstr(off + Int(dataoffset))        // alt: from entry start
             print("entry \(idx): len=\(len) dataoffset=\(dataoffset) attrLen=\(attrLen) A=\(a) B=\(b) C=\(c)")
             off += Int(len)
             idx += 1

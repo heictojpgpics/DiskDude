@@ -187,16 +187,24 @@ final class DiskScanner: ObservableObject {
         }
     }
 
-    /// Parse one attribute entry per the man page's sample layout:
-    /// [u32 entryLen][attribute_set_t returned 20B][u32 error][attrreference_t
-    /// name 8B][OBJTYPE u32][align8 CRTIME 16][MODTIME 16][align8 TOTALSIZE 8]
-    /// [ALLOCSIZE 8][DEVTYPE u32]...[name string at attr_dataoffset].
-    /// The returned attribute_set_t's commonattr (entry+4) drives conditional
-    /// parsing exactly as the man page prescribes.
+    /// Parse one attribute entry. EMPIRICALLY VERIFIED layout (probe raw
+    /// dump on the CI runner + the xnu man page's sample walk):
+    ///   [u32 len@0][attribute_set_t returned @4 (20B: common/vol/dir/file/fork)]
+    ///   then attributes CONDITIONAL on the returned set's bits, in this
+    ///   canonical order (real bit values from sys/attr.h):
+    ///     ERROR    0x20000000  u32        (only present when an entry errored)
+    ///     NAME     0x00000001  attrreference_t {i32 dataoffset; u32 length}
+    ///                          — name string at (attrref address + dataoffset)
+    ///     OBJTYPE  0x00000008  u32 (VDIR=2, VREG=1)
+    ///     CRTIME   0x00000200  timespec {i64 sec, i64 nsec} (16B, unaligned ok)
+    ///     MODTIME  0x00000400  timespec (16B)
+    ///     TOTALSIZE 0x2 (fileattr) i64
+    ///     ALLOCSIZE 0x4 (fileattr) i64
+    ///     DEVTYPE  0x20 (fileattr) u32
+    ///   ... variable-length name data at the entry's tail.
     private func process(entry: UnsafeRawPointer, parent: FileNode, path: String, insideApp: Bool) {
-        // the ATTR_* constants import as Int32 while attrgroup_t is UInt32 —
-        // work in Int32 and bridge at the boundaries
         let returnedCommon = Int32(bitPattern: entry.load(fromByteOffset: 4, as: UInt32.self))
+        let returnedFile = Int32(bitPattern: entry.load(fromByteOffset: 16, as: UInt32.self))
 
         var name: String = ""
         var isDirectory = false
@@ -205,44 +213,43 @@ final class DiskScanner: ObservableObject {
         var modified: Double = 0
         var created: Double = 0
 
+        var cursor = 24  // after [len][attribute_set_t]
         if returnedCommon & ATTR_CMN_ERROR != 0 {
-            let entryError = entry.load(fromByteOffset: 24, as: UInt32.self)
+            let entryError = entry.load(fromByteOffset: cursor, as: UInt32.self)
             if entryError != 0 && ProcessInfo.processInfo.environment["DISKDUDE_DEBUG"] != nil {
                 FileHandle.standardError.write(Data("DiskDude scanner: entry error \(entryError) in \(path)\n".utf8))
             }
-        }
-        if returnedCommon & ATTR_CMN_NAME != 0 {
-            // attrreference_t sits at +28: { u32 attr_length @28, u32 attr_dataoffset @32 }
-            let off = entry.load(fromByteOffset: 32, as: UInt32.self)
-            if off > 0 {
-                let namePtr = entry + Int(off)
-                name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
-            }
-        }
-        // fixed-size attributes start right after the name attrreference (+36)
-        var cursor = 36
-        if returnedCommon & ATTR_CMN_OBJTYPE != 0 {
-            let objType = entry.load(fromByteOffset: cursor, as: vtype.self)
-            isDirectory = (objType == VDIR)
             cursor += 4
         }
-        // timespec (tv_sec i64 + tv_nsec i64) — 8-byte natural alignment
-        cursor = (cursor + 7) & ~7
+        if returnedCommon & ATTR_CMN_NAME != 0 {
+            // attrreference_t: { int32 attr_dataoffset; uint32 attr_length }
+            let dataoffset = entry.load(fromByteOffset: cursor, as: Int32.self)
+            if dataoffset > 0 {
+                let namePtr = entry + cursor + Int(dataoffset)
+                name = String(cString: namePtr.assumingMemoryBound(to: CChar.self))
+            }
+            cursor += 8
+        }
+        if returnedCommon & ATTR_CMN_OBJTYPE != 0 {
+            let objType = entry.load(fromByteOffset: cursor, as: UInt32.self)
+            isDirectory = (objType == UInt32(VDIR))
+            cursor += 4
+        }
         if returnedCommon & ATTR_CMN_CRTIME != 0 {
             let t = entry.load(fromByteOffset: cursor, as: timespec.self)
             created = Double(t.tv_sec)
-            cursor += MemoryLayout<timespec>.size
+            cursor += 16
         }
         if returnedCommon & ATTR_CMN_MODTIME != 0 {
             let t = entry.load(fromByteOffset: cursor, as: timespec.self)
             modified = Double(t.tv_sec)
-            cursor += MemoryLayout<timespec>.size
+            cursor += 16
         }
-        if returnedCommon & ATTR_FILE_TOTALSIZE != 0 {
+        if returnedFile & ATTR_FILE_TOTALSIZE != 0 {
             logicalSize = entry.load(fromByteOffset: cursor, as: Int64.self)
             cursor += 8
         }
-        if returnedCommon & ATTR_FILE_ALLOCSIZE != 0 {
+        if returnedFile & ATTR_FILE_ALLOCSIZE != 0 {
             let alloc = entry.load(fromByteOffset: cursor, as: Int64.self)
             cursor += 8
             // Round up to the allocation block (decompiled: block < 2 → 1).
@@ -250,7 +257,6 @@ final class DiskScanner: ObservableObject {
             sizeOnDisk = ((logicalSize + block - 1) / block) * block
             if sizeOnDisk < logicalSize { sizeOnDisk = logicalSize }
         }
-        // ATTR_FILE_DEVTYPE (u32) follows when requested — not consumed
 
         guard !name.isEmpty, name != ".", name != ".." else { return }
 
